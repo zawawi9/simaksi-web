@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gunung Butak | Reservasi Pendakian</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E8449',
+                        'accent': '#2ECC71',
+                        'dark-green': '#145A32',
+                        'orange': '#FF8C00',
+                        'red': '#E74C3C',
+                        'blue': '#3498DB'
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #1E8449;
+            --accent: #2ECC71;
+            --dark-green: #145A32;
+            --orange: #FF8C00;
+            --red: #E74C3C;
+            --blue: #3498DB;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .hero-background {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('assets/images/gunung2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(0);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .card-hover:hover::before {
+            left: 100%;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-bar {
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        
+        .testimonial-card {
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: fadeInSlideUp 0.8s forwards;
+        }
+        
+        @keyframes fadeInSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .testimonial-card:nth-child(1) { animation-delay: 0.2s; }
+        .testimonial-card:nth-child(2) { animation-delay: 0.4s; }
+        .testimonial-card:nth-child(3) { animation-delay: 0.6s; }
+        
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(30px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+        }
+        
+        .scroll-to-top.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .scroll-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 15px 30px rgba(46, 204, 113, 0.6);
+        }
+        
+        .floating {
+            animation: floating 4s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(0.5deg); }
+            50% { transform: translateY(-15px) rotate(-0.5deg); }
+            100% { transform: translateY(0px) rotate(0.5deg); }
+        }
+        
+        .hero-content {
+            opacity: 0;
+            animation: slideInUp 1.2s ease-out forwards;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .counter {
+            display: inline-block;
+            font-weight: bold;
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+        }
+        
+        .stat-card {
+            border-top: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card.orange {
+            border-top-color: var(--orange);
+        }
+        
+        .stat-card.blue {
+            border-top-color: var(--blue);
+        }
+        
+        .testimoni-container {
+            perspective: 2000px;
+        }
+        
+        .testimoni-card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .testimoni-card:hover {
+            transform: translateY(-10px) rotateY(5deg) rotateX(5deg) scale(1.02);
+        }
+        
+        .social-badge {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .social-badge:hover::before {
+            left: 100%;
+        }
+        
+        .social-badge:hover {
+            transform: translateY(-8px) scale(1.15);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-link {
+            position: relative;
+            padding-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 2px;
+            transition: width 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .pulse-button {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+        }
+        
+        .pulse-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .pulse-button:hover::after {
+            animation: ripple 1.2s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(50, 50);
+                opacity: 0;
+            }
+        }
+        
+        .feature-badge {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-badge:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hover-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-glow:hover {
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            color: var(--accent);
+        }
+        
+        .parallax-bg {
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(25deg);
+            transition: all 0.6s;
+        }
+        
+        .shine-effect:hover::after {
+            left: 120%;
+        }
+        
+        .animated-border {
+            position: relative;
+        }
+        
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            transition: width 0.4s ease;
+        }
+        
+        .animated-border:hover::before {
+            width: 100%;
+        }
+        
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .glow-button:hover::before {
+            left: 100%;
+        }
+        
+        .glow-button:hover {
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 py-4 px-6 flex justify-between items-center bg-primary text-white">
+        <div class="flex items-center">
+            <i class="fas fa-mountain text-2xl mr-3"></i>
+            <h1 class="text-lg font-bold">Gunung Butak | Reservasi Pendakian</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="text-xl">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="#login" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
+                Login
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-background min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div class="text-center text-white z-10 px-4 max-w-4xl mx-auto relative">
+            <div class="mb-8 hero-content">
+                <h1 class="text-6xl md:text-8xl font-bold mb-6 gradient-text">GUNUNG BUTAK</h1>
+                <p class="text-2xl md:text-3xl mb-10 max-w-3xl mx-auto leading-relaxed">
+                    Jelajahi keindahan alam dan tantangan ekstrem di puncak tertinggi Jawa Timur
+                </p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-6 sm:space-y-0 sm:space-x-8 hero-content mb-16">
+                <a href="#" class="pulse-button bg-gradient-to-r from-accent to-primary text-white font-bold py-4 px-10 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-2xl text-lg glow-button">
+                    <i class="fas fa-rocket mr-3"></i>Reservasi Sekarang
+                </a>
+                <a href="#lokasi" class="pulse-button border-2 border-white text-white hover:bg-white hover:text-primary font-bold py-4 px-10 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-2xl text-lg glow-button">
+                    <i class="fas fa-map-marker-alt mr-3"></i>Lokasi Pendakian
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto hero-content">
+                <div class="glass-card rounded-xl p-6 border border-white border-opacity-30 card-hover">
+                    <i class="fas fa-users text-3xl text-accent mb-3"></i>
+                    <div class="text-3xl font-bold mb-2 gradient-text">2000+</div>
+                    <div class="text-lg opacity-90">Pendaki Tahun Ini</div>
+                </div>
+                <div class="glass-card rounded-xl p-6 border border-white border-opacity-30 card-hover">
+                    <i class="fas fa-star text-3xl text-accent mb-3"></i>
+                    <div class="text-3xl font-bold mb-2 gradient-text">4.9/5</div>
+                    <div class="text-lg opacity-90">Rating Pengalaman</div>
+                </div>
+                <div class="glass-card rounded-xl p-6 border border-white border-opacity-30 card-hover">
+                    <i class="fas fa-calendar-check text-3xl text-accent mb-3"></i>
+                    <div class="text-3xl font-bold mb-2 gradient-text">5+</div>
+                    <div class="text-lg opacity-90">Tahun Operasional</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce text-white">
+            <i class="fas fa-chevron-down text-3xl"></i>
+        </div>
+    </section>
+
+    <!-- Info Kunci -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-6 animated-border inline-block">Kenapa Memilih Gunung Butak?</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Temukan alasan mengapa Gunung Butak menjadi destinasi pendakian favorit para petualang
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
+                <!-- Main Stats Cards -->
+                <div class="stat-card bg-white rounded-3xl shadow-2xl card-hover overflow-hidden feature-badge glass-card">
+                    <div class="w-full h-1 bg-gradient-to-r from-green-400 to-green-600"></div>
+                    <div class="p-10">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                                <i class="fas fa-mountain text-4xl text-primary"></i>
+                            </div>
+                            <h3 class="text-6xl font-bold mb-4 gradient-text">2,868</h3>
+                            <p class="text-2xl font-semibold text-gray-800 mb-3">Ketinggian Gunung</p>
+                            <p class="text-lg text-gray-600">Meter di Atas Permukaan Laut</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-3xl shadow-2xl card-hover overflow-hidden feature-badge glass-card">
+                    <div class="w-full h-1 bg-gradient-to-r from-orange-400 to-orange-600"></div>
+                    <div class="p-10">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-gradient-to-r from-orange-100 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                                <i class="fas fa-bolt text-4xl text-orange"></i>
+                            </div>
+                            <h3 class="text-5xl font-bold mb-4 text-orange">Sulit</h3>
+                            <p class="text-2xl font-semibold text-gray-800 mb-4">Tingkat Kesulitan</p>
+                            <div class="progress-bar bg-gray-200 w-full mx-auto mb-4 h-6">
+                                <div class="progress-fill bg-gradient-to-r from-orange to-red h-full" style="width: 80%"></div>
+                            </div>
+                            <p class="text-lg text-gray-600">Cocok untuk pendaki berpengalaman</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-3xl shadow-2xl card-hover overflow-hidden feature-badge glass-card">
+                    <div class="w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+                    <div class="p-10">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                                <i class="fas fa-clock text-4xl text-blue"></i>
+                            </div>
+                            <h3 class="text-6xl font-bold mb-4 gradient-text">3-4</h3>
+                            <p class="text-2xl font-semibold text-gray-800 mb-3">Durasi Pendakian</p>
+                            <p class="text-lg text-gray-600">Hari Pendakian Ideal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+                <div class="bg-white rounded-2xl p-8 shadow-xl card-hover text-center feature-badge glass-card border border-white border-opacity-30">
+                    <div class="w-20 h-20 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-temperature-high text-3xl text-green-600"></i>
+                    </div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-3">Suhu Rata-rata</h4>
+                    <p class="text-2xl font-bold text-primary mb-2">15-22°C</p>
+                    <p class="text-gray-600">Nyaman untuk pendakian</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl card-hover text-center feature-badge glass-card border border-white border-opacity-30">
+                    <div class="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-wind text-3xl text-blue-600"></i>
+                    </div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-3">Kecepatan Angin</h4>
+                    <p class="text-2xl font-bold text-primary mb-2">10-30 km/jam</p>
+                    <p class="text-gray-600">Angin segar di puncak</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl card-hover text-center feature-badge glass-card border border-white border-opacity-30">
+                    <div class="w-20 h-20 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-cloud-sun text-3xl text-yellow-600"></i>
+                    </div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-3">Curah Hujan</h4>
+                    <p class="text-2xl font-bold text-primary mb-2">Rendah</p>
+                    <p class="text-gray-600">Kemungkinan hujan rendah</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl card-hover text-center feature-badge glass-card border border-white border-opacity-30">
+                    <div class="w-20 h-20 bg-gradient-to-r from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-tree text-3xl text-purple-600"></i>
+                    </div>
+                    <h4 class="font-bold text-xl text-gray-800 mb-3">Vegetasi</h4>
+                    <p class="text-2xl font-bold text-primary mb-2">4 Zona</p>
+                    <p class="text-gray-600">Hutan-Sahara yang bervariasi</p>
+                </div>
+            </div>
+            
+            <!-- Additional Information Section -->
+            <div class="mt-20 bg-gradient-to-r from-primary to-accent rounded-3xl p-10 text-white">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h3 class="text-3xl font-bold mb-6">Keamanan dan Fasilitas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <i class="fas fa-shield-alt text-4xl mb-4"></i>
+                            <h4 class="text-xl font-bold mb-2">Keamanan Terjamin</h4>
+                            <p>Pendakian aman dengan pemandu bersertifikat</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-medkit text-4xl mb-4"></i>
+                            <h4 class="text-xl font-bold mb-2">Fasilitas Lengkap</h4>
+                            <p>Basecamp lengkap dengan peralatan darurat</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-users text-4xl mb-4"></i>
+                            <h4 class="text-xl font-bold mb-2">Komunitas Pendaki</h4>
+                            <p>Ikuti komunitas pendakian aktif</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tentang Gunung Butak -->
+    <section id="tentang" class="py-20 bg-gradient-to-br from-white to-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Tentang Gunung Butak</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
+                    Kenali lebih dekat destinasi pendakian terbaik di Jawa Timur
+                </p>
+            </div>
+            
+            <div class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                    <div class="feature-card card-hover">
+                        <div class="bg-gradient-to-r from-primary to-accent rounded-2xl p-1">
+                            <div class="bg-white rounded-2xl p-8">
+                                <h3 class="text-2xl font-bold mb-6 text-primary">Sejarah dan Asal Usul</h3>
+                                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                    Gunung Butak adalah destinasi pendakian yang menawarkan keindahan alam yang luar biasa dan pengalaman mendaki yang menantang. Terletak di Jawa Timur, gunung ini memiliki ketinggian 2.868 meter di atas permukaan laut.
+                                </p>
+                                <p class="text-gray-700 text-lg leading-relaxed">
+                                    Dengan berbagai ekosistem yang berbeda dari hutan hingga sabana, Gunung Butak menjadi tempat yang ideal bagi para pendaki yang mencari keindahan alam sekaligus tantangan ekstrem.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card card-hover">
+                        <div class="overflow-hidden rounded-2xl shadow-xl">
+                            <img src="assets/images/gunung2.jpg" alt="Pemandangan Gunung Butak" class="w-full h-80 object-cover">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="bg-gradient-to-r from-primary to-green-700 rounded-2xl p-8 text-white feature-badge card-hover">
+                        <h3 class="text-2xl font-bold mb-6">Fakta Menarik</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-300 mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Nama "Butak" berasal dari bahasa Jawa yang berarti 'telanjang', merujuk pada puncaknya yang tidak berpohon</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-300 mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Merupakan gunung tertinggi ke-3 di Jawa Timur</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-300 mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Habitat bagi berbagai spesies langka flora dan fauna</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-300 mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Lokasi hunting sunrise yang legendaris</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-accent to-blue-500 rounded-2xl p-8 text-white feature-badge card-hover">
+                        <h3 class="text-2xl font-bold mb-6">Keunggulan Kami</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-shield-alt text-white mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Sistem reservasi online terintegrasi dan aman</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-user-friends text-white mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Pemandu berpengalaman bersertifikat nasional</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-home text-white mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Basecamp lengkap dengan fasilitas memadai</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-heart text-white mt-1 mr-4 text-xl"></i>
+                                <span class="text-lg">Komunitas pendaki aktif dan suportif</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mengapa Mendaki Gunung Butak -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Mengapa Mendaki Gunung Butak?</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Temukan alasan mengapa Gunung Butak menjadi destinasi pendakian yang tak terlupakan
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Card 1 -->
+                <div class="feature-card card-hover bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 group">
+                    <div class="h-72 overflow-hidden">
+                        <img src="assets/images/gunung2.jpg" alt="Pemandangan Indah" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-600 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mb-6 text-green-600 mx-auto">
+                            <i class="fas fa-camera text-2xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-4 text-center text-primary">Pemandangan Indah</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed text-center">
+                            Nikmati pemandangan alam yang luar biasa dari hutan hingga sabana yang menakjubkan di sepanjang jalur pendakian. 
+                            Puncak Gunung Butak menawarkan pemandangan 360 derajat yang memukau.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="feature-card card-hover bg-gradient-to-br from-yellow-50 to-red-50 rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 group">
+                    <div class="h-72 overflow-hidden">
+                        <img src="assets/images/flora_fauna.jpg" alt="Keberagaman Flora & Fauna" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-red-600 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mb-6 text-yellow-600 mx-auto">
+                            <i class="fas fa-leaf text-2xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-4 text-center text-primary">Keberagaman Flora & Fauna</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed text-center">
+                            Jelajahi berbagai ekosistem unik dan temukan berbagai spesies langka yang hanya ditemukan di kawasan ini. 
+                            Habitat alami berbagai jenis burung dan satwa endemik Jawa.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="feature-card card-hover bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 group">
+                    <div class="h-72 overflow-hidden">
+                        <img src="assets/images/Sabana_Butak.jpg" alt="Sabana" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mb-6 text-blue-600 mx-auto">
+                            <i class="fas fa-heart text-2xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-4 text-center text-primary">Sabana Luas</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed text-center">
+                            Rasakan keindahan luasnya padang sabana di kaki gunung, tempat yang sangat indah untuk berkemah dan menikmati alam. 
+                            Sempurna untuk hunting sunrise dan stargazing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Benefits Section -->
+            <div class="mt-20 bg-gradient-to-r from-primary to-accent rounded-3xl p-12 text-white text-center">
+                <h3 class="text-4xl font-bold mb-6">Keuntungan Mendaki Bersama Kami</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <div class="feature-badge card-hover">
+                        <i class="fas fa-graduation-cap text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-3">Pemandu Bersertifikat</h4>
+                        <p class="text-lg opacity-90">Pemandu profesional dengan sertifikasi nasional</p>
+                    </div>
+                    <div class="feature-badge card-hover">
+                        <i class="fas fa-shield-alt text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-3">Keamanan Terjamin</h4>
+                        <p class="text-lg opacity-90">Sistem keamanan terintegrasi dan SOP ketat</p>
+                    </div>
+                    <div class="feature-badge card-hover">
+                        <i class="fas fa-campground text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-3">Fasilitas Lengkap</h4>
+                        <p class="text-lg opacity-90">Basecamp lengkap dengan peralatan standar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waktu Terbaik untuk Mendaki -->
+    <section class="py-20 bg-gradient-to-br from-white to-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Waktu Terbaik untuk Mendaki</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Rencanakan pendakian Anda dengan informasi cuaca dan waktu yang optimal
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <!-- Card 1 -->
+                <div class="feature-badge bg-gradient-to-br from-orange-50 to-yellow-50 rounded-3xl shadow-2xl p-10 card-hover border-t-4 border-orange overflow-hidden">
+                    <div class="text-center mb-8">
+                        <div class="w-24 h-24 bg-gradient-to-r from-orange-100 to-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600">
+                            <i class="fas fa-cloud-sun text-4xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-2 text-orange">Musim Kemarau</h3>
+                        <p class="text-lg text-gray-600">April - Oktober</p>
+                    </div>
+                    <ul class="space-y-5">
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Jalur pendakian stabil</strong> tanpa hambatan genangan air</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Visibilitas sangat baik</strong> untuk menikmati pemandangan</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Suhu sejuk dan nyaman</strong> untuk pendakian</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Kondisi jalan kering</strong> memudahkan perjalanan</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="feature-badge bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-2xl p-10 card-hover border-t-4 border-blue overflow-hidden">
+                    <div class="text-center mb-8">
+                        <div class="w-24 h-24 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+                            <i class="fas fa-clock text-4xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-2 text-blue">Waktu Ideal Sehari</h3>
+                        <p class="text-lg text-gray-600">Pendakian Harian</p>
+                    </div>
+                    <ul class="space-y-5">
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-yellow-200 transition-colors">
+                                <i class="fas fa-sun text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Pagi hari (04:00-06:00):</strong> Udara segar dan suhu nyaman</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                                <i class="fas fa-sunrise text-orange-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Matahari terbit:</strong> Pemandangan menakjubkan dari puncak</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-red-200 transition-colors">
+                                <i class="fas fa-sun text-red-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Hindari siang (10:00-15:00):</strong> Suhu panas yang melelahkan</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mt-1 mr-4 flex-shrink-0 group-hover:bg-indigo-200 transition-colors">
+                                <i class="fas fa-moon text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-800 font-medium text-lg"><strong>Malam hari:</strong> Sempurna untuk stargazing</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Weather Forecast Section -->
+            <div class="mt-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-3xl p-12 text-white text-center">
+                <h3 class="text-4xl font-bold mb-6">Prakiraan Cuaca Mendatang</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <div class="bg-white bg-opacity-20 rounded-2xl p-6 backdrop-blur-sm feature-card card-hover">
+                        <div class="text-5xl mb-4">☀️</div>
+                        <h4 class="text-2xl font-bold mb-2">Pekan Ini</h4>
+                        <p class="text-lg">Cerah berawan, suhu 18-24°C</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-2xl p-6 backdrop-blur-sm feature-card card-hover">
+                        <div class="text-5xl mb-4">⛅</div>
+                        <h4 class="text-2xl font-bold mb-2">Pekan Depan</h4>
+                        <p class="text-lg">Berpotensi hujan ringan</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-2xl p-6 backdrop-blur-sm feature-card card-hover">
+                        <div class="text-5xl mb-4">🌙</div>
+                        <h4 class="text-2xl font-bold mb-2">Akhir Bulan</h4>
+                        <p class="text-lg">Kemungkinan kabut tebal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Peta Lokasi -->
+    <section id="lokasi" class="py-20 bg-gradient-to-br from-gray-100 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Lokasi Gunung Butak</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Temukan jalur pendakian melalui Basecamp Kucur dan rute terbaik menuju puncak
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="feature-badge card-hover">
+                    <div class="bg-gradient-to-r from-primary to-accent rounded-3xl p-1">
+                        <div class="bg-white rounded-3xl p-10">
+                            <h3 class="text-3xl font-bold mb-8 text-center text-primary">Rute Akses Menuju Basecamp</h3>
+                            <div class="space-y-6">
+                                <div class="flex items-start group p-4 rounded-xl hover:bg-green-50 transition-colors">
+                                    <div class="w-14 h-14 bg-gradient-to-r from-accent to-primary rounded-full flex items-center justify-center text-white mr-6 flex-shrink-0">
+                                        <i class="fas fa-map-marker-alt text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-xl text-gray-800 mb-2">Basecamp Kucur</h4>
+                                        <p class="text-gray-600 text-lg">Kabupaten Malang, Jawa Timur</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start group p-4 rounded-xl hover:bg-green-50 transition-colors">
+                                    <div class="w-14 h-14 bg-gradient-to-r from-accent to-primary rounded-full flex items-center justify-center text-white mr-6 flex-shrink-0">
+                                        <i class="fas fa-car text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-xl text-gray-800 mb-2">Akses Kendaraan</h4>
+                                        <p class="text-gray-600 text-lg">Dapat dijangkau dengan mobil atau motor, ketinggian 1.200 mdpl</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start group p-4 rounded-xl hover:bg-green-50 transition-colors">
+                                    <div class="w-14 h-14 bg-gradient-to-r from-accent to-primary rounded-full flex items-center justify-center text-white mr-6 flex-shrink-0">
+                                        <i class="fas fa-walking text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-xl text-gray-800 mb-2">Jalur Pendakian</h4>
+                                        <p class="text-gray-600 text-lg">Jalur utama sepanjang 8 km, perkiraan waktu 12-15 jam</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start group p-4 rounded-xl hover:bg-green-50 transition-colors">
+                                    <div class="w-14 h-14 bg-gradient-to-r from-accent to-primary rounded-full flex items-center justify-center text-white mr-6 flex-shrink-0">
+                                        <i class="fas fa-info-circle text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-xl text-gray-800 mb-2">Fasilitas Basecamp</h4>
+                                        <p class="text-gray-600 text-lg">Parkir, toilet, tempat istirahat, dan penyewaan peralatan</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl">
+                                <h4 class="font-bold text-lg text-blue-800 mb-3">Tips Perjalanan:</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i>
+                                        <span>Waktu tempuh dari Surabaya: 2-3 jam</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i>
+                                        <span>Parkir aman tersedia di basecamp</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i>
+                                        <span>Siapkan peralatan sesuai cuaca</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-badge card-hover">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-1">
+                        <div class="bg-white rounded-3xl overflow-hidden">
+                            <div class="h-12 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                            <div class="p-1">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.768447332634!2d112.6028828757616!3d-8.16107007943676!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMDknNDAuOSJTIDExMsKwMzYnMTAuNCJF!5e0!3m2!1sen!2sid!4v1650000000000!5m2!1sen!2sid" 
+                                    width="100%" 
+                                    height="500" 
+                                    style="border:0;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interactive Map Features -->
+            <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-8 text-center feature-badge card-hover">
+                    <i class="fas fa-route text-5xl text-green-600 mb-4"></i>
+                    <h4 class="text-2xl font-bold text-gray-800 mb-3">Jalur Pendakian</h4>
+                    <p class="text-gray-600">Rute terbaik dengan pos-pos peristirahatan</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-8 text-center feature-badge card-hover">
+                    <i class="fas fa-exclamation-triangle text-5xl text-orange-600 mb-4"></i>
+                    <h4 class="text-2xl font-bold text-gray-800 mb-3">Titik Bahaya</h4>
+                    <p class="text-gray-600">Area rawan longsor dan medan terjal</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 text-center feature-badge card-hover">
+                    <i class="fas fa-water text-5xl text-blue-600 mb-4"></i>
+                    <h4 class="text-2xl font-bold text-gray-800 mb-3">Sumber Air</h4>
+                    <p class="text-gray-600">Lokasi sumber air bersih di sepanjang jalur</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimoni Pendaki -->
+    <section id="testimoni" class="py-20 bg-gradient-to-br from-gray-100 to-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Apa Kata Mereka?</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+                    Pendapat para pendaki yang telah menaklukkan puncak Gunung Butak
+                </p>
+            </div>
+            
+            <div id="testimoni-container" class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
+                <!-- Testimonials will be loaded here -->
+                <div class="testimonial-card animate-pulse">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-pulse">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-pulse">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Stats Section -->
+            <div class="bg-gradient-to-r from-primary to-accent rounded-3xl p-12 text-white">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center feature-badge card-hover">
+                        <div class="text-7xl font-bold mb-4">98%</div>
+                        <p class="text-xl opacity-90">Kepuasan Pendaki</p>
+                    </div>
+                    <div class="text-center feature-badge card-hover">
+                        <div class="text-7xl font-bold mb-4">4.9/5</div>
+                        <p class="text-xl opacity-90">Rating Rata-rata</p>
+                    </div>
+                    <div class="text-center feature-badge card-hover">
+                        <div class="text-7xl font-bold mb-4">5000+</div>
+                        <p class="text-xl opacity-90">Total Pendaki</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Testimonial Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
+                    <div class="text-4xl font-bold text-primary mb-2">100%</div>
+                    <p class="text-gray-700 font-medium">Keamanan Terjamin</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
+                    <div class="text-4xl font-bold text-accent mb-2">24/7</div>
+                    <p class="text-gray-700 font-medium">Dukungan Tim</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
+                    <div class="text-4xl font-bold text-orange mb-2">5+</div>
+                    <p class="text-gray-700 font-medium">Tahun Pengalaman</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
+                    <div class="text-4xl font-bold text-blue mb-2">1000+</div>
+                    <p class="text-gray-700 font-medium">Rute Tersedia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-primary animated-border inline-block mb-4">Login Admin</h2>
+                    <p class="text-gray-600 text-lg">Akses panel admin untuk mengelola sistem pendakian</p>
+                </div>
+                
+                <div class="feature-badge card-hover">
+                    <div class="bg-gradient-to-r from-primary to-accent rounded-3xl p-1">
+                        <div class="bg-white rounded-3xl shadow-2xl p-10">
+                            <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6"></div>
+                            <div id="success-message" class="hidden bg-green-100 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6"></div>
+                            
+                            <form id="loginForm" class="space-y-6">
+                                <div>
+                                    <label for="email" class="block text-gray-800 text-lg font-bold mb-3">Email:</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-envelope text-gray-400"></i>
+                                        </div>
+                                        <input type="email" id="email" class="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-accent focus:ring-opacity-20 transition duration-300 text-lg" placeholder="Masukkan email Anda">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="password" class="block text-gray-800 text-lg font-bold mb-3">Password:</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-lock text-gray-400"></i>
+                                        </div>
+                                        <input type="password" id="password" class="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-accent focus:ring-opacity-20 transition duration-300 text-lg" placeholder="Masukkan password Anda">
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="remember" class="h-5 w-5 text-accent focus:ring-accent border-gray-300 rounded">
+                                        <label for="remember" class="ml-2 block text-gray-700">Ingat saya</label>
+                                    </div>
+                                    <a href="#" class="text-accent hover:text-primary font-medium">Lupa password?</a>
+                                </div>
+                                
+                                <button type="submit" class="w-full bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-bold py-4 px-6 rounded-2xl transition duration-300 transform hover:scale-105 hover:shadow-2xl text-xl glow-button">
+                                    <i class="fas fa-sign-in-alt mr-3"></i>Login Sekarang
+                                </button>
+                            </form>
+                            
+                            <div class="mt-8 text-center">
+                                <p class="text-gray-600">Belum punya akun? <a href="#" class="text-accent hover:text-primary font-bold">Daftar di sini</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-green text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Logo dan Deskripsi -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-mountain text-3xl text-accent mr-3"></i>
+                        <h3 class="text-2xl font-bold">Gunung Butak</h3>
+                    </div>
+                    <p class="text-gray-300 mb-6 leading-relaxed">
+                        Platform reservasi pendakian Gunung Butak melalui jalur Kucur. 
+                        Membantu pendaki untuk merencanakan dan menikmati petualangan alam mereka dengan aman dan menyenangkan.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="social-badge w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-primary transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-badge w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-primary transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-badge w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-primary transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-badge w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-primary transition duration-300">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Navigasi -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Navigasi</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#header" class="nav-link text-gray-300 hover:text-accent transition duration-300 block py-1">Beranda</a></li>
+                        <li><a href="#tentang" class="nav-link text-gray-300 hover:text-accent transition duration-300 block py-1">Tentang Kami</a></li>
+                        <li><a href="#lokasi" class="nav-link text-gray-300 hover:text-accent transition duration-300 block py-1">Jalur Pendakian</a></li>
+                        <li><a href="#" class="nav-link text-gray-300 hover:text-accent transition duration-300 block py-1">Galeri</a></li>
+                        <li><a href="#testimoni" class="nav-link text-gray-300 hover:text-accent transition duration-300 block py-1">Kontak</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Jalur Pendakian -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Jalur Pendakian</h4>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-mountain mt-1 mr-2 text-accent"></i>
+                            <span>Jalur Utama: Kucur</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt mt-1 mr-2 text-accent"></i>
+                            <span>Tingkat Kesulitan: Sulit</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-clock mt-1 mr-2 text-accent"></i>
+                            <span>Durasi: 3-4 Hari</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-ruler-vertical mt-1 mr-2 text-accent"></i>
+                            <span>Ketinggian: 2.868 mdpl</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-thermometer-half mt-1 mr-2 text-accent"></i>
+                            <span>Suhu: 15-22°C</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Kontak Kami -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Kontak Kami</h4>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mr-3 mt-1 text-accent"></i>
+                            <span>info@gunungbutak.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone mr-3 mt-1 text-accent"></i>
+                            <span>+62 812 3456 7890</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mr-3 mt-1 text-accent"></i>
+                            <span>Basecamp Kucur, Gunung Butak, Jawa Timur</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-comments mr-3 mt-1 text-accent"></i>
+                            <span>Live Chat 24/7</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 Gunung Butak Reservasi Pendakian. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Enhanced scroll to top functionality
+        const scrollToTopBtn = document.createElement('div');
+        scrollToTopBtn.className = 'scroll-to-top';
+        scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        document.body.appendChild(scrollToTopBtn);
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Add animation on scroll for elements
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.card-hover, .bg-white, .testimoni-container, .feature-badge');
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (elementPosition < screenPosition) {
+                    // Don't animate if already animated
+                    if (element.style.opacity !== '1') {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Initialize elements with opacity 0 for animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.card-hover, .bg-white, .testimoni-container, .feature-badge');
+            elements.forEach(element => {
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+            });
+            
+            // Trigger initial animation check
+            setTimeout(animateOnScroll, 100);
+        });
+        
+        // Add floating effect to hero section
+        const heroElements = document.querySelectorAll('.hero-background h1, .hero-background h2, .hero-background p, .hero-background a, .hero-background .counter');
+        heroElements.forEach(el => {
+            el.classList.add('floating');
+        });
+        
+        // Enhanced counter animation for stats
+        function animateCounter(element, target, duration) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            const timer = setInterval(() => {
+                start += increment;
+                element.textContent = Math.floor(start);
+                
+                if (start >= target) {
+                    element.textContent = Math.floor(target);
+                    clearInterval(timer);
+                }
+            }, 16);
+        }
+        
+        // Activate counters when they come into view
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+        
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target.querySelector('.counter');
+                    if (counter) {
+                        const target = parseInt(counter.getAttribute('data-target')) || parseInt(counter.textContent);
+                        if (!isNaN(target)) {
+                            animateCounter(counter, target, 2000);
+                            counterObserver.unobserve(entry.target);
+                        }
+                    }
+                }
+            });
+        }, observerOptions);
+        
+        // Observe counter elements
+        document.querySelectorAll('.stat-card, .bg-gradient-to-r').forEach(card => {
+            counterObserver.observe(card);
+        });
+        
+        // Enhanced testimonial animations
+        const testimonialObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.testimonial-card').forEach(card => {
+            testimonialObserver.observe(card);
+        });
+        
+        // Enhanced parallax effect to hero background
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-background');
+            if (parallax) {
+                const speed = scrolled * 0.3;
+                parallax.style.backgroundPosition = `center calc(50% + ${speed}px)`;
+            }
+            
+            // Update animated background elements
+            const bgElements = document.querySelectorAll('.hero-background .absolute');
+            bgElements.forEach((el, index) => {
+                const speedFactor = (index % 2 === 0 ? 0.5 : 0.3);
+                const movement = scrolled * speedFactor;
+                el.style.transform = `translateY(${movement}px)`;
+            });
+        });
+        
+        // Enhanced interactive hover effects to feature badges
+        const featureBadges = document.querySelectorAll('.feature-badge');
+        featureBadges.forEach(badge => {
+            badge.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-12px) scale(1.03)';
+            });
+            badge.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Add ripple effect to buttons
+        const buttons = document.querySelectorAll('.pulse-button, .glow-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple element
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add typing animation to hero text
+        function animateHeroText() {
+            const heroTexts = document.querySelectorAll('.hero-background .text-white:not(.floating)');
+            heroTexts.forEach((text, index) => {
+                setTimeout(() => {
+                    text.style.opacity = '1';
+                    text.style.transform = 'translateY(0)';
+                }, 300 + (index * 100));
+            });
+        }
+        
+        // Initialize hero text animations
+        setTimeout(animateHeroText, 500);
+        
+        // Add particle effect to hero section
+        function createParticles() {
+            const hero = document.querySelector('.hero-background');
+            if (!hero) return;
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'absolute w-1 h-1 bg-white rounded-full opacity-30';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animation = `float ${Math.random() * 10 + 5}s infinite ease-in-out`;
+                
+                // Add keyframes for float animation
+                if (!document.querySelector('#particle-animation')) {
+                    const style = document.createElement('style');
+                    style.id = 'particle-animation';
+                    style.textContent = `
+                        @keyframes float {
+                            0% { transform: translateY(0) translateX(0); opacity: 0.3; }
+                            50% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+                            100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                hero.appendChild(particle);
+            }
+        }
+        
+        // Create particles after page loads
+        window.addEventListener('load', createParticles);
+        
+        // Add scroll progress indicator
+        function addScrollProgress() {
+            const progressContainer = document.createElement('div');
+            progressContainer.id = 'scroll-progress';
+            progressContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 0%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent), var(--primary));
+                z-index: 9999;
+                transition: width 0.1s ease;
+            `;
+            document.body.appendChild(progressContainer);
+            
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset;
+                const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / windowHeight) * 100;
+                
+                progressContainer.style.width = scrollPercent + '%';
+            });
+        }
+        
+        // Add scroll progress bar
+        addScrollProgress();
+        
+        // Add enhanced navigation highlighting
+        function highlightNavOnScroll() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('nav a');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('text-accent');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('text-accent');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', highlightNavOnScroll);
+    </script>
+    
+    <!-- Include main.js -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
