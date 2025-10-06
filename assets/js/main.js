@@ -17,9 +17,150 @@ document.addEventListener('DOMContentLoaded', async function() {
         loginForm.addEventListener('submit', handleLogin);
     }
     
+    // Set up register form (if exists on current page)
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
+    
+    // Set up forgot password form (if exists on current page)
+    const forgotForm = document.getElementById('forgotForm');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', handleForgotPassword);
+    }
+    
+    // Set up auth tabs functionality
+    setupAuthTabs();
+    
     // Initialize interactive features
     initInteractiveFeatures();
+    
+    // On page load, show login tab by default
+    setTimeout(() => {
+        if (document.getElementById('login-tab')) {
+            switchToTab('login');
+        }
+    }, 100); // Small delay to ensure everything is loaded
 });
+
+// Function to set up authentication tabs
+function setupAuthTabs() {
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const forgotTab = document.getElementById('forgot-tab');
+    
+    const loginContent = document.getElementById('login-content');
+    const registerContent = document.getElementById('register-content');
+    const forgotContent = document.getElementById('forgot-content');
+    
+    // Tab switching functionality
+    if (loginTab) {
+        loginTab.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('login');
+        });
+    }
+    
+    if (registerTab) {
+        registerTab.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('register');
+        });
+    }
+    
+    if (forgotTab) {
+        forgotTab.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('forgot');
+        });
+    }
+    
+    // Additional buttons for switching between forms
+    const showRegisterBtn = document.getElementById('show-register');
+    if (showRegisterBtn) {
+        showRegisterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('register');
+        });
+    }
+    
+    const showLoginBtn = document.getElementById('show-login');
+    if (showLoginBtn) {
+        showLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('login');
+        });
+    }
+    
+    const showLoginFromForgotBtn = document.getElementById('show-login-from-forgot');
+    if (showLoginFromForgotBtn) {
+        showLoginFromForgotBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('login');
+        });
+    }
+    
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('forgot');
+        });
+    }
+    
+    // Also handle all links that might trigger auth forms
+    const forgotPasswordLinks = document.querySelectorAll('a[href="#"], a[href^="javascript"], button[data-action="forgot-password"]');
+    forgotPasswordLinks.forEach(link => {
+        if (link.textContent && (link.textContent.includes('Lupa password') || link.textContent.includes('Lupa Password'))) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                switchToTab('forgot');
+            });
+        }
+    });
+    
+    const registerLinks = document.querySelectorAll('a[href="#"], a[href^="javascript"], button[data-action="register"]');
+    registerLinks.forEach(link => {
+        if (link.textContent && (link.textContent.includes('Daftar di sini') || link.textContent.includes('Register') || link.textContent.includes('Sign up'))) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                switchToTab('register');
+            });
+        }
+    });
+}
+
+// Function to switch between auth tabs
+function switchToTab(tabName) {
+    // Hide all content
+    document.getElementById('login-content').classList.add('hidden');
+    document.getElementById('register-content').classList.add('hidden');
+    document.getElementById('forgot-content').classList.add('hidden');
+    
+    // Remove active class from all tabs
+    document.getElementById('login-tab').classList.remove('text-blue-600', 'border-blue-600');
+    document.getElementById('register-tab').classList.remove('text-blue-600', 'border-blue-600');
+    document.getElementById('forgot-tab').classList.remove('text-blue-600', 'border-blue-600');
+    
+    document.getElementById('login-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+    document.getElementById('register-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+    document.getElementById('forgot-tab').classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+    
+    // Show selected content and activate tab
+    if (tabName === 'login') {
+        document.getElementById('login-content').classList.remove('hidden');
+        document.getElementById('login-tab').classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        document.getElementById('login-tab').classList.add('text-blue-600', 'border-blue-600');
+    } else if (tabName === 'register') {
+        document.getElementById('register-content').classList.remove('hidden');
+        document.getElementById('register-tab').classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        document.getElementById('register-tab').classList.add('text-blue-600', 'border-blue-600');
+    } else if (tabName === 'forgot') {
+        document.getElementById('forgot-content').classList.remove('hidden');
+        document.getElementById('forgot-tab').classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        document.getElementById('forgot-tab').classList.add('text-blue-600', 'border-blue-600');
+    }
+}
 
 // Function to load testimonials from Supabase
 async function loadTestimonials() {
@@ -113,17 +254,17 @@ function showTestimonialError() {
     `;
 }
 
-// Function to handle login (for login form that might be on a different page)
+// Function to handle login
 async function handleLogin(event) {
     event.preventDefault(); // Prevent default form submission
     
     // Get email and password from form
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
     
     // Clear previous messages
-    hideMessage('error-message');
-    hideMessage('success-message');
+    hideMessage('login-error-message');
+    hideMessage('login-success-message');
     
     try {
         // Sign in with Supabase
@@ -134,7 +275,7 @@ async function handleLogin(event) {
         
         if (error) {
             // Show error message if login fails
-            showMessage('error-message', 'Kombinasi email/password salah');
+            showMessage('login-error-message', 'Kombinasi email/password salah');
             return;
         }
         
@@ -150,7 +291,7 @@ async function handleLogin(event) {
             .single();
             
         if (userError) {
-            showMessage('error-message', 'Terjadi kesalahan saat mengambil data pengguna');
+            showMessage('login-error-message', 'Terjadi kesalahan saat mengambil data pengguna');
             return;
         }
         
@@ -160,16 +301,163 @@ async function handleLogin(event) {
             window.location.href = 'dashboard-admin.html';
         } else if (userData.peran === 'pendaki') {
             // Show success message and hide login form for regular users
-            showMessage('success-message', 'Login berhasil. Silakan lakukan pemesanan tiket melalui aplikasi mobile kami.');
+            showMessage('login-success-message', 'Login berhasil. Silakan lakukan pemesanan tiket melalui aplikasi mobile kami.');
             
-            // Hide the login form
+            // Hide the login form - alternatively you can redirect to a user page
             document.getElementById('loginForm').style.display = 'none';
         } else {
-            showMessage('error-message', 'Peran pengguna tidak dikenali');
+            showMessage('login-error-message', 'Peran pengguna tidak dikenali');
         }
     } catch (err) {
         console.error('Login error:', err);
-        showMessage('error-message', 'Terjadi kesalahan saat login');
+        showMessage('login-error-message', 'Terjadi kesalahan saat login');
+    }
+}
+
+// Function to handle registration
+async function handleRegister(event) {
+    event.preventDefault(); // Prevent default form submission
+    
+    // Get form values
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const phone = document.getElementById('register-phone').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
+    
+    // Validate form
+    if (password !== confirmPassword) {
+        showMessage('register-error-message', 'Password dan konfirmasi password tidak cocok');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showMessage('register-error-message', 'Password minimal 6 karakter');
+        return;
+    }
+    
+    // Clear previous messages
+    hideMessage('register-error-message');
+    hideMessage('register-success-message');
+    
+    try {
+        // Sign up with Supabase
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    nama_lengkap: name,
+                    nomor_telepon: phone
+                },
+                emailRedirectTo: window.location.origin
+            }
+        });
+        
+        if (error) {
+            console.error('Registration error:', error);
+            showMessage('register-error-message', error.message || 'Terjadi kesalahan saat pendaftaran');
+            return;
+        }
+        
+        // Check if user needs email confirmation
+        if (data.user) {
+            // User created successfully, now add to pengguna table
+            const { error: insertError } = await supabase
+                .from('pengguna')
+                .insert([{
+                    id_pengguna: data.user.id,
+                    nama_lengkap: name,
+                    email: email,
+                    nomor_telepon: phone,
+                    peran: 'pendaki',
+                    is_verified: false
+                }]);
+            
+            if (insertError) {
+                console.error('Error inserting to pengguna table:', insertError);
+                showMessage('register-error-message', 'Terjadi kesalahan saat menyimpan data pengguna');
+                return;
+            }
+            
+            // Show success message
+            showMessage('register-success-message', 'Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.');
+            
+            // Reset form
+            document.getElementById('registerForm').reset();
+        } else if (data.session) {
+            // User is already logged in after registration
+            showMessage('register-success-message', 'Pendaftaran berhasil! Anda telah login.');
+            
+            // Redirect based on role
+            const { data: userData, error: userError } = await supabase
+                .from('pengguna')
+                .select('peran')
+                .eq('id_pengguna', data.session.user.id)
+                .single();
+                
+            if (!userError && userData.peran === 'admin') {
+                window.location.href = 'dashboard-admin.html';
+            } else {
+                // Redirect to appropriate page or reload
+                window.location.reload();
+            }
+        }
+    } catch (err) {
+        console.error('Registration error:', err);
+        showMessage('register-error-message', 'Terjadi kesalahan saat pendaftaran');
+    }
+}
+
+// Function to handle forgot password
+async function handleForgotPassword(event) {
+    event.preventDefault(); // Prevent default form submission
+    
+    // Get email from form
+    const email = document.getElementById('forgot-email').value;
+    
+    // Clear previous messages
+    hideMessage('forgot-error-message');
+    hideMessage('forgot-success-message');
+    
+    try {
+        // Send password reset email
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/reset-password' // You can customize this
+        });
+        
+        if (error) {
+            console.error('Forgot password error:', error);
+            showMessage('forgot-error-message', error.message || 'Terjadi kesalahan saat mengirim kode verifikasi');
+            return;
+        }
+        
+        // Show success message
+        showMessage('forgot-success-message', 'Kode verifikasi telah dikirim ke email Anda. Silakan cek inbox Anda.');
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        showMessage('forgot-error-message', 'Terjadi kesalahan saat mengirim kode verifikasi');
+    }
+}
+
+// Function to handle password reset with token (usually on a separate page)
+async function handlePasswordResetWithToken(token, newPassword) {
+    try {
+        const { data, error } = await supabase.auth.verifyOtp({
+            type: 'recovery',
+            token: token,
+            password: newPassword
+        });
+        
+        if (error) {
+            console.error('Password reset error:', error);
+            return { success: false, message: error.message };
+        }
+        
+        return { success: true, message: 'Password berhasil direset' };
+    } catch (err) {
+        console.error('Password reset error:', err);
+        return { success: false, message: 'Terjadi kesalahan saat mereset password' };
     }
 }
 
@@ -188,6 +476,55 @@ function hideMessage(elementId) {
     if (element) {
         element.classList.add('hidden');
     }
+}
+
+// Function to show a message with type (for multiple message types)
+function showAuthMessage(messageType, message) {
+    let elementId;
+    switch(messageType) {
+        case 'login-error':
+            elementId = 'login-error-message';
+            break;
+        case 'login-success':
+            elementId = 'login-success-message';
+            break;
+        case 'register-error':
+            elementId = 'register-error-message';
+            break;
+        case 'register-success':
+            elementId = 'register-success-message';
+            break;
+        case 'forgot-error':
+            elementId = 'forgot-error-message';
+            break;
+        case 'forgot-success':
+            elementId = 'forgot-success-message';
+            break;
+        default:
+            elementId = messageType;
+    }
+    
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = message;
+        element.classList.remove('hidden');
+    }
+}
+
+// Function to hide auth messages
+function hideAuthMessages() {
+    const messageIds = [
+        'login-error-message', 'login-success-message',
+        'register-error-message', 'register-success-message',
+        'forgot-error-message', 'forgot-success-message'
+    ];
+    
+    messageIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
 }
 
 // Function to initialize interactive features
@@ -415,6 +752,219 @@ function initInteractiveFeatures() {
             setTimeout(() => {
                 ripple.remove();
             }, 600);
+        });
+    });
+    
+    // Add interactive cursor effects
+    createInteractiveCursor();
+    
+    // Initialize progress bars for difficulty and elevation
+    initializeProgressBars();
+    
+    // Add modern animations to elements
+    addModernAnimations();
+}
+
+// Function to create interactive cursor effects
+function createInteractiveCursor() {
+    // Create custom cursor elements
+    const cursor = document.createElement('div');
+    cursor.id = 'custom-cursor';
+    cursor.style.cssText = `
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--accent);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s, height 0.2s, border-color 0.2s, opacity 0.2s;
+        mix-blend-mode: difference;
+    `;
+    document.body.appendChild(cursor);
+    
+    const cursorFollower = document.createElement('div');
+    cursorFollower.id = 'cursor-follower';
+    cursorFollower.style.cssText = `
+        position: fixed;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--accent);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s, opacity 0.3s, border-color 0.3s;
+        opacity: 0.5;
+    `;
+    document.body.appendChild(cursorFollower);
+    
+    // Position cursor elements
+    document.addEventListener('mousemove', function(e) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        
+        setTimeout(() => {
+            cursorFollower.style.left = e.clientX + 'px';
+            cursorFollower.style.top = e.clientY + 'px';
+        }, 50);
+    });
+    
+    // Change cursor style when hovering over interactive elements
+    const interactiveElements = document.querySelectorAll('a, button, .card-hover, .feature-card, .testimonial-card, .progress-bar');
+    interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            cursor.style.width = '30px';
+            cursor.style.height = '30px';
+            cursor.style.border = '2px solid var(--primary)';
+            cursorFollower.style.width = '50px';
+            cursorFollower.style.height = '50px';
+            cursorFollower.style.opacity = '0.7';
+            cursorFollower.style.borderColor = 'var(--primary)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+            cursor.style.width = '20px';
+            cursor.style.height = '20px';
+            cursor.style.border = '2px solid var(--accent)';
+            cursorFollower.style.width = '40px';
+            cursorFollower.style.height = '40px';
+            cursorFollower.style.opacity = '0.5';
+            cursorFollower.style.borderColor = 'var(--accent)';
+        });
+    });
+    
+    // Hide cursor when mouse stops moving
+    let cursorTimeout;
+    document.addEventListener('mousemove', function() {
+        cursor.style.opacity = '1';
+        cursorFollower.style.opacity = '0.5';
+        
+        clearTimeout(cursorTimeout);
+        cursorTimeout = setTimeout(() => {
+            cursor.style.opacity = '0.5';
+            cursorFollower.style.opacity = '0.2';
+        }, 1000);
+    });
+}
+
+// Function to initialize progress bars for difficulty and elevation
+function initializeProgressBars() {
+    // Example of initializing progress bars - in real implementation, data would come from your database
+    const difficultyBars = document.querySelectorAll('.difficulty-bar');
+    const elevationBars = document.querySelectorAll('.elevation-bar');
+    
+    // Set difficulty progress (example values)
+    difficultyBars.forEach(bar => {
+        const value = bar.getAttribute('data-value') || 0;
+        const maxValue = bar.getAttribute('data-max') || 100;
+        const percentage = (value / maxValue) * 100;
+        
+        // Update the progress fill
+        const fill = bar.querySelector('.progress-fill');
+        if (fill) {
+            fill.style.width = percentage + '%';
+        }
+    });
+    
+    // Set elevation progress (example values)
+    elevationBars.forEach(bar => {
+        const value = bar.getAttribute('data-value') || 0;
+        const maxValue = bar.getAttribute('data-max') || 2868; // Max height of Gunung Butak
+        const percentage = (value / maxValue) * 100;
+        
+        // Update the progress fill
+        const fill = bar.querySelector('.progress-fill');
+        if (fill) {
+            fill.style.width = percentage + '%';
+        }
+    });
+    
+    // Add hover effect to progress bars
+    const allBars = document.querySelectorAll('.progress-bar');
+    allBars.forEach(bar => {
+        bar.addEventListener('mouseenter', function() {
+            const fill = this.querySelector('.progress-fill');
+            if (fill) {
+                fill.style.filter = 'brightness(1.2)';
+            }
+        });
+        
+        bar.addEventListener('mouseleave', function() {
+            const fill = this.querySelector('.progress-fill');
+            if (fill) {
+                fill.style.filter = 'none';
+            }
+        });
+    });
+}
+
+// Function to add modern animations to elements
+function addModernAnimations() {
+    // Add subtle glow effect to cards on hover
+    const cards = document.querySelectorAll('.card-hover, .feature-card, .stat-card');
+    cards.forEach(card => {
+        // Create glow element
+        if (!card.querySelector('.card-glow')) {
+            const glow = document.createElement('div');
+            glow.className = 'card-glow';
+            glow.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: inherit;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+                z-index: -1;
+            `;
+            card.style.position = 'relative';
+            card.appendChild(glow);
+        }
+        
+        card.addEventListener('mouseenter', function() {
+            const glow = this.querySelector('.card-glow');
+            if (glow) {
+                glow.style.opacity = '1';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const glow = this.querySelector('.card-glow');
+            if (glow) {
+                glow.style.opacity = '0';
+            }
+        });
+    });
+    
+    // Add dynamic background effect to sections
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => {
+        section.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Calculate distance from center (for gradient effect)
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const distanceX = (x - centerX) / centerX;
+            const distanceY = (y - centerY) / centerY;
+            
+            // Apply subtle effect based on mouse position
+            if (this.dataset.bgEffect) {
+                this.style.backgroundPosition = `calc(50% + ${distanceX * 2}px) calc(50% + ${distanceY * 2}px)`;
+            }
+        });
+        
+        section.addEventListener('mouseleave', function() {
+            if (this.dataset.bgEffect) {
+                this.style.backgroundPosition = 'center';
+            }
         });
     });
 }
