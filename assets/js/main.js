@@ -276,8 +276,12 @@ async function handleLogin(event) {
         if (error) {
             // Show error message if login fails
             showMessage('login-error-message', 'Kombinasi email/password salah');
+            console.error('Login error:', error);
             return;
         }
+        
+        // Small delay to ensure session is properly established
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // If login is successful, get user role from the pengguna table
         const user = data.user;
@@ -292,12 +296,16 @@ async function handleLogin(event) {
             
         if (userError) {
             showMessage('login-error-message', 'Terjadi kesalahan saat mengambil data pengguna');
+            console.error('User role error:', userError);
             return;
         }
+        
+        console.log('User role:', userData.peran); // Debug log
         
         // Check the user's role
         if (userData.peran === 'admin') {
             // Redirect to admin dashboard
+            console.log('Redirecting admin to dashboard');
             window.location.href = 'dashboard-admin.html';
         } else if (userData.peran === 'pendaki') {
             // Show success message and hide login form for regular users
