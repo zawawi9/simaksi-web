@@ -23,7 +23,7 @@ export class DashboardModule {
                 const persentaseReservasi = data.total_reservasi > 0 ? (data.reservasi_terbayar / data.total_reservasi) * 100 : 0;
                 document.getElementById('progress-reservasi').style.width = `${persentaseReservasi}%`;
 
-                document.getElementById('pendapatan-hari-ini').textContent = `Rp ${data.pendapatan_hari_ini.toLocaleString()}`;
+                document.getElementById('pendapatan-hari-ini').textContent = Utils.formatRupiah(data.pendapatan_hari_ini);
                 document.getElementById('persentase-pendapatan').textContent = `${data.persentase_pendapatan}%`;
                 document.getElementById('progress-pendapatan').style.width = `${data.persentase_pendapatan}%`;
 

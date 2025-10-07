@@ -83,6 +83,12 @@ export class Utils {
         return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
     
+    static parseRupiah(rupiah) {
+        if (!rupiah) return 0;
+        // Remove 'Rp ' prefix and dots, then parse to integer
+        return parseInt(rupiah.replace(/^Rp\s?|[.]/g, '')) || 0;
+    }
+    
     static formatDate(dateString) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('id-ID', options);
