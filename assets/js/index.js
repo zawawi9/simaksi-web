@@ -13,10 +13,17 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // Enhanced scroll to top functionality
-const scrollToTopBtn = document.createElement('div');
-scrollToTopBtn.className = 'scroll-to-top';
-scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-document.body.appendChild(scrollToTopBtn);
+let scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+if (!scrollToTopBtn) {
+    scrollToTopBtn = document.createElement('div');
+    scrollToTopBtn.id = 'scroll-to-top-btn';
+    scrollToTopBtn.className = 'scroll-to-top';
+    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    document.body.appendChild(scrollToTopBtn);
+} else {
+    // If element already exists, just ensure the functionality is attached
+    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+}
 
 window.addEventListener('scroll', function() {
     if (window.pageYOffset > 300) {

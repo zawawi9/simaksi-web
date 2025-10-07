@@ -5,6 +5,8 @@ import { ReservationsModule } from './modules/reservasi_php.js';
 import { QuotasModule } from './modules/quotas_php.js';
 import { FinanceModule } from './modules/finance_php.js';
 import { AnnouncementModule } from './modules/pengumuman_php.js';
+import { PenggunaModule } from './modules/pengguna_php.js';
+import { PendakiModule } from './modules/pendaki_php.js';
 import { Router } from './modules/router.js';
 import { Utils } from './modules/utils.js';
 
@@ -30,7 +32,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         const quotasModule = new QuotasModule();
         const financeModule = new FinanceModule();
         const announcementModule = new AnnouncementModule();
-        const router = new Router(dashboardModule, reservationsModule, quotasModule, financeModule, announcementModule);
+        const penggunaModule = new PenggunaModule();
+        const pendakiModule = new PendakiModule();
+        const router = new Router(dashboardModule, reservationsModule, quotasModule, financeModule, announcementModule, penggunaModule);
 
         // Make modules available globally for HTML onclick events
         window.dashboardModule = dashboardModule;
@@ -38,6 +42,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.quotasModule = quotasModule;
         window.financeModule = financeModule;
         window.announcementModule = announcementModule;
+        window.penggunaModule = penggunaModule;
+        window.pendakiModule = pendakiModule;
         
         // Make Utils class available globally
         window.Utils = Utils;
@@ -53,6 +59,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Set up search functionality
         setupSearch(reservationsModule);
+        
+        // Set up pengguna search functionality
+        setupPenggunaSearch(penggunaModule);
+        
+        // Set up pendaki search functionality
+        setupPendakiSearch(pendakiModule);
 
         // Set up keuangan tabs
         setupKeuanganTabs(financeModule);
@@ -217,6 +229,72 @@ function setupSearch(reservationsModule) {
             if (e.key === 'Enter') {
                 reservationsModule.searchReservasi(searchKode.value, searchNama.value);
             }
+        });
+    }
+}
+
+// Function to setup pengguna search
+function setupPenggunaSearch(penggunaModule) {
+    const searchNamaPengguna = document.getElementById('search-nama-pengguna');
+    const searchEmailPengguna = document.getElementById('search-email-pengguna');
+    const searchPenggunaBtn = document.getElementById('search-pengguna');
+    const tambahPenggunaBtn = document.getElementById('tambah-pengguna-btn');
+
+    if (searchNamaPengguna && searchEmailPengguna && searchPenggunaBtn) {
+        searchPenggunaBtn.addEventListener('click', function() {
+            penggunaModule.searchPengguna(searchNamaPengguna.value, searchEmailPengguna.value);
+        });
+
+        // Also search when pressing Enter in any search field
+        searchNamaPengguna.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                penggunaModule.searchPengguna(searchNamaPengguna.value, searchEmailPengguna.value);
+            }
+        });
+
+        searchEmailPengguna.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                penggunaModule.searchPengguna(searchNamaPengguna.value, searchEmailPengguna.value);
+            }
+        });
+    }
+
+    if (tambahPenggunaBtn) {
+        tambahPenggunaBtn.addEventListener('click', function() {
+            showAddPenggunaForm();
+        });
+    }
+}
+
+// Function to setup pendaki search
+function setupPendakiSearch(pendakiModule) {
+    const searchNamaPendaki = document.getElementById('search-nama-pendaki');
+    const searchKodeReservasi = document.getElementById('search-kode-reservasi');
+    const searchPendakiBtn = document.getElementById('search-pendaki');
+    const tambahPendakiBtn = document.getElementById('tambah-pendaki-btn');
+
+    if (searchNamaPendaki && searchKodeReservasi && searchPendakiBtn) {
+        searchPendakiBtn.addEventListener('click', function() {
+            pendakiModule.searchPendaki(searchKodeReservasi.value, searchNamaPendaki.value);
+        });
+
+        // Also search when pressing Enter in any search field
+        searchNamaPendaki.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                pendakiModule.searchPendaki(searchKodeReservasi.value, searchNamaPendaki.value);
+            }
+        });
+
+        searchKodeReservasi.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                pendakiModule.searchPendaki(searchKodeReservasi.value, searchNamaPendaki.value);
+            }
+        });
+    }
+
+    if (tambahPendakiBtn) {
+        tambahPendakiBtn.addEventListener('click', function() {
+            showAddPendakiForm();
         });
     }
 }
@@ -568,5 +646,412 @@ window.deleteAnnouncement = function(id_pengumuman) {
 window.updateSampahStatus = function(id_reservasi, status_sampah) {
     if (window.reservationsModule) {
         window.reservationsModule.updateSampahStatus(id_reservasi, status_sampah);
+    }
+};
+
+// Function to show add pengguna form in modal
+function showAddPenggunaForm() {
+    const modalContent = document.getElementById('modal-content');
+    if (!modalContent) return;
+
+    modalContent.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Tambah Pengguna Baru</h3>
+        <form id="add-pengguna-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nama_lengkap_pengguna">
+                        <i class="fas fa-user mr-1"></i> Nama Lengkap *
+                    </label>
+                    <input type="text" id="nama_lengkap_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email_pengguna">
+                        <i class="fas fa-envelope mr-1"></i> Email *
+                    </label>
+                    <input type="email" id="email_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nomor_telepon_pengguna">
+                        <i class="fas fa-phone mr-1"></i> Nomor Telepon
+                    </label>
+                    <input type="text" id="nomor_telepon_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nik_pengguna">
+                        <i class="fas fa-id-card mr-1"></i> NIK
+                    </label>
+                    <input type="text" id="nik_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat_pengguna">
+                        <i class="fas fa-home mr-1"></i> Alamat
+                    </label>
+                    <textarea id="alamat_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" rows="2"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="peran_pengguna">
+                        <i class="fas fa-user-tag mr-1"></i> Peran *
+                    </label>
+                    <select id="peran_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="pendaki">Pendaki</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password_pengguna">
+                        <i class="fas fa-lock mr-1"></i> Password
+                    </label>
+                    <input type="password" id="password_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Kosongkan jika tidak ingin set password">
+                    <p class="text-xs text-gray-500 mt-1">Biarkan kosong untuk menggunakan password default</p>
+                </div>
+            </div>
+        </form>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modal-title');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    if (modalTitle) {
+        modalTitle.textContent = 'Tambah Pengguna Baru';
+    }
+
+    // Add submit event to the form
+    const form = document.getElementById('add-pengguna-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const penggunaData = {
+                nama_lengkap: document.getElementById('nama_lengkap_pengguna').value,
+                email: document.getElementById('email_pengguna').value,
+                nomor_telepon: document.getElementById('nomor_telepon_pengguna').value,
+                nik: document.getElementById('nik_pengguna').value,
+                alamat: document.getElementById('alamat_pengguna').value,
+                peran: document.getElementById('peran_pengguna').value,
+                password: document.getElementById('password_pengguna').value || null
+            };
+
+            if (window.penggunaModule) {
+                window.penggunaModule.addPengguna(penggunaData);
+            }
+        });
+    }
+}
+
+// Function to show edit pengguna form in modal
+function showEditPenggunaForm(id_pengguna, penggunaData) {
+    const modalContent = document.getElementById('modal-content');
+    if (!modalContent) return;
+
+    modalContent.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Pengguna</h3>
+        <form id="edit-pengguna-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nama_lengkap_pengguna">
+                        <i class="fas fa-user mr-1"></i> Nama Lengkap *
+                    </label>
+                    <input type="text" id="edit_nama_lengkap_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nama_lengkap || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_email_pengguna">
+                        <i class="fas fa-envelope mr-1"></i> Email *
+                    </label>
+                    <input type="email" id="edit_email_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.email || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nomor_telepon_pengguna">
+                        <i class="fas fa-phone mr-1"></i> Nomor Telepon
+                    </label>
+                    <input type="text" id="edit_nomor_telepon_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nomor_telepon || ''}">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nik_pengguna">
+                        <i class="fas fa-id-card mr-1"></i> NIK
+                    </label>
+                    <input type="text" id="edit_nik_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nik || ''}">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_alamat_pengguna">
+                        <i class="fas fa-home mr-1"></i> Alamat
+                    </label>
+                    <textarea id="edit_alamat_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" rows="2">${penggunaData.alamat || ''}</textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_peran_pengguna">
+                        <i class="fas fa-user-tag mr-1"></i> Peran *
+                    </label>
+                    <select id="edit_peran_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="pendaki" ${penggunaData.peran === 'pendaki' ? 'selected' : ''}>Pendaki</option>
+                        <option value="admin" ${penggunaData.peran === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modal-title');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    if (modalTitle) {
+        modalTitle.textContent = 'Edit Pengguna';
+    }
+
+    // Add submit event to the form
+    const form = document.getElementById('edit-pengguna-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const updatedPenggunaData = {
+                nama_lengkap: document.getElementById('edit_nama_lengkap_pengguna').value,
+                email: document.getElementById('edit_email_pengguna').value,
+                nomor_telepon: document.getElementById('edit_nomor_telepon_pengguna').value,
+                nik: document.getElementById('edit_nik_pengguna').value,
+                alamat: document.getElementById('edit_alamat_pengguna').value,
+                peran: document.getElementById('edit_peran_pengguna').value
+            };
+
+            if (window.penggunaModule) {
+                window.penggunaModule.updatePengguna(id_pengguna, updatedPenggunaData);
+            }
+        });
+    }
+}
+
+// Function to handle editing a user
+window.editPengguna = function(id_pengguna) {
+    // Fetch the specific pengguna data by ID
+    fetch(`api/pengguna.php`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                const pengguna = result.data.find(p => p.id_pengguna == id_pengguna);
+                if (pengguna) {
+                    showEditPenggunaForm(id_pengguna, pengguna);
+                } else {
+                    Utils.showMessage('error', 'Pengguna tidak ditemukan');
+                }
+            } else {
+                Utils.showMessage('error', 'Gagal memuat data pengguna');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching pengguna data:', error);
+            Utils.showMessage('error', 'Error connecting to server');
+        });
+};
+
+// Function to handle deleting a user
+window.deletePengguna = function(id_pengguna, nama_lengkap) {
+    if (confirm(`Apakah Anda yakin ingin menghapus pengguna ${nama_lengkap}? Tindakan ini akan menghapus akun dan semua data terkait.`)) {
+        if (window.penggunaModule) {
+            window.penggunaModule.deletePengguna(id_pengguna);
+        }
+    }
+};
+
+// Function to show add pendaki form in modal
+function showAddPendakiForm() {
+    const modalContent = document.getElementById('modal-content');
+    if (!modalContent) return;
+
+    modalContent.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Tambah Pendaki Baru</h3>
+        <form id="add-pendaki-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nama_lengkap">
+                        <i class="fas fa-user mr-1"></i> Nama Lengkap *
+                    </label>
+                    <input type="text" id="nama_lengkap" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nik">
+                        <i class="fas fa-id-card mr-1"></i> NIK *
+                    </label>
+                    <input type="text" id="nik" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="nomor_telepon">
+                        <i class="fas fa-phone mr-1"></i> Nomor Telepon *
+                    </label>
+                    <input type="text" id="nomor_telepon" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="kontak_darurat">
+                        <i class="fas fa-phone-alt mr-1"></i> Kontak Darurat *
+                    </label>
+                    <input type="text" id="kontak_darurat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat">
+                        <i class="fas fa-home mr-1"></i> Alamat *
+                    </label>
+                    <textarea id="alamat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" required></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="id_reservasi">
+                        <i class="fas fa-calendar mr-1"></i> ID Reservasi *
+                    </label>
+                    <input type="number" id="id_reservasi" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    <p class="text-xs text-gray-500 mt-1">Masukkan ID reservasi yang valid</p>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="url_surat_sehat">
+                        <i class="fas fa-file-medical mr-1"></i> URL Surat Sehat
+                    </label>
+                    <input type="url" id="url_surat_sehat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <p class="text-xs text-gray-500 mt-1">Alamat URL untuk surat keterangan sehat (opsional)</p>
+                </div>
+            </div>
+        </form>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modal-title');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    if (modalTitle) {
+        modalTitle.textContent = 'Tambah Pendaki Baru';
+    }
+
+    // Add submit event to the form
+    const form = document.getElementById('add-pendaki-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const pendakiData = {
+                nama_lengkap: document.getElementById('nama_lengkap').value,
+                nik: document.getElementById('nik').value,
+                nomor_telepon: document.getElementById('nomor_telepon').value,
+                kontak_darurat: document.getElementById('kontak_darurat').value,
+                alamat: document.getElementById('alamat').value,
+                id_reservasi: parseInt(document.getElementById('id_reservasi').value),
+                url_surat_sehat: document.getElementById('url_surat_sehat').value || null
+            };
+
+            if (window.pendakiModule) {
+                window.pendakiModule.addPendaki(pendakiData);
+            }
+        });
+    }
+}
+
+// Function to show edit pendaki form in modal
+function showEditPendakiForm(pendakiId, pendakiData) {
+    const modalContent = document.getElementById('modal-content');
+    if (!modalContent) return;
+
+    modalContent.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Pendaki</h3>
+        <form id="edit-pendaki-form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nama_lengkap">
+                        <i class="fas fa-user mr-1"></i> Nama Lengkap *
+                    </label>
+                    <input type="text" id="edit_nama_lengkap" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${pendakiData.nama_lengkap || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nik">
+                        <i class="fas fa-id-card mr-1"></i> NIK *
+                    </label>
+                    <input type="text" id="edit_nik" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${pendakiData.nik || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nomor_telepon">
+                        <i class="fas fa-phone mr-1"></i> Nomor Telepon *
+                    </label>
+                    <input type="text" id="edit_nomor_telepon" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${pendakiData.nomor_telepon || ''}" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_kontak_darurat">
+                        <i class="fas fa-phone-alt mr-1"></i> Kontak Darurat *
+                    </label>
+                    <input type="text" id="edit_kontak_darurat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${pendakiData.kontak_darurat || ''}" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_alamat">
+                        <i class="fas fa-home mr-1"></i> Alamat *
+                    </label>
+                    <textarea id="edit_alamat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" rows="2" required>${pendakiData.alamat || ''}</textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_url_surat_sehat">
+                        <i class="fas fa-file-medical mr-1"></i> URL Surat Sehat
+                    </label>
+                    <input type="url" id="edit_url_surat_sehat" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${pendakiData.url_surat_sehat || ''}">
+                    <p class="text-xs text-gray-500 mt-1">Alamat URL untuk surat keterangan sehat (opsional)</p>
+                </div>
+            </div>
+        </form>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modal-title');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+    if (modalTitle) {
+        modalTitle.textContent = 'Edit Pendaki';
+    }
+
+    // Add submit event to the form
+    const form = document.getElementById('edit-pendaki-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const updatedPendakiData = {
+                nama_lengkap: document.getElementById('edit_nama_lengkap').value,
+                nik: document.getElementById('edit_nik').value,
+                nomor_telepon: document.getElementById('edit_nomor_telepon').value,
+                kontak_darurat: document.getElementById('edit_kontak_darurat').value,
+                alamat: document.getElementById('edit_alamat').value,
+                url_surat_sehat: document.getElementById('edit_url_surat_sehat').value || null
+            };
+
+            if (window.pendakiModule) {
+                window.pendakiModule.updatePendaki(pendakiId, updatedPendakiData);
+            }
+        });
+    }
+}
+
+// Function to handle editing a reservation hiker
+window.editPendakiFromRombongan = function(id_pendaki) {
+    // Fetch the specific pendaki data by ID
+    fetch(`api/pendaki.php?id_pendaki=${id_pendaki}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success' && result.data) {
+                showEditPendakiForm(id_pendaki, result.data);
+            } else {
+                Utils.showMessage('error', 'Pendaki tidak ditemukan');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching pendaki data:', error);
+            Utils.showMessage('error', 'Error connecting to server');
+        });
+};
+
+// Function to handle deleting a reservation hiker
+window.deletePendakiFromRombongan = function(id_pendaki, nama_lengkap) {
+    if (confirm(`Apakah Anda yakin ingin menghapus pendaki ${nama_lengkap}?`)) {
+        if (window.pendakiModule) {
+            window.pendakiModule.deletePendaki(id_pendaki);
+        }
     }
 };

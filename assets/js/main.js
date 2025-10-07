@@ -112,7 +112,7 @@ function setupAuthTabs() {
     }
     
     // Also handle all links that might trigger auth forms
-    const forgotPasswordLinks = document.querySelectorAll('a[href="#"], a[href^="javascript"], button[data-action="forgot-password"]');
+    const forgotPasswordLinks = document.querySelectorAll('a[href=\"#\"], a[href^=\"javascript\"], button[data-action=\"forgot-password\"]');
     forgotPasswordLinks.forEach(link => {
         if (link.textContent && (link.textContent.includes('Lupa password') || link.textContent.includes('Lupa Password'))) {
             link.addEventListener('click', function(e) {
@@ -122,7 +122,7 @@ function setupAuthTabs() {
         }
     });
     
-    const registerLinks = document.querySelectorAll('a[href="#"], a[href^="javascript"], button[data-action="register"]');
+    const registerLinks = document.querySelectorAll('a[href=\"#\"], a[href^=\"javascript\"], button[data-action=\"register\"]');
     registerLinks.forEach(link => {
         if (link.textContent && (link.textContent.includes('Daftar di sini') || link.textContent.includes('Register') || link.textContent.includes('Sign up'))) {
             link.addEventListener('click', function(e) {
@@ -240,7 +240,7 @@ function updateTestimonials(testimonials) {
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 italic text-lg relative pl-6 before:content-['"'] before:absolute before:left-0 before:top-0 before:text-4xl before:text-accent before:opacity-20">"${testimonial.komentar}"</p>
+            <p class="text-gray-600 italic text-lg relative pl-6 before:content-['\"'] before:absolute before:left-0 before:top-0 before:text-4xl before:text-accent before:opacity-20">"${testimonial.komentar}"</p>
         `;
         
         container.appendChild(card);
@@ -840,7 +840,7 @@ function initInteractiveFeatures() {
     });
     
     // Add smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
@@ -854,10 +854,17 @@ function initInteractiveFeatures() {
     });
     
     // Add scroll to top button
-    const scrollToTopBtn = document.createElement('div');
-    scrollToTopBtn.className = 'scroll-to-top';
-    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    document.body.appendChild(scrollToTopBtn);
+    let scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+    if (!scrollToTopBtn) {
+        scrollToTopBtn = document.createElement('div');
+        scrollToTopBtn.id = 'scroll-to-top-btn';
+        scrollToTopBtn.className = 'scroll-to-top';
+        scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        document.body.appendChild(scrollToTopBtn);
+    } else {
+        // If element already exists, just ensure the functionality is attached
+        scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    }
     
     window.addEventListener('scroll', function() {
         if (window.pageYOffset > 300) {
@@ -1246,6 +1253,72 @@ function addModernAnimations() {
             }
         });
     });
-}  
+}
+
 // Function to show verification modal  
-function showVerifikasiModal(\) {  
+function showVerifikasiModal() {
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.id = 'verifikasi-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4">Verifikasi Email</h3>
+            <p class="mb-4">Silakan masukkan token verifikasi yang dikirim ke email Anda.</p>
+            <input type="text" id="verifikasi-token" class="w-full p-2 border rounded mb-4" placeholder="Masukkan token...">
+            <div class="flex justify-end space-x-2">
+                <button id="verifikasi-batal" class="px-4 py-2 bg-gray-300 rounded">Batal</button>
+                <button id="verifikasi-submit" class="px-4 py-2 bg-green-600 text-white rounded">Verifikasi</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Set up event handlers
+    document.getElementById('verifikasi-batal').addEventListener('click', function() {
+        document.body.removeChild(modal);
+    });
+    
+    document.getElementById('verifikasi-submit').addEventListener('click', async function() {
+        const token = document.getElementById('verifikasi-token').value;
+        if (!token) {
+            alert('Silakan masukkan token verifikasi');
+            return;
+        }
+        
+        // Verify the token with the backend
+        try {
+            // This would call a function to verify the token in the database
+            const verificationResult = await verifyToken(token, 'registrasi');
+            
+            if (verificationResult) {
+                // Token is valid, update user verification status
+                const { error } = await supabase
+                    .from('pengguna')
+                    .update({ is_verified: true })
+                    .eq('id_pengguna', verificationResult.id_pengguna);
+                
+                if (error) {
+                    console.error('Error updating verification status:', error);
+                    alert('Terjadi kesalahan saat memperbarui status verifikasi');
+                    return;
+                }
+                
+                // Delete the used token
+                await deleteVerificationToken(token);
+                
+                alert('Email berhasil diverifikasi!');
+                document.body.removeChild(modal);
+                
+                // Optionally reload the page or redirect
+                // window.location.reload();
+            } else {
+                alert('Token verifikasi tidak valid atau telah kadaluarsa');
+            }
+        } catch (err) {
+            console.error('Error during verification:', err);
+            alert('Terjadi kesalahan saat memverifikasi token');
+        }
+    });
+}
