@@ -85,8 +85,10 @@ export class Utils {
     
     static parseRupiah(rupiah) {
         if (!rupiah) return 0;
+        // Convert to string first to ensure it's a string for replace operation
+        const rupiahString = String(rupiah);
         // Remove 'Rp ' prefix and dots, then parse to integer
-        return parseInt(rupiah.replace(/^Rp\s?|[.]/g, '')) || 0;
+        return parseInt(rupiahString.replace(/^Rp\s?|[.]/g, '')) || 0;
     }
     
     static formatDate(dateString) {

@@ -838,7 +838,7 @@
                                         <label class="block text-gray-700 text-sm font-bold mb-2" for="jumlah-pengeluaran">
                                             <i class="fas fa-dollar-sign mr-1"></i> Jumlah Pengeluaran (Rp)
                                         </label>
-                                        <input type="number" id="jumlah-pengeluaran" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan jumlah pengeluaran">
+                                        <input type="text" id="jumlah-pengeluaran" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan jumlah pengeluaran">
                                     </div>
                                     <div class="animate-slide-in" style="animation-delay: 0.1s;">
                                         <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-pengeluaran">
@@ -856,10 +856,15 @@
                                         <label class="block text-gray-700 text-sm font-bold mb-2" for="kategori-pengeluaran">
                                             <i class="fas fa-tags mr-1"></i> Kategori
                                         </label>
-                                        <select id="kategori-pengeluaran" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                            <option value="">Pilih Kategori</option>
-                                            <!-- Categories will be loaded dynamically -->
-                                        </select>
+                                        <div class="flex">
+                                            <select id="kategori-pengeluaran" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                                <option value="">Pilih Kategori</option>
+                                                <!-- Categories will be loaded dynamically -->
+                                            </select>
+                                            <button type="button" id="tambah-kategori-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg btn-modern flex items-center" style="border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px;">
+                                                <i class="fas fa-plus mr-1"></i> Tambah
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 

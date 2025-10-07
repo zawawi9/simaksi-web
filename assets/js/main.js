@@ -280,8 +280,8 @@ async function loadActiveAnnouncements() {
                 id_admin,
                 pengguna!inner(nama_lengkap)
             `)
-            .lte('start_date', now)      // Announcement has started (start_date <= now)
-            .gte('end_date', now)        // Announcement hasn't ended (end_date >= now)
+            .lte('start_date', now)      // start_date is less than or equal to now (announcement has started)
+            .gte('end_date', now)        // end_date is greater than or equal to now (announcement hasn't ended)
             .eq('telah_terbit', true)    // Only published announcements
             .order('dibuat_pada', { ascending: false }); // Order by creation date, newest first
         
