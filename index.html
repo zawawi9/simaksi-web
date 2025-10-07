@@ -409,6 +409,17 @@
             transform: translateY(-2px);
         }
         
+        .navbar-scrolled {
+            background: rgba(30, 132, 73, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .navbar-scrolled a, .navbar-scrolled button {
+            color: white !important;
+            border-color: white !important;
+        }
+        
         /* Modern animations */
         .card-glow {
             position: absolute;
@@ -436,7 +447,7 @@
             <button class="text-xl">
                 <i class="fas fa-moon"></i>
             </button>
-            <a href="#login" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
+            <a href="#auth" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
                 Login
             </a>
         </div>
@@ -1654,6 +1665,26 @@
         }
         
         window.addEventListener('scroll', highlightNavOnScroll);
+        
+        // Add glassmorphism effect to navbar on scroll
+        const navbar = document.querySelector('nav');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+        
+        // Ensure navbar remains visible on all scroll positions
+        window.addEventListener('scroll', function() {
+            // Always ensure the navbar has appropriate contrast
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
     </script>
     
     <!-- Include main.js -->
