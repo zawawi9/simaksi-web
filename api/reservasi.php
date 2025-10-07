@@ -48,22 +48,47 @@ if ($method === 'GET') {
         exit;
     }
 
-    // Build query based on parameters for listing
-    $query = '/reservasi?select=id_reservasi,kode_reservasi,nama_ketua_rombongan,tanggal_pendakian,jumlah_pendaki,status&';
-    
-    if ($kode) {
-        $query .= 'kode_reservasi=ilike.%' . $kode . '%&';
-    }
-    
+    // Check if searching by name - this requires a different approach
     if ($nama) {
-        $query .= 'nama_ketua_rombongan=ilike.%' . $nama . '%&';
-    }
-    
-    // If no specific search, show today's reservations
-    if (!$kode && !$nama) {
-        $query .= 'tanggal_pendakian=eq.' . $date . '&order=nama_ketua_rombongan.asc';
+        // First, get user IDs that match the name
+        $usersResponse = makeSupabaseRequest('/pengguna?select=id_pengguna&nama_lengkap=ilike.*' . $nama . '*');
+        if (isset($usersResponse['error'])) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => $usersResponse['error']]);
+            exit;
+        }
+        
+        if (empty($usersResponse['data'])) {
+            // No matching users found
+            echo json_encode(['status' => 'success', 'data' => []]);
+            exit;
+        }
+        
+        // Extract user IDs
+        $userIds = array_column($usersResponse['data'], 'id_pengguna');
+        
+        // Build query for reservations with specific user IDs
+        $query = '/reservasi?select=id_reservasi,kode_reservasi,tanggal_pendakian,jumlah_pendaki,status,id_pengguna&';
+        $query .= 'id_pengguna=in.(' . implode(',', $userIds) . ')'; // Filter by user IDs
+        
+        if ($kode) {
+            $query .= '&kode_reservasi=ilike.*' . $kode . '*';
+        }
+        
+        $query .= '&order=kode_reservasi.asc';
+        
     } else {
-        $query .= 'order=nama_ketua_rombongan.asc';
+        // Standard query without name search
+        $query = '/reservasi?select=id_reservasi,kode_reservasi,tanggal_pendakian,jumlah_pendaki,status,id_pengguna&';
+        
+        if ($kode) {
+            $query .= 'kode_reservasi=ilike.*' . $kode . '*&';
+        } else {
+            // If no specific search, show today's reservations
+            $query .= 'tanggal_pendakian=eq.' . $date . '&';
+        }
+        
+        $query .= 'order=kode_reservasi.asc';
     }
 
     $response = makeSupabaseRequest($query);
@@ -78,6 +103,14 @@ if ($method === 'GET') {
     $reservasiWithDetails = [];
     if (isset($response['data'])) {
         foreach ($response['data'] as $reservasi) {
+            // Get user details to get nama_lengkap
+            $userResponse = makeSupabaseRequest('/pengguna?select=nama_lengkap&id_pengguna=eq.' . $reservasi['id_pengguna']);
+            if (!isset($userResponse['error']) && !empty($userResponse['data']) && isset($userResponse['data'][0]['nama_lengkap'])) {
+                $reservasi['nama_ketua_rombongan'] = $userResponse['data'][0]['nama_lengkap'];
+            } else {
+                $reservasi['nama_ketua_rombongan'] = 'Nama tidak ditemukan';
+            }
+            
             // Get pendaki rombongan details
             $pendakiResponse = makeSupabaseRequest('/pendaki_rombongan?select=*&id_reservasi=eq.' . $reservasi['id_reservasi']);
             $pendakiList = isset($pendakiResponse['data']) ? $pendakiResponse['data'] : [];

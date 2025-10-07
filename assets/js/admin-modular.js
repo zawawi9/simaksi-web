@@ -6,13 +6,12 @@ import { QuotasModule } from './modules/quotas_php.js';
 import { FinanceModule } from './modules/finance_php.js';
 import { Router } from './modules/router.js';
 import { Utils } from './modules/utils.js';
-import { supabase } from './config.js';
 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         // Verify we have a valid Supabase instance
-        if (!supabase) {
+        if (!window.supabase) {
             console.error('Supabase client not loaded');
             window.location.href = 'index.html';
             return;
@@ -33,12 +32,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.reservationsModule = reservationsModule;
         window.quotasModule = quotasModule;
         window.financeModule = financeModule;
+        
+        // Make Utils class available globally
+        window.Utils = Utils;
 
         // Set up navigation
         router.setupNavigation();
 
         // Set up logout functionality
-        setupLogout(supabase);
+        setupLogout();
 
         // Set up modal functionality
         setupModal();
@@ -51,12 +53,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Set up pengeluaran form submission
         setupPengeluaranForm(financeModule);
+        
+        // Set up kuota form submission
+        setupKuotaForm(quotasModule);
 
         // Load initial content
         reservationsModule.loadReservasiData();
         
         // Load pengeluaran form
         financeModule.loadPengeluaranForm();
+        
+        // Load kuota data
+        quotasModule.loadKuotaData();
 
         // Show dashboard by default
         setTimeout(() => {
@@ -82,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function checkAdminSession() {
     try {
         // Get current session token from Supabase
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
         
         if (sessionError || !session) {
             console.log('No valid session found, redirecting to login');
@@ -95,7 +103,7 @@ async function checkAdminSession() {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // Verify if user is an admin from the pengguna table using Supabase directly
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error: userError } = await window.supabase
             .from('pengguna')
             .select('peran, nama_lengkap')
             .eq('id_pengguna', session.user.id)
@@ -129,12 +137,12 @@ async function checkAdminSession() {
 }
 
 // Function to set up logout functionality
-function setupLogout(supabase) {
+function setupLogout() {
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async function() {
             try {
-                const { error } = await supabase.auth.signOut();
+                const { error } = await window.supabase.auth.signOut();
                 if (error) {
                     console.error('Error logging out:', error);
                     Utils.showMessage('error', 'Gagal logout. Silakan coba lagi.');
@@ -247,6 +255,27 @@ function setupPengeluaranForm(financeModule) {
             
             if (financeModule) {
                 financeModule.savePengeluaran(jumlah, tanggal, keterangan, kategori);
+            }
+        });
+    }
+}
+
+// Function to set up quota form
+function setupKuotaForm(quotasModule) {
+    const simpanKuotaBtn = document.getElementById('simpan-kuota');
+    
+    if (simpanKuotaBtn) {
+        simpanKuotaBtn.addEventListener('click', function() {
+            const tanggal = document.getElementById('kuota-tanggal').value;
+            const kuotaMaksimal = document.getElementById('kuota-maksimal').value;
+            
+            if (!tanggal || !kuotaMaksimal) {
+                Utils.showMessage('error', 'Tanggal dan kuota maksimal harus diisi');
+                return;
+            }
+            
+            if (quotasModule) {
+                quotasModule.saveKuota(tanggal, kuotaMaksimal);
             }
         });
     }

@@ -67,7 +67,16 @@ if ($method === 'GET') {
     $tanggal_pengeluaran = $input['tanggal_pengeluaran'];
     $keterangan = $input['keterangan'];
     $id_kategori = $input['id_kategori'] ?? null;
-    $admin_id = $input['admin_id'] ?? '00000000-0000-0000-0000-000000000000'; // placeholder
+    
+    // For now, use a default admin ID or require it in the request
+    // In a real app, this would come from the authenticated user session
+    if (!isset($input['admin_id']) || empty($input['admin_id'])) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'admin_id is required']);
+        exit;
+    }
+    
+    $admin_id = $input['admin_id'];
     
     // Insert new pengeluaran
     $createResponse = makeSupabaseRequest('/pengeluaran', 'POST', [
