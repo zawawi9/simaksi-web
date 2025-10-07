@@ -131,7 +131,8 @@ if ($method === 'GET') {
         'data' => $reservasiWithDetails
     ]);
     
-} elseif ($method === 'POST') {
+} elseif ($method === 'PATCH') {
+    // Handle updating reservation data including status_sampah
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['id_reservasi'])) {
@@ -141,11 +142,22 @@ if ($method === 'GET') {
     }
     
     $id_reservasi = $input['id_reservasi'];
+    $updateData = [];
     
-    // Update reservation status to 'terkonfirmasi'
-    $updateResponse = makeSupabaseRequest('/reservasi?id_reservasi=eq.' . $id_reservasi, 'PATCH', [
-        'status' => 'terkonfirmasi'
-    ]);
+    // Prepare data to update based on provided input
+    if (isset($input['status_sampah'])) {
+        $updateData['status_sampah'] = $input['status_sampah'];
+    }
+    
+    // Only update if there's data to update
+    if (empty($updateData)) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'No data to update']);
+        exit;
+    }
+    
+    // Update reservation in Supabase
+    $updateResponse = makeSupabaseRequest('/reservasi?id_reservasi=eq.' . $id_reservasi, 'PATCH', $updateData);
     
     if (isset($updateResponse['error'])) {
         http_response_code(500);
@@ -153,40 +165,20 @@ if ($method === 'GET') {
         exit;
     }
     
-    // Record the income
-    $reservasiResponse = makeSupabaseRequest('/reservasi?id_reservasi=eq.' . $id_reservasi . '&select=total_harga,id_pengguna');
-    if (isset($reservasiResponse['error'])) {
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => $reservasiResponse['error']]);
-        exit;
-    }
-    
-    if (isset($reservasiResponse['data'][0])) {
-        $reservasiData = $reservasiResponse['data'][0];
-        
-        // Find the admin user (assuming the current admin is identified somehow)
-        // For now, using a placeholder admin id
-        $admin_id = $input['admin_id'] ?? '00000000-0000-0000-0000-000000000000';
-        
-        // Insert into pemasukan table
-        $pemasukanResponse = makeSupabaseRequest('/pemasukan', 'POST', [
-            'id_reservasi' => $id_reservasi,
-            'id_admin' => $admin_id,
-            'jumlah' => (int)$reservasiData['total_harga'],
-            'keterangan' => 'Pemasukan dari tiket reservasi kode: ' . $input['kode_reservasi'],
-            'tanggal_pemasukan' => date('Y-m-d')
-        ]);
-        
-        if (isset($pemasukanResponse['error'])) {
-            // Log error but don't fail the confirmation
-            error_log('Error recording income: ' . $pemasukanResponse['error']);
-        }
-    }
-    
     echo json_encode([
         'status' => 'success',
-        'message' => 'Reservation confirmed successfully'
+        'message' => 'Reservation updated successfully'
     ]);
+    
+} elseif ($method === 'POST') {
+    // This endpoint should not handle payment confirmation anymore
+    // Payment confirmation should be handled by api/konfirmasi_pembayaran.php
+    http_response_code(400);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'This endpoint does not handle payment confirmation. Use /konfirmasi_pembayaran.php instead.'
+    ]);
+    exit;
 } else {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);

@@ -57,7 +57,7 @@ export class ReservationsModule {
         if (!reservasiList || reservasiList.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada reservasi ditemukan</td>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada reservasi ditemukan</td>
                 </tr>
             `;
             document.getElementById('jumlah-entri').textContent = '0';
@@ -76,6 +76,11 @@ export class ReservationsModule {
                 <td class="px-6 py-4">
                     <span class="status-badge status-${this.getStatusClass(reservasi.status)}">
                         ${this.getStatusText(reservasi.status)}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="status-badge status-${this.getSampahStatusClass(reservasi.status_sampah)}">
+                        ${this.getSampahStatusText(reservasi.status_sampah)}
                     </span>
                 </td>
                 <td class="px-6 py-4 text-sm font-medium">
@@ -118,26 +123,48 @@ export class ReservationsModule {
         }
     }
 
+    getSampahStatusClass(statusSampah) {
+        switch (statusSampah) {
+            case 'belum_dicek': return 'menunggu';
+            case 'sesuai': return 'terkonfirmasi';
+            case 'tidak_sesuai': return 'dibatalkan';
+            default: return 'menunggu';
+        }
+    }
+
+    getSampahStatusText(statusSampah) {
+        switch (statusSampah) {
+            case 'belum_dicek': return 'Belum Dicek';
+            case 'sesuai': return 'Sesuai';
+            case 'tidak_sesuai': return 'Tidak Sesuai';
+            default: return statusSampah;
+        }
+    }
+
     async confirmPayment(id_reservasi, kode_reservasi) {
         try {
-            // Get admin ID - in a real app, this would come from session
-            const adminId = '00000000-0000-0000-0000-000000000000'; // placeholder
+            // Get the current admin ID from the session
+            const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+            if (sessionError || !session) {
+                throw new Error('Sesi admin tidak valid');
+            }
             
-            const response = await fetch(`${this.apiBaseUrl}/reservasi.php`, {
+            const adminId = session.user.id;
+            
+            const response = await fetch(`${this.apiBaseUrl}/konfirmasi_pembayaran.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id_reservasi: id_reservasi,
-                    kode_reservasi: kode_reservasi,
-                    admin_id: adminId
+                    id_admin: adminId
                 })
             });
             
             const result = await response.json();
 
-            if (result.status === 'success') {
+            if (result.status === 'sukses') {
                 this.showMessage('success', result.message);
                 // Reload the data to reflect the changes
                 this.loadReservasiData();
@@ -151,6 +178,48 @@ export class ReservationsModule {
             }
         } catch (error) {
             console.error('Error confirming payment:', error);
+            this.showMessage('error', 'Error connecting to server');
+        }
+    }
+
+    async updateSampahStatus(id_reservasi, status_sampah) {
+        try {
+            // Get the current admin ID from the session
+            const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+            if (sessionError || !session) {
+                throw new Error('Sesi admin tidak valid');
+            }
+            
+            const adminId = session.user.id;
+            
+            const response = await fetch(`${this.apiBaseUrl}/reservasi.php`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_reservasi: id_reservasi,
+                    status_sampah: status_sampah,
+                    id_admin: adminId
+                })
+            });
+            
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                this.showMessage('success', result.message || 'Status sampah berhasil diperbarui');
+                // Reload the data to reflect the changes
+                this.loadReservasiData();
+                // Hide the modal if it's open
+                if (window.Utils && window.Utils.hideModal) {
+                    window.Utils.hideModal();
+                }
+            } else {
+                console.error('Error updating sampah status:', result.message);
+                this.showMessage('error', result.message || 'Gagal memperbarui status sampah');
+            }
+        } catch (error) {
+            console.error('Error updating sampah status:', error);
             this.showMessage('error', 'Error connecting to server');
         }
     }

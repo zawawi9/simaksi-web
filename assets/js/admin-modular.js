@@ -4,6 +4,7 @@ import { DashboardModule } from './modules/dashboard_php.js';
 import { ReservationsModule } from './modules/reservasi_php.js';
 import { QuotasModule } from './modules/quotas_php.js';
 import { FinanceModule } from './modules/finance_php.js';
+import { AnnouncementModule } from './modules/pengumuman_php.js';
 import { Router } from './modules/router.js';
 import { Utils } from './modules/utils.js';
 
@@ -25,7 +26,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const reservationsModule = new ReservationsModule();
         const quotasModule = new QuotasModule();
         const financeModule = new FinanceModule();
-        const router = new Router(dashboardModule, reservationsModule, quotasModule, financeModule);
+        const announcementModule = new AnnouncementModule();
+        const router = new Router(dashboardModule, reservationsModule, quotasModule, financeModule, announcementModule);
 
         // Make modules available globally for HTML onclick events
         window.dashboardModule = dashboardModule;
@@ -65,6 +67,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Load kuota data
         quotasModule.loadKuotaData();
+        
+        // Load announcement data
+        if (announcementModule) {
+            announcementModule.loadAnnouncements();
+            // Setup announcement form submission after modules are initialized
+            setupPengumumanForm(announcementModule);
+        }
 
         // Show dashboard by default
         setTimeout(() => {
@@ -281,6 +290,37 @@ function setupKuotaForm(quotasModule) {
     }
 }
 
+// Function to set up pengumuman form
+function setupPengumumanForm(announcementModule) {
+    const pengumumanForm = document.getElementById('pengumuman-form');
+    
+    if (pengumumanForm) {
+        // Check if event listener has already been added to avoid duplicates
+        if (!pengumumanForm.dataset.listenerAdded) {
+            pengumumanForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const judul = document.getElementById('judul-pengumuman').value;
+                const konten = document.getElementById('konten-pengumuman').value;
+                const startDate = document.getElementById('tanggal-mulai').value;
+                const endDate = document.getElementById('tanggal-selesai').value;
+                const status = document.getElementById('status-pengumuman').value;
+                
+                if (!judul || !konten || !startDate || !endDate) {
+                    Utils.showMessage('error', 'Semua field wajib diisi');
+                    return;
+                }
+                
+                if (announcementModule) {
+                    announcementModule.saveAnnouncement(judul, konten, startDate, endDate, status);
+                }
+            });
+            
+            pengumumanForm.dataset.listenerAdded = 'true';
+        }
+    }
+}
+
 // Make some functions available globally for HTML onclick events
 window.switchKeuanganTab = function(tabName) {
     // This function will be updated after modules are initialized
@@ -288,6 +328,9 @@ window.switchKeuanganTab = function(tabName) {
         window.financeModule.switchKeuanganTab(tabName);
     }
 };
+
+// Make setupPengumumanForm available globally
+window.setupPengumumanForm = setupPengumumanForm;
 
 // Function to show reservation details in modal
 window.showReservationDetail = function(id_reservasi) {
@@ -305,9 +348,15 @@ window.showReservationDetail = function(id_reservasi) {
                 if (rombonganList) {
                     rombonganList.innerHTML = '';
                     reservasi.pendaki_rombongan.forEach(pendaki => {
+                        // Create list item with surat sehat info
                         const li = document.createElement('li');
-                        li.className = 'mb-2';
-                        li.textContent = `${pendaki.nama_lengkap} - ${pendaki.nik}`;
+                        li.className = 'mb-2 flex justify-between items-center';
+                        li.innerHTML = `
+                            <span>${pendaki.nama_lengkap} - ${pendaki.nik}</span>
+                            ${pendaki.url_surat_sehat ? 
+                                `<a href="${pendaki.url_surat_sehat}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">Lihat Surat Sehat</a>` : 
+                                '<span class="text-red-600 text-sm">Tidak ada surat sehat</span>'}
+                        `;
                         rombonganList.appendChild(li);
                     });
                 }
@@ -333,6 +382,33 @@ window.showReservationDetail = function(id_reservasi) {
                     }
                 }
                 
+                // Set up sampah validation buttons
+                const sampahSesuaiBtn = document.getElementById('sampahSesuai');
+                const sampahTidakSesuaiBtn = document.getElementById('sampahTidakSesuai');
+                
+                if (sampahSesuaiBtn && sampahTidakSesuaiBtn) {
+                    // Initially hide both buttons
+                    sampahSesuaiBtn.style.display = 'none';
+                    sampahTidakSesuaiBtn.style.display = 'none';
+                    
+                    // Show appropriate button based on current status_sampah
+                    if (reservasi.status_sampah === 'belum_dicek') {
+                        sampahSesuaiBtn.style.display = 'inline-block';
+                        sampahTidakSesuaiBtn.style.display = 'inline-block';
+                        
+                        sampahSesuaiBtn.onclick = () => window.updateSampahStatus(reservasi.id_reservasi, 'sesuai');
+                        sampahTidakSesuaiBtn.onclick = () => window.updateSampahStatus(reservasi.id_reservasi, 'tidak_sesuai');
+                    } else {
+                        // Show text indicating current status
+                        const statusText = document.createElement('div');
+                        statusText.className = 'mt-2 text-sm';
+                        statusText.innerHTML = `<strong>Status Sampah:</strong> <span class="status-badge status-${window.reservationsModule.getSampahStatusClass(reservasi.status_sampah)}">${window.reservationsModule.getSampahStatusText(reservasi.status_sampah)}</span>`;
+                        
+                        const modalContent = document.getElementById('modal-content');
+                        modalContent.appendChild(statusText);
+                    }
+                }
+                
                 // Show the modal
                 const modal = document.getElementById('detailModal');
                 if (modal) {
@@ -352,5 +428,30 @@ window.showReservationDetail = function(id_reservasi) {
 window.confirmPayment = function(id_reservasi, kode_reservasi) {
     if (window.reservationsModule) {
         window.reservationsModule.confirmPayment(id_reservasi, kode_reservasi);
+    }
+};
+
+// Function to edit announcement
+window.editAnnouncement = function(id_pengumuman) {
+    // This function will be implemented to handle editing announcement
+    console.log('Edit announcement with id:', id_pengumuman);
+    if (window.announcementModule) {
+        window.announcementModule.switchAnnouncementTab('tambah');
+    }
+};
+
+// Function to delete announcement
+window.deleteAnnouncement = function(id_pengumuman) {
+    if (window.announcementModule) {
+        if (confirm('Apakah Anda yakin ingin menghapus pengumuman ini?')) {
+            window.announcementModule.deleteAnnouncement(id_pengumuman);
+        }
+    }
+};
+
+// Function to update sampah status
+window.updateSampahStatus = function(id_reservasi, status_sampah) {
+    if (window.reservationsModule) {
+        window.reservationsModule.updateSampahStatus(id_reservasi, status_sampah);
     }
 };

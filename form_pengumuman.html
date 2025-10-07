@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pengumuman - Aplikasi Reservasi Gunung Butak</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #1E8449;
+            --accent: #2ECC71;
+            --dark-green: #145A32;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .card-modern {
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .input-modern {
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .input-modern:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+        }
+        
+        .btn-modern {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen bg-gray-50 py-12">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Formulir Pengumuman</h1>
+                <p class="text-gray-600">Buat pengumuman baru untuk disampaikan kepada pengguna</p>
+            </div>
+            
+            <div class="card-modern bg-white p-8">
+                <form id="pengumumanForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="animate-slide-in">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="judul-pengumuman">
+                                <i class="fas fa-heading mr-1"></i> Judul Pengumuman *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="judul-pengumuman" 
+                                class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                placeholder="Masukkan judul pengumuman"
+                                required
+                            >
+                            <p class="mt-1 text-xs text-gray-500">Judul maksimal 255 karakter</p>
+                        </div>
+                        <div class="animate-slide-in" style="animation-delay: 0.1s;">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="status-pengumuman">
+                                <i class="fas fa-toggle-on mr-1"></i> Status Tayang *
+                            </label>
+                            <select 
+                                id="status-pengumuman" 
+                                class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                required
+                            >
+                                <option value="">Pilih Status</option>
+                                <option value="true">Terbit (Aktif)</option>
+                                <option value="false">Tidak Terbit (Draft)</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2 animate-slide-in" style="animation-delay: 0.2s;">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="konten-pengumuman">
+                                <i class="fas fa-file-alt mr-1"></i> Isi Pengumuman *
+                            </label>
+                            <textarea 
+                                id="konten-pengumuman" 
+                                class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                placeholder="Tulis isi pengumuman di sini..."
+                                rows="8"
+                                required
+                            ></textarea>
+                            <p class="mt-1 text-xs text-gray-500">Isi pengumuman dapat berupa teks panjang</p>
+                        </div>
+                        <div class="animate-slide-in" style="animation-delay: 0.3s;">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-mulai">
+                                <i class="fas fa-calendar mr-1"></i> Tanggal Mulai Tayang *
+                            </label>
+                            <input 
+                                type="date" 
+                                id="tanggal-mulai" 
+                                class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                required
+                            >
+                        </div>
+                        <div class="animate-slide-in" style="animation-delay: 0.4s;">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-selesai">
+                                <i class="fas fa-calendar-times mr-1"></i> Tanggal Selesai Tayang *
+                            </label>
+                            <input 
+                                type="date" 
+                                id="tanggal-selesai" 
+                                class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between animate-slide-in" style="animation-delay: 0.5s;">
+                        <button 
+                            type="submit" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg btn-modern flex items-center"
+                        >
+                            <i class="fas fa-save mr-2"></i> Simpan Pengumuman
+                        </button>
+                        <button 
+                            type="reset" 
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg btn-modern flex items-center"
+                        >
+                            <i class="fas fa-redo mr-2"></i> Reset Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="mt-8 bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded">
+                <p class="font-bold"><i class="fas fa-info-circle mr-2"></i> Informasi Penting:</p>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                    <li>Field dengan tanda bintang (<strong>*</strong>) wajib diisi</li>
+                    <li>Format tanggal: YYYY-MM-DD (misalnya: 2025-10-07)</li>
+                    <li>Tanggal mulai tayang harus sebelum atau sama dengan tanggal selesai tayang</li>
+                    <li>Status <strong>Terbit</strong> membuat pengumuman langsung tampil untuk pengguna</li>
+                    <li>Status <strong>Tidak Terbit</strong> menyimpan pengumuman sebagai draft</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Message Container -->
+    <div id="message-container" class="fixed top-4 right-4 z-50 hidden">
+        <div id="message-content" class="px-6 py-4 rounded-lg shadow-lg text-white max-w-xs"></div>
+    </div>
+
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://kitxtcpfnccblznbagzx.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpdHh0Y3BmbmNjYmx6bmJhZ3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODIxMzEsImV4cCI6MjA3NTE1ODEzMX0.OySigpw4AWI3G7JW_8r8yXu7re0Mr9CYv8u3d9Fr548';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Form submission handler
+        document.getElementById('pengumumanForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const judul = document.getElementById('judul-pengumuman').value;
+            const konten = document.getElementById('konten-pengumuman').value;
+            const startDate = document.getElementById('tanggal-mulai').value;
+            const endDate = document.getElementById('tanggal-selesai').value;
+            const telah_terbit = document.getElementById('status-pengumuman').value === 'true';
+
+            // Validate dates
+            if (new Date(startDate) > new Date(endDate)) {
+                showMessage('error', 'Tanggal mulai tayang harus sebelum atau sama dengan tanggal selesai tayang');
+                return;
+            }
+
+            try {
+                // Get admin session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('Sesi admin tidak valid');
+                }
+                
+                const adminId = session.user.id;
+
+                // Format dates with timestamp
+                const formattedStartDate = startDate + 'T00:00:00+00:00';
+                const formattedEndDate = endDate + 'T23:59:59+00:00';
+
+                // Create announcement
+                const { data, error } = await supabase
+                    .from('pengumuman')
+                    .insert([{
+                        id_admin: adminId,
+                        judul: judul,
+                        konten: konten,
+                        start_date: formattedStartDate,
+                        end_date: formattedEndDate,
+                        telah_terbit: telah_terbit
+                    }]);
+
+                if (error) {
+                    console.error('Error saving announcement:', error);
+                    showMessage('error', error.message || 'Gagal menyimpan pengumuman');
+                } else {
+                    showMessage('success', 'Pengumuman berhasil dibuat');
+                    // Reset form
+                    document.getElementById('pengumumanForm').reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', error.message || 'Terjadi kesalahan saat menyimpan pengumuman');
+            }
+        });
+
+        // Function to show messages
+        function showMessage(type, message) {
+            const container = document.getElementById('message-container');
+            const content = document.getElementById('message-content');
+            
+            if (!content) return;
+            
+            // Set message content and style
+            content.textContent = message;
+            content.className = 'px-6 py-4 rounded-lg shadow-lg text-white';
+            
+            // Add appropriate classes based on message type
+            if (type === 'success') {
+                content.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                content.classList.add('bg-red-500');
+            } else {
+                content.classList.add('bg-blue-500');
+            }
+            
+            // Show the container
+            container.classList.remove('hidden');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -167,9 +167,35 @@ export class FinanceModule {
     }
 
     async loadPengeluaranForm() {
-        // Load categories for the select dropdown if needed
+        // Load categories for the select dropdown from the Supabase table
         try {
-            // For now, we'll just populate some default options
+            const { data: categories, error } = await window.supabase
+                .from('kategori_pengeluaran')
+                .select('id_kategori, nama_kategori');
+
+            const categorySelect = document.getElementById('kategori-pengeluaran');
+            if (categorySelect) {
+                categorySelect.innerHTML = '<option value="">Pilih Kategori</option>';
+                
+                if (error) {
+                    console.error('Error fetching categories:', error);
+                    // Fallback to default options if API call fails
+                    categorySelect.innerHTML += `
+                        <option value="1">Operasional</option>
+                        <option value="2">Peralatan</option>
+                        <option value="3">Transportasi</option>
+                        <option value="4">Administrasi</option>
+                        <option value="5">Lainnya</option>
+                    `;
+                } else if (categories && categories.length > 0) {
+                    categories.forEach(category => {
+                        categorySelect.innerHTML += `<option value="${category.id_kategori}">${category.nama_kategori}</option>`;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error loading expense form:', error);
+            // Fallback to default options
             const categorySelect = document.getElementById('kategori-pengeluaran');
             if (categorySelect) {
                 categorySelect.innerHTML = `
@@ -181,8 +207,6 @@ export class FinanceModule {
                     <option value="5">Lainnya</option>
                 `;
             }
-        } catch (error) {
-            console.error('Error loading expense form:', error);
         }
     }
 
