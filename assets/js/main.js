@@ -493,7 +493,7 @@ async function handleRegister(event) {
         
         // Check if user needs email confirmation
         if (data.user) {
-            // User created successfully, now add to pengguna table
+            // User created successfully in Supabase Auth, now add to pengguna table
             const { error: insertError } = await supabase
                 .from('pengguna')
                 .insert([{
@@ -502,7 +502,7 @@ async function handleRegister(event) {
                     email: email,
                     nomor_telepon: phone,
                     peran: 'pendaki',
-                    is_verified: false
+                    is_verified: data.user.email_confirmed_at ? true : false  // Set based on email confirmation status
                 }]);
             
             if (insertError) {
@@ -516,6 +516,11 @@ async function handleRegister(event) {
             
             // Reset form
             document.getElementById('registerForm').reset();
+            
+            // Show verification modal to enter the token
+            // In a real implementation, you would have the token from the registration response
+            // For now, we'll just show the modal for users to enter the token they received
+            setTimeout(showVerifikasiModal, 1000); // Show modal after 1 second to let user read the message
         } else if (data.session) {
             // User is already logged in after registration
             showMessage('register-success-message', 'Pendaftaran berhasil! Anda telah login.');
@@ -552,23 +557,166 @@ async function handleForgotPassword(event) {
     hideMessage('forgot-success-message');
     
     try {
-        // Send password reset email
+        // Use Supabase's built-in password reset functionality
+        // This will send a reset password email through Supabase
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/reset-password' // You can customize this
+            redirectTo: `${window.location.origin}/reset-password` // Redirect to password reset page
         });
         
         if (error) {
             console.error('Forgot password error:', error);
-            showMessage('forgot-error-message', error.message || 'Terjadi kesalahan saat mengirim kode verifikasi');
+            showMessage('forgot-error-message', error.message || 'Terjadi kesalahan saat mengirim email reset password');
             return;
         }
         
         // Show success message
-        showMessage('forgot-success-message', 'Kode verifikasi telah dikirim ke email Anda. Silakan cek inbox Anda.');
+        showMessage('forgot-success-message', 'Instruksi reset password telah dikirim ke email Anda. Silakan cek inbox Anda.');
     } catch (err) {
         console.error('Forgot password error:', err);
-        showMessage('forgot-error-message', 'Terjadi kesalahan saat mengirim kode verifikasi');
+        showMessage('forgot-error-message', 'Terjadi kesalahan saat mengirim email reset password');
     }
+}
+
+// Function to generate a random token
+function generateVerificationToken(length = 32) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+// Function to create verification token in database
+async function createVerificationToken(userId, email, jenis) {
+    try {
+        // Generate a unique token
+        const token = generateVerificationToken();
+        
+        // Set expiry time (24 hours from now)
+        const expiryTime = new Date();
+        expiryTime.setHours(expiryTime.getHours() + 24); // 24 hours expiry
+        
+        // Insert verification token into database
+        const { data, error } = await supabase
+            .from('verifikasi_email')
+            .insert([{
+                id_pengguna: userId,
+                email: email,
+                token: token,
+                jenis: jenis,
+                kadaluarsa_pada: expiryTime.toISOString()
+            }])
+            .select()
+            .single();
+        
+        if (error) {
+            console.error('Error creating verification token:', error);
+            return null;
+        }
+        
+        return token;
+    } catch (err) {
+        console.error('Error creating verification token:', err);
+        return null;
+    }
+}
+
+// Function to verify token from database
+async function verifyToken(token, jenis) {
+    try {
+        const { data, error } = await supabase
+            .from('verifikasi_email')
+            .select(`
+                id_verifikasi,
+                id_pengguna,
+                email,
+                token,
+                jenis,
+                dibuat_pada,
+                kadaluarsa_pada,
+                pengguna(is_verified)
+            `)
+            .eq('token', token)
+            .eq('jenis', jenis)
+            .gt('kadaluarsa_pada', new Date().toISOString()) // Not expired
+            .single();
+        
+        if (error) {
+            console.error('Error verifying token:', error);
+            return null;
+        }
+        
+        return data;
+    } catch (err) {
+        console.error('Error verifying token:', err);
+        return null;
+    }
+}
+
+// Function to delete used verification token
+async function deleteVerificationToken(token) {
+    try {
+        const { error } = await supabase
+            .from('verifikasi_email')
+            .delete()
+            .eq('token', token);
+        
+        if (error) {
+            console.error('Error deleting verification token:', error);
+            return false;
+        }
+        
+        return true;
+    } catch (err) {
+        console.error('Error deleting verification token:', err);
+        return false;
+    }
+}
+
+// Function to handle email verification callback
+async function handleEmailVerification() {
+    // This function should be called on the page that handles email verification redirects
+    // Check URL parameters for verification details
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type');
+    const token = urlParams.get('token');
+    const nextUrl = urlParams.get('next');
+    
+    if (type === 'signup' && token) {
+        try {
+            // Verify the signup using the token
+            const { data, error } = await supabase.auth.verifyOtp({
+                type: 'email',
+                token: token,
+            });
+            
+            if (error) {
+                console.error('Email verification error:', error);
+                return { success: false, message: error.message };
+            }
+            
+            // Update the user's verification status in our pengguna table
+            if (data.user) {
+                const { error: updateError } = await supabase
+                    .from('pengguna')
+                    .update({ is_verified: true })
+                    .eq('id_pengguna', data.user.id);
+                
+                if (updateError) {
+                    console.error('Error updating verification status:', updateError);
+                    // Don't fail the process, just log the error
+                }
+                
+                return { success: true, message: 'Email berhasil diverifikasi', user: data.user };
+            }
+        } catch (err) {
+            console.error('Email verification error:', err);
+            return { success: false, message: 'Terjadi kesalahan saat memverifikasi email' };
+        }
+    }
+    
+    return { success: false, message: 'Tidak ada parameter verifikasi yang valid' };
 }
 
 // Function to handle password reset with token (usually on a separate page)
@@ -1098,4 +1246,6 @@ function addModernAnimations() {
             }
         });
     });
-}
+}  
+// Function to show verification modal  
+function showVerifikasiModal(\) {  
