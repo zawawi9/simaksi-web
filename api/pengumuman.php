@@ -32,7 +32,7 @@ if ($method === 'POST') {
     $telah_terbit = isset($input['telah_terbit']) ? (bool)$input['telah_terbit'] : false;
 
     // Insert new pengumuman using Supabase REST API
-    $response = makeSupabaseRequest('/rest/v1/pengumuman', 'POST', [
+    $response = makeSupabaseRequest('/pengumuman', 'POST', [
         'id_admin' => $id_admin,
         'judul' => $judul,
         'konten' => $konten,
@@ -59,10 +59,10 @@ if ($method === 'POST') {
     
     if ($id_pengumuman) {
         // Get specific pengumuman
-        $response = makeSupabaseRequest('/rest/v1/pengumuman?select=*,pengguna(nama_lengkap)&id_pengumuman=eq.' . $id_pengumuman);
+        $response = makeSupabaseRequest('/pengumuman?select=*,pengguna(nama_lengkap)&id_pengumuman=eq.' . $id_pengumuman);
     } else {
         // Get all pengumuman
-        $response = makeSupabaseRequest('/rest/v1/pengumuman?select=*,pengguna(nama_lengkap)&order=dibuat_pada.desc');
+        $response = makeSupabaseRequest('/pengumuman?select=*,pengguna(nama_lengkap)&order=diperbarui_pada.desc');
     }
     
     if (isset($response['error'])) {
@@ -96,7 +96,7 @@ if ($method === 'POST') {
     if (isset($input['telah_terbit'])) $updateData['telah_terbit'] = (bool)$input['telah_terbit'];
 
     // Update pengumuman using Supabase REST API
-    $response = makeSupabaseRequest('/rest/v1/pengumuman?id_pengumuman=eq.' . $id_pengumuman, 'PUT', $updateData);
+    $response = makeSupabaseRequest('/pengumuman?id_pengumuman=eq.' . $id_pengumuman, 'PUT', $updateData);
     
     if (isset($response['error'])) {
         http_response_code(500);
@@ -120,7 +120,7 @@ if ($method === 'POST') {
     }
 
     // Delete pengumuman using Supabase REST API
-    $response = makeSupabaseRequest('/rest/v1/pengumuman?id_pengumuman=eq.' . $id_pengumuman, 'DELETE');
+    $response = makeSupabaseRequest('/pengumuman?id_pengumuman=eq.' . $id_pengumuman, 'DELETE');
     
     if (isset($response['error'])) {
         http_response_code(500);
