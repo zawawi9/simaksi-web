@@ -19,7 +19,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // Check if user is logged in as admin
-        await checkAdminSession();
+        checkAdminSession().catch(err => {
+            console.error('Error checking admin session:', err);
+            window.location.href = 'index.html';
+        });
 
         // Initialize modules
         const dashboardModule = new DashboardModule();
@@ -34,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.reservationsModule = reservationsModule;
         window.quotasModule = quotasModule;
         window.financeModule = financeModule;
+        window.announcementModule = announcementModule;
         
         // Make Utils class available globally
         window.Utils = Utils;
@@ -245,10 +249,38 @@ function setupKeuanganTabs(financeModule) {
 }
 
 // Function to set up pengeluaran form
+// Function to set up pengeluaran form submission
 function setupPengeluaranForm(financeModule) {
     const pengeluaranForm = document.getElementById('pengeluaran-form');
     
     if (pengeluaranForm) {
+        // Add input formatting for jumlah field
+        const jumlahInput = document.getElementById('jumlah-pengeluaran');
+        if (jumlahInput) {
+            jumlahInput.addEventListener('input', function(e) {
+                // Remove non-numeric characters except for formatting
+                let value = e.target.value.replace(/[^\d]/g, '');
+                
+                // Format as Rupiah
+                if (value) {
+                    value = Utils.formatRupiah(parseInt(value));
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Handle paste event to maintain formatting
+            jumlahInput.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        value = Utils.formatRupiah(parseInt(value));
+                        e.target.value = value;
+                    }
+                }, 10);
+            });
+        }
+        
         pengeluaranForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -262,8 +294,16 @@ function setupPengeluaranForm(financeModule) {
                 return;
             }
             
+            // Parse the formatted Rupiah value
+            const parsedJumlah = Utils.parseRupiah(jumlah);
+            
+            if (parsedJumlah <= 0) {
+                Utils.showMessage('error', 'Jumlah pengeluaran harus lebih dari 0');
+                return;
+            }
+            
             if (financeModule) {
-                financeModule.savePengeluaran(jumlah, tanggal, keterangan, kategori);
+                financeModule.savePengeluaran(parsedJumlah, tanggal, keterangan, kategori);
             }
         });
     }
@@ -341,7 +381,7 @@ window.showReservationDetail = function(id_reservasi) {
             if (result.status === 'success' && result.data.length > 0) {
                 const reservasi = result.data[0];
                 
-                // Update modal content
+                // Update modal content with currency formatting
                 const rombonganList = document.getElementById('rombongan-list');
                 const barangList = document.getElementById('barang-list');
                 
@@ -380,6 +420,33 @@ window.showReservationDetail = function(id_reservasi) {
                     } else {
                         confirmButton.classList.add('hidden');
                     }
+                }
+                
+                // Add total price information
+                const modalContent = document.getElementById('modal-content');
+                if (modalContent) {
+                    // Remove existing price info if it exists
+                    const existingPriceInfo = document.getElementById('price-info');
+                    if (existingPriceInfo) {
+                        existingPriceInfo.remove();
+                    }
+                    
+                    // Add price information
+                    const priceInfo = document.createElement('div');
+                    priceInfo.id = 'price-info';
+                    priceInfo.className = 'mt-4 p-3 bg-gray-50 rounded-lg';
+                    priceInfo.innerHTML = `
+                        <h4 class="font-medium text-gray-700 mb-2">Informasi Pembayaran:</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="text-gray-600">Total Harga:</div>
+                            <div class="font-medium">${Utils.formatRupiah(reservasi.total_harga)}</div>
+                            <div class="text-gray-600">Jumlah Pendaki:</div>
+                            <div>${reservasi.jumlah_pendaki} orang</div>
+                            <div class="text-gray-600">Harga per Tiket:</div>
+                            <div>${Utils.formatRupiah(Math.round(reservasi.total_harga / reservasi.jumlah_pendaki))}</div>
+                        </div>
+                    `;
+                    modalContent.appendChild(priceInfo);
                 }
                 
                 // Set up sampah validation buttons
@@ -433,10 +500,10 @@ window.confirmPayment = function(id_reservasi, kode_reservasi) {
 
 // Function to edit announcement
 window.editAnnouncement = function(id_pengumuman) {
-    // This function will be implemented to handle editing announcement
-    console.log('Edit announcement with id:', id_pengumuman);
     if (window.announcementModule) {
-        window.announcementModule.switchAnnouncementTab('tambah');
+        window.announcementModule.editAnnouncement(id_pengumuman);
+    } else {
+        console.error('announcementModule not available');
     }
 };
 
@@ -446,6 +513,8 @@ window.deleteAnnouncement = function(id_pengumuman) {
         if (confirm('Apakah Anda yakin ingin menghapus pengumuman ini?')) {
             window.announcementModule.deleteAnnouncement(id_pengumuman);
         }
+    } else {
+        console.error('announcementModule not available');
     }
 };
 

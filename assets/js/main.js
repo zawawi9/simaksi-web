@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load testimonials from Supabase
     loadTestimonials();
     
+    // Load active announcements from Supabase
+    loadActiveAnnouncements();
+    
     // Set up login form (if exists on current page)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -251,6 +254,126 @@ function showTestimonialError() {
         <div class="col-span-3 text-center py-12">
             <p class="text-red-500 text-lg">Gagal memuat testimonial. Silakan coba lagi nanti.</p>
         </div>
+    `;
+}
+
+// Function to load active announcements from Supabase
+async function loadActiveAnnouncements() {
+    try {
+        // Get current date for filtering
+        const now = new Date().toISOString();
+        
+        // Query the pengumuman table for active announcements
+        // An announcement is active if:
+        // 1. start_date <= now (announcement has started already)
+        // 2. end_date >= now (announcement hasn't ended yet)
+        // 3. telah_terbit is true
+        const { data: announcements, error } = await supabase
+            .from('pengumuman')
+            .select(`
+                id_pengumuman,
+                judul,
+                konten,
+                start_date,
+                end_date,
+                dibuat_pada,
+                id_admin,
+                pengguna!inner(nama_lengkap)
+            `)
+            .lte('start_date', now)      // Announcement has started (start_date <= now)
+            .gte('end_date', now)        // Announcement hasn't ended (end_date >= now)
+            .eq('telah_terbit', true)    // Only published announcements
+            .order('dibuat_pada', { ascending: false }); // Order by creation date, newest first
+        
+        if (error) {
+            console.error('Error fetching announcements:', error);
+            showAnnouncementError();
+            return;
+        }
+        
+        // Update the UI with the announcements data
+        updateAnnouncements(announcements);
+    } catch (err) {
+        console.error('Error loading announcements:', err);
+        showAnnouncementError();
+    }
+}
+
+// Function to update the announcements section with data
+function updateAnnouncements(announcements) {
+    const container = document.getElementById('pengumuman-content');
+    const loadingElement = document.getElementById('pengumuman-loading');
+    const emptyElement = document.getElementById('pengumuman-empty');
+    
+    // Hide loading indicator
+    loadingElement.classList.add('hidden');
+    
+    if (!announcements || announcements.length === 0) {
+        // Show empty state
+        emptyElement.classList.remove('hidden');
+        return;
+    }
+    
+    // Hide empty state
+    emptyElement.classList.add('hidden');
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Populate with announcement cards
+    announcements.forEach(announcement => {
+        // Format the dates
+        const formattedStartDate = new Date(announcement.start_date).toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const formattedEndDate = new Date(announcement.end_date).toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Create a card for the announcement
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-lg p-6 mb-4 border-l-4 border-accent';
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-xl font-bold text-gray-800">${announcement.judul}</h3>
+                <span class="bg-accent text-white text-xs px-3 py-1 rounded-full">Pengumuman</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+                <i class="fas fa-user text-accent mr-2"></i>
+                <span class="mr-4">${announcement.pengguna.nama_lengkap}</span>
+                <i class="fas fa-calendar-alt text-accent mr-2"></i>
+                <span>${formattedStartDate} - ${formattedEndDate}</span>
+            </div>
+            <div class="text-gray-700 mb-4">${announcement.konten}</div>
+            <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-500">Dibuat: ${new Date(announcement.dibuat_pada).toLocaleDateString('id-ID')}</span>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+// Function to show an error if announcements fail to load
+function showAnnouncementError() {
+    const container = document.getElementById('pengumuman-content');
+    const loadingElement = document.getElementById('pengumuman-loading');
+    const emptyElement = document.getElementById('pengumuman-empty');
+    
+    // Hide loading indicator
+    loadingElement.classList.add('hidden');
+    
+    // Show error message
+    emptyElement.classList.remove('hidden');
+    emptyElement.innerHTML = `
+        <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-700 mb-2">Gagal Memuat Pengumuman</h3>
+        <p class="text-gray-600">Terjadi kesalahan saat mengambil data pengumuman. Silakan coba lagi nanti.</p>
     `;
 }
 

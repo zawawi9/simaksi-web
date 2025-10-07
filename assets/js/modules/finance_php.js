@@ -27,6 +27,9 @@ export class FinanceModule {
 
     async savePengeluaran(jumlah, tanggal, keterangan, id_kategori = null) {
         try {
+            // Parse the jumlah to remove formatting before sending to server
+            const parsedJumlah = Utils.parseRupiah(jumlah);
+            
             // Get the current admin ID from the session
             const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
             if (sessionError || !session) {
@@ -41,7 +44,7 @@ export class FinanceModule {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    jumlah: parseInt(jumlah),
+                    jumlah: parsedJumlah,
                     tanggal_pengeluaran: tanggal,
                     keterangan: keterangan,
                     id_kategori: id_kategori,
@@ -67,9 +70,9 @@ export class FinanceModule {
 
     updateKeuanganReport(data) {
         // Update summary cards
-        document.getElementById('total-pemasukan').textContent = `Rp ${data.total_pemasukan.toLocaleString()}`;
-        document.getElementById('total-pengeluaran').textContent = `Rp ${data.total_pengeluaran.toLocaleString()}`;
-        document.getElementById('saldo-akhir').textContent = `Rp ${data.saldo_akhir.toLocaleString()}`;
+        document.getElementById('total-pemasukan').textContent = Utils.formatRupiah(data.total_pemasukan);
+        document.getElementById('total-pengeluaran').textContent = Utils.formatRupiah(data.total_pengeluaran);
+        document.getElementById('saldo-akhir').textContent = Utils.formatRupiah(data.saldo_akhir);
 
         // Update pemasukan table
         const pemasukanTbody = document.getElementById('pemasukan-tbody');
@@ -81,9 +84,9 @@ export class FinanceModule {
                     const row = document.createElement('tr');
                     row.className = 'border-b border-gray-200 hover:bg-gray-50';
                     row.innerHTML = `
-                        <td class="px-6 py-4 text-sm text-gray-700">${new Date(pemasukan.tanggal_pemasukan).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">${Utils.formatDate(pemasukan.tanggal_pemasukan)}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">${pemasukan.keterangan || 'Pemasukan dari reservasi'}</td>
-                        <td class="px-6 py-4 text-sm text-gray-700">Rp ${pemasukan.jumlah.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">${Utils.formatRupiah(pemasukan.jumlah)}</td>
                     `;
                     pemasukanTbody.appendChild(row);
                 });
@@ -106,9 +109,9 @@ export class FinanceModule {
                     const row = document.createElement('tr');
                     row.className = 'border-b border-gray-200 hover:bg-gray-50';
                     row.innerHTML = `
-                        <td class="px-6 py-4 text-sm text-gray-700">${new Date(pengeluaran.tanggal_pengeluaran).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">${Utils.formatDate(pengeluaran.tanggal_pengeluaran)}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">${pengeluaran.keterangan}</td>
-                        <td class="px-6 py-4 text-sm text-gray-700">Rp ${pengeluaran.jumlah.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">${Utils.formatRupiah(pengeluaran.jumlah)}</td>
                     `;
                     pengeluaranTbody.appendChild(row);
                 });

@@ -140,6 +140,10 @@ export class ReservationsModule {
             default: return statusSampah;
         }
     }
+    
+    formatCurrency(amount) {
+        return 'Rp ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
 
     async confirmPayment(id_reservasi, kode_reservasi) {
         try {
