@@ -27,8 +27,13 @@ export class FinanceModule {
 
     async savePengeluaran(jumlah, tanggal, keterangan, id_kategori = null) {
         try {
-            // Get admin ID - in a real app, this would come from session
-            const adminId = '00000000-0000-0000-0000-000000000000'; // placeholder
+            // Get the current admin ID from the session
+            const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+            if (sessionError || !session) {
+                throw new Error('Sesi admin tidak valid');
+            }
+            
+            const adminId = session.user.id;
             
             const response = await fetch(`${this.apiBaseUrl}/keuangan.php`, {
                 method: 'POST',
@@ -40,7 +45,7 @@ export class FinanceModule {
                     tanggal_pengeluaran: tanggal,
                     keterangan: keterangan,
                     id_kategori: id_kategori,
-                    admin_id: adminId
+                    admin_id: adminId  // Use the actual current admin user ID
                 })
             });
             

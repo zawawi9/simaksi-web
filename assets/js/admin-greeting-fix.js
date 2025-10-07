@@ -5,14 +5,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Admin greeting fix initializing...');
     
     try {
-        // Check if Supabase is available globally (from existing working system)
-        if (typeof window.supabase === 'undefined') {
-            console.error('Supabase not available');
-            return;
-        }
-        
-        const supabase = window.supabase;
-        
         // Get admin name element
         const adminNameElement = document.getElementById('admin-name');
         if (!adminNameElement) {
@@ -20,40 +12,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
         
-        // Set initial greeting with "Admin" while we fetch real name
+        // Set initial greeting
         const initialGreeting = getTimeBasedGreeting();
-        adminNameElement.textContent = `${initialGreeting}, Admin`;
+        const currentText = adminNameElement.textContent || 'Admin';
         
-        // Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-            console.log('No valid session');
-            return;
-        }
-        
-        const userId = session.user.id;
-        console.log('User ID:', userId);
-        
-        // Get user data from pengguna table
-        const { data: userData, error: userError } = await supabase
-            .from('pengguna')
-            .select('nama_lengkap')
-            .eq('id_pengguna', userId)
-            .single();
-        
-        if (userError) {
-            console.error('Error fetching user data:', userError);
-            // Keep "Admin" name with greeting
-            return;
-        }
-        
-        console.log('User data:', userData);
-        
-        // Update with real name and greeting
-        if (userData && userData.nama_lengkap) {
-            const greeting = getTimeBasedGreeting();
-            adminNameElement.textContent = `${greeting}, ${userData.nama_lengkap}`;
+        // Check if greeting is already applied - avoid overwriting if already set properly
+        if (!currentText.includes(initialGreeting)) {
+            // Apply greeting to admin name
+            adminNameElement.textContent = `${initialGreeting}, ${currentText}`;
         }
         
         // Update greeting every minute

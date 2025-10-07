@@ -7,5 +7,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 // Create the Supabase client
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Make supabase available globally for non-module scripts
+window.supabase = supabase;
+
 // Export the supabase client for module imports
 export { supabase };

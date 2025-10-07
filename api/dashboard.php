@@ -76,7 +76,7 @@ if (isset($komentarResponse['error'])) {
 }
 
 // Get recent activities (last 5 reservations)
-$aktivitasResponse = makeSupabaseRequest('/reservasi?select=kode_reservasi,nama_ketua_rombongan,dipesan_pada,id_pengguna&order=dipesan_pada.desc&limit=5');
+$aktivitasResponse = makeSupabaseRequest('/reservasi?select=kode_reservasi,dipesan_pada,id_pengguna&order=dipesan_pada.desc&limit=5');
 if (isset($aktivitasResponse['error'])) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => $aktivitasResponse['error']]);
@@ -86,16 +86,19 @@ if (isset($aktivitasResponse['error'])) {
 $aktivitasTerbaru = [];
 if (isset($aktivitasResponse['data'])) {
     foreach ($aktivitasResponse['data'] as $reservasi) {
-        // Get user details
+        // Get user details to get nama_lengkap
         $userResponse = makeSupabaseRequest('/pengguna?select=nama_lengkap&id_pengguna=eq.' . $reservasi['id_pengguna']);
         $nama_pengguna = 'Unknown';
-        if (!isset($userResponse['error']) && isset($userResponse['data'][0]['nama_lengkap'])) {
+        $nama_ketua_rombongan = 'Nama tidak ditemukan';
+        
+        if (!isset($userResponse['error']) && !empty($userResponse['data']) && isset($userResponse['data'][0]['nama_lengkap'])) {
             $nama_pengguna = $userResponse['data'][0]['nama_lengkap'];
+            $nama_ketua_rombongan = $userResponse['data'][0]['nama_lengkap'];
         }
         
         $aktivitasTerbaru[] = [
             'kode_reservasi' => $reservasi['kode_reservasi'],
-            'nama_ketua_rombongan' => $reservasi['nama_ketua_rombongan'],
+            'nama_ketua_rombongan' => $nama_ketua_rombongan,
             'tanggal_pesan' => $reservasi['dipesan_pada'],
             'nama_pengguna' => $nama_pengguna
         ];
