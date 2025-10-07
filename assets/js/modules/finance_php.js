@@ -27,8 +27,10 @@ export class FinanceModule {
 
     async savePengeluaran(jumlah, tanggal, keterangan, id_kategori = null) {
         try {
-            // Parse the jumlah to remove formatting before sending to server
-            const parsedJumlah = Utils.parseRupiah(jumlah);
+            // Use jumlah directly since it should already be a number
+            // If called from form submission, jumlah will be a number
+            // If called elsewhere with formatted string, this handles both cases
+            const parsedJumlah = typeof jumlah === 'string' ? Utils.parseRupiah(jumlah) : jumlah;
             
             // Get the current admin ID from the session
             const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
@@ -210,6 +212,59 @@ export class FinanceModule {
                     <option value="5">Lainnya</option>
                 `;
             }
+        }
+    }
+
+    async addKategori(nama_kategori, deskripsi = '') {
+        try {
+            if (!nama_kategori || nama_kategori.trim() === '') {
+                this.showMessage('error', 'Nama kategori harus diisi');
+                return;
+            }
+
+            // Check if category with the same name already exists
+            const { data: existingCategory, error: existingError } = await window.supabase
+                .from('kategori_pengeluaran')
+                .select('id_kategori')
+                .eq('nama_kategori', nama_kategori.trim())
+                .limit(1);
+
+            if (existingCategory && existingCategory.length > 0) {
+                this.showMessage('error', 'Kategori dengan nama tersebut sudah ada');
+                return;
+            }
+
+            // Insert new category
+            const { data: newCategory, error } = await window.supabase
+                .from('kategori_pengeluaran')
+                .insert([{ 
+                    nama_kategori: nama_kategori.trim(),
+                    deskripsi: deskripsi ? deskripsi.trim() : null
+                }])
+                .select('id_kategori, nama_kategori')
+                .single();
+
+            if (error) {
+                console.error('Error adding category:', error);
+                this.showMessage('error', error.message || 'Gagal menambahkan kategori');
+                return;
+            }
+
+            this.showMessage('success', 'Kategori berhasil ditambahkan');
+            
+            // Reload categories in the dropdown
+            await this.loadPengeluaranForm();
+            
+            // Select the newly added category
+            const categorySelect = document.getElementById('kategori-pengeluaran');
+            if (categorySelect && newCategory) {
+                categorySelect.value = newCategory.id_kategori;
+            }
+
+            return newCategory;
+        } catch (error) {
+            console.error('Error adding category:', error);
+            this.showMessage('error', 'Terjadi kesalahan saat menambahkan kategori');
         }
     }
 

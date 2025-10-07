@@ -261,12 +261,23 @@ function setupPengeluaranForm(financeModule) {
                 // Remove non-numeric characters except for formatting
                 let value = e.target.value.replace(/[^\d]/g, '');
                 
-                // Format as Rupiah
+                // Format with dots only (avoid 'Rp ' prefix for input field)
                 if (value) {
-                    value = Utils.formatRupiah(parseInt(value));
+                    // Use a simple formatting function for input (without 'Rp ' prefix)
+                    value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 }
                 
+                // Set value while preserving cursor position
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
+                
                 e.target.value = value;
+                
+                // Restore cursor position after reformatting
+                const newStart = Math.min(start, e.target.value.length);
+                const newEnd = Math.min(end, e.target.value.length);
+                
+                e.target.setSelectionRange(newStart, newEnd);
             });
             
             // Handle paste event to maintain formatting
@@ -274,10 +285,20 @@ function setupPengeluaranForm(financeModule) {
                 setTimeout(() => {
                     let value = e.target.value.replace(/[^\d]/g, '');
                     if (value) {
-                        value = Utils.formatRupiah(parseInt(value));
+                        // Format with dots only (avoid 'Rp ' prefix for input field)
+                        value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                         e.target.value = value;
                     }
                 }, 10);
+            });
+            
+            // Add validation for keypress to only allow numbers and control keys
+            jumlahInput.addEventListener('keypress', function(e) {
+                // Allow numbers, tab, delete, backspace, enter, escape, arrow keys, etc.
+                if (!/[0-9\b\t\n\r]/.test(e.key) && 
+                    ![8, 9, 13, 27, 37, 38, 39, 40, 46].includes(e.keyCode)) {
+                    e.preventDefault();
+                }
             });
         }
         
@@ -294,8 +315,17 @@ function setupPengeluaranForm(financeModule) {
                 return;
             }
             
-            // Parse the formatted Rupiah value
-            const parsedJumlah = Utils.parseRupiah(jumlah);
+            // Parse the formatted value - remove dots and convert to integer
+            // Since we format numbers with dots as thousands separator
+            const jumlahString = jumlah.toString();
+            let parsedJumlah;
+            
+            if (jumlahString) {
+                // Remove dots and parse to integer
+                parsedJumlah = parseInt(jumlahString.replace(/[.]/g, '')) || 0;
+            } else {
+                parsedJumlah = 0;
+            }
             
             if (parsedJumlah <= 0) {
                 Utils.showMessage('error', 'Jumlah pengeluaran harus lebih dari 0');
@@ -306,6 +336,22 @@ function setupPengeluaranForm(financeModule) {
                 financeModule.savePengeluaran(parsedJumlah, tanggal, keterangan, kategori);
             }
         });
+        
+        // Set up tambah kategori button
+        const tambahKategoriBtn = document.getElementById('tambah-kategori-btn');
+        if (tambahKategoriBtn) {
+            tambahKategoriBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Show a prompt for the user to enter the category name
+                const categoryName = prompt('Masukkan nama kategori baru:');
+                if (categoryName !== null) { // User didn't cancel
+                    if (financeModule) {
+                        financeModule.addKategori(categoryName);
+                    }
+                }
+            });
+        }
     }
 }
 
