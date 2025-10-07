@@ -66,6 +66,7 @@ CREATE TABLE "pengguna" (
   "nama_lengkap" VARCHAR(100) NOT NULL,
   "email" VARCHAR(100) UNIQUE NOT NULL,
   "nomor_telepon" VARCHAR(20),
+  "nik" TEXT,
   "alamat" TEXT,
   "peran" peran_pengguna NOT NULL DEFAULT 'pendaki',
   "is_verified" BOOLEAN NOT NULL DEFAULT false,

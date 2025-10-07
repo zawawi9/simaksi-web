@@ -1,12 +1,13 @@
 // router.js - Routing module
 
 export class Router {
-    constructor(dashboardModule, reservationsModule, quotasModule, financeModule, announcementModule = null) {
+    constructor(dashboardModule, reservationsModule, quotasModule, financeModule, announcementModule = null, penggunaModule = null) {
         this.dashboardModule = dashboardModule;
         this.reservationsModule = reservationsModule;
         this.quotasModule = quotasModule;
         this.financeModule = financeModule;
         this.announcementModule = announcementModule;
+        this.penggunaModule = penggunaModule;
     }
 
     setupNavigation() {
@@ -15,6 +16,8 @@ export class Router {
         const navKuota = document.getElementById('nav-kuota');
         const navKeuangan = document.getElementById('nav-keuangan');
         const navPengumuman = document.getElementById('nav-pengumuman');
+        const navPengguna = document.getElementById('nav-pengguna');
+        const navPendaki = document.getElementById('nav-pendaki');
 
         if (navDashboard) {
             navDashboard.addEventListener('click', (e) => {
@@ -50,6 +53,20 @@ export class Router {
                 this.switchContent('pengumuman');
             });
         }
+
+        if (navPengguna) {
+            navPengguna.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchContent('pengguna');
+            });
+        }
+
+        if (navPendaki) {
+            navPendaki.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchContent('pendaki');
+            });
+        }
     }
 
     switchContent(contentType) {
@@ -59,12 +76,16 @@ export class Router {
         const kuotaContent = document.getElementById('kuota-content');
         const keuanganContent = document.getElementById('keuangan-content');
         const pengumumanContent = document.getElementById('pengumuman-content');
+        const penggunaContent = document.getElementById('pengguna-content');
+        const pendakiContent = document.getElementById('pendaki-content');
 
         if (dashboardContent) dashboardContent.classList.add('hidden');
         if (reservasiContent) reservasiContent.classList.add('hidden');
         if (kuotaContent) kuotaContent.classList.add('hidden');
         if (keuanganContent) keuanganContent.classList.add('hidden');
         if (pengumumanContent) pengumumanContent.classList.add('hidden');
+        if (penggunaContent) penggunaContent.classList.add('hidden');
+        if (pendakiContent) pendakiContent.classList.add('hidden');
 
         // Remove active class from all nav items
         document.querySelectorAll('nav a').forEach(link => {
@@ -128,6 +149,28 @@ export class Router {
                         });
                     }
                 }, 100);
+            }
+        } else if (contentType === 'pengguna' && penggunaContent) {
+            document.getElementById('nav-pengguna').classList.add('active');
+            document.getElementById('nav-pengguna').classList.remove('hover:bg-green-700');
+            penggunaContent.classList.remove('hidden');
+            if (pageTitle) {
+                pageTitle.innerHTML = '<i class="fas fa-users mr-2 text-green-600"></i> Manajemen Pengguna';
+            }
+            // Load pengguna data if module is available
+            if (this.penggunaModule) {
+                this.penggunaModule.loadPenggunaData();
+            }
+        } else if (contentType === 'pendaki' && pendakiContent) {
+            document.getElementById('nav-pendaki').classList.add('active');
+            document.getElementById('nav-pendaki').classList.remove('hover:bg-green-700');
+            pendakiContent.classList.remove('hidden');
+            if (pageTitle) {
+                pageTitle.innerHTML = '<i class="fas fa-hiking mr-2 text-green-600"></i> Manajemen Pendaki';
+            }
+            // Load pendaki data if module is available
+            if (this.pendakiModule) {
+                this.pendakiModule.loadPendakiData();
             }
         }
     }
