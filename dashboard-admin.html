@@ -334,9 +334,9 @@
                     <i class="fas fa-users mr-3"></i>
                     Manajemen Pengguna
                 </a>
-                <a href="#" id="nav-pendaki" class="block py-3 px-4 rounded-lg font-medium mt-2 flex items-center">
-                    <i class="fas fa-hiking mr-3"></i>
-                    Manajemen Pendaki
+                <a href="#" id="nav-bikin-reservasi" class="block py-3 px-4 rounded-lg font-medium mt-2 flex items-center">
+                    <i class="fas fa-calendar-plus mr-3"></i>
+                    Buat Reservasi Baru
                 </a>
             </nav>
         </div>
@@ -1119,100 +1119,157 @@
                     </div>
                 </div>
                 
-                <!-- Manajemen Pendaki Content -->
-                <div id="pendaki-content" class="hidden p-6">
-                    <div class="card-modern p-6 mb-6 animate-slide-in">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                                <i class="fas fa-search mr-2 text-green-600"></i>
-                                Cari Pendaki
-                            </h3>
-                        </div>
+                <!-- Buat Reservasi Baru Content -->
+                <div id="bikin-reservasi-content" class="hidden p-6">
+                    <div class="card-modern p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-calendar-plus mr-2 text-green-600"></i>
+                            Informasi Reservasi
+                        </h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div class="animate-slide-in">
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="search-nama-pendaki">
-                                    <i class="fas fa-user mr-1"></i> Nama Pendaki
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-pendakian">
+                                    <i class="fas fa-calendar mr-1"></i> Tanggal Pendakian
                                 </label>
-                                <input type="text" id="search-nama-pendaki" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Cari nama pendaki...">
+                                <input type="date" id="tanggal-pendakian" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="" max="">
                             </div>
-                            <div class="animate-slide-in" style="animation-delay: 0.1s;">
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="search-kode-reservasi">
-                                    <i class="fas fa-hashtag mr-1"></i> Kode Reservasi
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="jumlah-pendaki">
+                                    <i class="fas fa-users mr-1"></i> Jumlah Pendaki (Maks 10)
                                 </label>
-                                <input type="text" id="search-kode-reservasi" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Cari kode reservasi...">
+                                <input type="number" id="jumlah-pendaki" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="1" max="10" placeholder="Masukkan jumlah pendaki">
+                                <div id="kuota-info" class="text-xs text-gray-500 mt-1" style="display: none;"></div>
                             </div>
-                            <div class="flex items-end animate-slide-in" style="animation-delay: 0.2s;">
-                                <button id="search-pendaki" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg w-full btn-modern flex items-center justify-center">
-                                    <i class="fas fa-search mr-2"></i> Cari
-                                </button>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="jumlah-tiket-parkir">
+                                    <i class="fas fa-car mr-1"></i> Jumlah Tiket Parkir (Motor)
+                                </label>
+                                <input type="number" id="jumlah-tiket-parkir" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="0" placeholder="Jumlah motor">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="harga-tiket">
+                                    <i class="fas fa-tag mr-1"></i> Harga Tiket Per Pendaki
+                                </label>
+                                <input type="text" id="harga-tiket" class="input-modern w-full py-3 px-4 text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="harga-parkir">
+                                    <i class="fas fa-tag mr-1"></i> Harga Tiket Parkir Per Motor
+                                </label>
+                                <input type="text" id="harga-parkir" class="input-modern w-full py-3 px-4 text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="total-harga">
+                                    <i class="fas fa-calculator mr-1"></i> Total Harga
+                                </label>
+                                <input type="text" id="total-harga" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 font-bold text-lg" readonly>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-modern overflow-hidden animate-slide-in" style="animation-delay: 0.3s;">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-5 border-b border-gray-200 bg-gray-50">
-                            <h3 class="text-lg font-semibold text-gray-800 flex items-center mb-4 sm:mb-0">
-                                <i class="fas fa-hiking mr-2 text-green-600"></i>
-                                Daftar Pendaki
-                            </h3>
-                            <button id="tambah-pendaki-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg btn-modern flex items-center">
-                                <i class="fas fa-plus mr-2"></i> Tambah Pendaki
-                            </button>
+                    <div class="card-modern p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-user mr-2 text-green-600"></i>
+                            Informasi Ketua Rombongan
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="nama-ketua">
+                                    <i class="fas fa-user mr-1"></i> Nama Lengkap
+                                </label>
+                                <input type="text" id="nama-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nama lengkap ketua rombongan">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="email-ketua">
+                                    <i class="fas fa-envelope mr-1"></i> Email
+                                </label>
+                                <input type="email" id="email-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Email ketua rombongan">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="telepon-ketua">
+                                    <i class="fas fa-phone mr-1"></i> Nomor Telepon
+                                </label>
+                                <input type="tel" id="telepon-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nomor telepon ketua rombongan">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat-ketua">
+                                    <i class="fas fa-home mr-1"></i> Alamat
+                                </label>
+                                <input type="text" id="alamat-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Alamat ketua rombongan">
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="table-modern" id="pendaki-table">
-                                <thead>
-                                    <tr class="bg-gray-50">
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-user mr-1"></i> Nama Lengkap
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-id-card mr-1"></i> NIK
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-phone mr-1"></i> Nomor Telepon
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-home mr-1"></i> Alamat
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-phone-alt mr-1"></i> Kontak Darurat
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-calendar mr-1"></i> Kode Reservasi
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-file-medical mr-1"></i> Surat Sehat
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            <i class="fas fa-cogs mr-1"></i> Aksi
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pendaki-tbody">
-                                    <!-- Data will be loaded dynamically -->
-                                </tbody>
-                            </table>
+                    </div>
+
+                    <div class="card-modern p-6 mb-6" id="pendaki-section" style="display: none;">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-hiking mr-2 text-green-600"></i>
+                            Anggota Rombongan
+                        </h3>
+                        
+                        <div id="pendaki-container">
+                            <!-- Pendaki forms will be added here dynamically -->
                         </div>
-                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                            <div class="flex flex-col md:flex-row items-center justify-between">
-                                <div class="text-sm text-gray-700 mb-2 md:mb-0">
-                                    Menampilkan <span id="pendaki-jumlah-entri" class="font-semibold">0</span> dari <span id="pendaki-total-entri" class="font-semibold">0</span> entri
+                    </div>
+
+                    <div class="card-modern p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-trash-alt mr-2 text-green-600"></i>
+                            Barang Bawaan Sampah
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="jumlah-potensi-sampah">
+                                    <i class="fas fa-balance-scale mr-1"></i> Jumlah Potensi Sampah
+                                </label>
+                                <input type="number" id="jumlah-potensi-sampah" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="0" placeholder="Perkiraan jumlah barang bawaan sampah">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Barang Bawaan Rinci</label>
+                                <div class="flex">
+                                    <input type="text" id="barang-sampah" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-r-none" placeholder="Nama barang bawaan">
+                                    <select id="jenis-sampah" class="input-modern py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-l-none border-l-0" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                        <option value="organik">Organik</option>
+                                        <option value="non-organik">Non-organik</option>
+                                    </select>
                                 </div>
-                                <div class="flex space-x-2">
-                                    <button id="prev-pendaki-page" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded text-sm btn-modern">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </button>
-                                    <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded text-sm">1</span>
-                                    <button id="next-pendaki-page" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded text-sm btn-modern">
-                                        <i class="fas fa-chevron-right"></i>
+                                <div class="mt-2">
+                                    <button id="tambah-barang-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg btn-modern flex items-center">
+                                        <i class="fas fa-plus mr-2"></i> Tambah Barang
                                     </button>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="table-modern w-full" id="barang-table">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Barang</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis Sampah</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barang-tbody">
+                                    <!-- Barang will be added here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-4">
+                        <button id="reset-form" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg btn-modern flex items-center">
+                            <i class="fas fa-redo mr-2"></i> Reset Form
+                        </button>
+                        <button id="buat-reservasi-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg btn-modern flex items-center">
+                            <i class="fas fa-save mr-2"></i> Buat Reservasi
+                        </button>
                     </div>
                 </div>
+                
+
             </main>
         </div>
     </div>
@@ -1269,5 +1326,780 @@
     <script type="module" src="assets/js/admin-modular.js"></script>
     <script src="assets/js/admin-greeting-fix.js"></script>
     <script src="assets/js/time-greeting.js"></script>
+    
+    <!-- Script for the new reservation functionality -->
+    <script type="module">
+        // Global arrays to store dynamic data for the new reservation form
+        let pendakiData = [];
+        let barangSampahData = [];
+        let hargaTiket = 0;
+        let hargaParkir = 0;
+        
+        // Initialize the new reservation form event listeners when the content is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners for the new reservation form elements
+            setupNewReservationEventListeners();
+        });
+        
+        function setupNewReservationEventListeners() {
+            // Event listeners for dynamic functionality in the new reservation form
+            const jumlahPendakiInput = document.getElementById('jumlah-pendaki');
+            const tanggalPendakianInput = document.getElementById('tanggal-pendakian');
+            const jumlahTiketParkirInput = document.getElementById('jumlah-tiket-parkir');
+            const tambahBarangBtn = document.getElementById('tambah-barang-btn');
+            const buatReservasiBtn = document.getElementById('buat-reservasi-btn');
+            const resetFormBtn = document.getElementById('reset-form');
+            const namaKetuaInput = document.getElementById('nama-ketua');
+            const teleponKetuaInput = document.getElementById('telepon-ketua');
+            const alamatKetuaInput = document.getElementById('alamat-ketua');
+            
+            if (jumlahPendakiInput) {
+                jumlahPendakiInput.addEventListener('input', function() {
+                    // Validate maximum group size (10 including leader)
+                    const jumlahPendaki = parseInt(this.value) || 0;
+                    if (jumlahPendaki > 10) {
+                        alert('Jumlah pendaki maksimal adalah 10 orang (termasuk ketua rombongan)');
+                        this.value = 10;
+                        return;
+                    }
+                    
+                    generatePendakiForms();
+                    calculateTotal();
+                });
+            }
+            
+            if (tanggalPendakianInput) {
+                tanggalPendakianInput.addEventListener('change', function() {
+                    // When date changes, check available quota
+                    checkAvailableQuota();
+                    // Price may change based on date, so recalculate
+                    calculateTotal();
+                });
+            }
+            
+            // Also add event listener for jumlah-pendaki to update quota info when number changes
+            if (jumlahPendakiInput) {
+                jumlahPendakiInput.addEventListener('input', function() {
+                    // Validate maximum group size (10 including leader)
+                    const jumlahPendaki = parseInt(this.value) || 0;
+                    if (jumlahPendaki > 10) {
+                        alert('Jumlah pendaki maksimal adalah 10 orang (termasuk ketua rombongan)');
+                        this.value = 10;
+                        return;
+                    }
+                    
+                    generatePendakiForms();
+                    calculateTotal();
+                    
+                    // Also update quota info when jumlah pendaki changes
+                    checkAvailableQuota();
+                });
+            }
+            
+            // Refresh pricing data when the section is shown
+            // Set up a mechanism to reload pricing when the tab is switched
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const bikinReservasiContent = document.getElementById('bikin-reservasi-content');
+                        if (bikinReservasiContent && !bikinReservasiContent.classList.contains('hidden')) {
+                            // This section is now visible, reload pricing
+                            console.log('Buat Reservasi content ditampilkan, memuat ulang harga...');
+                            setTimeout(() => {
+                                loadPricingData();
+                            }, 1000); // Delay kecil untuk memastikan elemen benar-benar siap
+                        }
+                    }
+                });
+            });
+            
+            const bikinReservasiContent = document.getElementById('bikin-reservasi-content');
+            if (bikinReservasiContent) {
+                observer.observe(bikinReservasiContent, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+            }
+            
+            if (jumlahTiketParkirInput) {
+                jumlahTiketParkirInput.addEventListener('input', calculateTotal);
+            }
+            
+            if (tambahBarangBtn) {
+                tambahBarangBtn.addEventListener('click', tambahBarang);
+            }
+            
+            if (buatReservasiBtn) {
+                buatReservasiBtn.addEventListener('click', buatReservasi);
+            }
+            
+            if (resetFormBtn) {
+                resetFormBtn.addEventListener('click', resetForm);
+            }
+            
+            // Update pendaki forms when ketua data is entered
+            if (namaKetuaInput) {
+                namaKetuaInput.addEventListener('input', updateKetuaDataInForms);
+            }
+            if (teleponKetuaInput) {
+                teleponKetuaInput.addEventListener('input', updateKetuaDataInForms);
+            }
+            if (alamatKetuaInput) {
+                alamatKetuaInput.addEventListener('input', updateKetuaDataInForms);
+            }
+        }
+        
+        async function loadPricingData() {
+            try {
+                console.log('Mencoba memuat data harga...');
+                
+                // Wait for the global supabase client to be available
+                let attempt = 0;
+                while (!window.supabase && attempt < 20) { // Meningkatkan jumlah percobaan
+                    console.log(`Menunggu Supabase, percobaan ke-${attempt + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempt++;
+                }
+                
+                if (!window.supabase) {
+                    console.error('Supabase client tidak ditemukan setelah beberapa kali percobaan');
+                    // Set default values if supabase is not available
+                    hargaTiket = 0;
+                    hargaParkir = 0;
+                    const hargaTiketInput = document.getElementById('harga-tiket');
+                    const hargaParkirInput = document.getElementById('harga-parkir');
+                    if (hargaTiketInput) {
+                        hargaTiketInput.value = 'Rp 0';
+                        console.log('Set harga tiket ke: Rp 0');
+                    }
+                    if (hargaParkirInput) {
+                        hargaParkirInput.value = 'Rp 0';
+                        console.log('Set harga parkir ke: Rp 0');
+                    }
+                    return;
+                }
+                
+                console.log('Supabase ditemukan, mencoba mengambil data harga...');
+                
+                // Fetch pricing data
+                const { data, error, status } = await window.supabase
+                    .from('pengaturan_biaya')
+                    .select('*');
+                
+                console.log('Status permintaan:', status);
+                
+                if (error) {
+                    console.error('Error mengambil data harga:', error);
+                    // Set default values on error
+                    hargaTiket = 0;
+                    hargaParkir = 0;
+                    const hargaTiketInput = document.getElementById('harga-tiket');
+                    const hargaParkirInput = document.getElementById('harga-parkir');
+                    if (hargaTiketInput) {
+                        hargaTiketInput.value = 'Rp 0';
+                        console.log('Set harga tiket ke: Rp 0 (karena error)');
+                    }
+                    if (hargaParkirInput) {
+                        hargaParkirInput.value = 'Rp 0';
+                        console.log('Set harga parkir ke: Rp 0 (karena error)');
+                    }
+                    return;
+                }
+                
+                if (!data || data.length === 0) {
+                    console.warn('Tidak ada data harga ditemukan di database');
+                    // Set default values when no data
+                    hargaTiket = 0;
+                    hargaParkir = 0;
+                    const hargaTiketInput = document.getElementById('harga-tiket');
+                    const hargaParkirInput = document.getElementById('harga-parkir');
+                    if (hargaTiketInput) {
+                        hargaTiketInput.value = 'Rp 0';
+                        console.log('Set harga tiket ke: Rp 0 (karena tidak ada data)');
+                    }
+                    if (hargaParkirInput) {
+                        hargaParkirInput.value = 'Rp 0';
+                        console.log('Set harga parkir ke: Rp 0 (karena tidak ada data)');
+                    }
+                    return;
+                }
+                
+                console.log('Data harga ditemukan:', data);
+                
+                // Reset harga to 0 in case items don't match
+                hargaTiket = 0;
+                hargaParkir = 0;
+                
+                // Process the pricing data based on the database schema
+                data.forEach(item => {
+                    console.log('Memproses item:', item.nama_item, 'harga:', item.harga);
+                    
+                    // Look for ticket entry (for hiking/masuk)
+                    if (item.nama_item.toLowerCase().includes('tiket') && item.nama_item.toLowerCase().includes('masuk')) {
+                        hargaTiket = item.harga;
+                        const hargaTiketInput = document.getElementById('harga-tiket');
+                        if (hargaTiketInput) {
+                            hargaTiketInput.value = formatRupiah(item.harga);
+                            console.log('Set harga tiket ke:', formatRupiah(item.harga));
+                        }
+                    } 
+                    // Look for parking entry
+                    else if (item.nama_item.toLowerCase().includes('parkir')) {
+                        hargaParkir = item.harga;
+                        const hargaParkirInput = document.getElementById('harga-parkir');
+                        if (hargaParkirInput) {
+                            hargaParkirInput.value = formatRupiah(item.harga);
+                            console.log('Set harga parkir ke:', formatRupiah(item.harga));
+                        }
+                    }
+                    // Additional fallbacks for common names
+                    else if (item.nama_item.toLowerCase().includes('tiket') && !item.nama_item.toLowerCase().includes('parkir')) {
+                        // Fallback for just "tiket" without "masuk"
+                        hargaTiket = item.harga;
+                        const hargaTiketInput = document.getElementById('harga-tiket');
+                        if (hargaTiketInput) {
+                            hargaTiketInput.value = formatRupiah(item.harga);
+                            console.log('Set harga tiket ke:', formatRupiah(item.harga), '(fallback)');
+                        }
+                    }
+                    else if (item.nama_item.toLowerCase().includes('masuk')) {
+                        // Another fallback for just "masuk"
+                        hargaTiket = item.harga;
+                        const hargaTiketInput = document.getElementById('harga-tiket');
+                        if (hargaTiketInput) {
+                            hargaTiketInput.value = formatRupiah(item.harga);
+                            console.log('Set harga tiket ke:', formatRupiah(item.harga), '(fallback masuk)');
+                        }
+                    }
+                });
+                
+                // Jika tidak ada harga yang ditemukan, tampilkan semua data untuk debugging
+                if (hargaTiket === 0 && hargaParkir === 0) {
+                    console.log('Tidak ada harga tiket atau parkir yang ditemukan dengan pencarian normal. Data lengkap:', data);
+                    alert('Catatan: Tidak ditemukan harga tiket masuk atau parkir di database. Pastikan nama item di tabel pengaturan_biaya mengandung kata "tiket masuk" atau "parkir".');
+                }
+                
+                // Calculate total if values already exist
+                calculateTotal();
+            } catch (error) {
+                console.error('Error saat memuat data harga:', error);
+                // Set default values on error
+                hargaTiket = 0;
+                hargaParkir = 0;
+                const hargaTiketInput = document.getElementById('harga-tiket');
+                const hargaParkirInput = document.getElementById('harga-parkir');
+                if (hargaTiketInput) hargaTiketInput.value = 'Rp 0';
+                if (hargaParkirInput) hargaParkirInput.value = 'Rp 0';
+            }
+        }
+        
+        function updateKetuaDataInForms() {
+            const nama = document.getElementById('nama-ketua')?.value || '';
+            const telepon = document.getElementById('telepon-ketua')?.value || '';
+            const alamat = document.getElementById('alamat-ketua')?.value || '';
+            
+            // Update the ketua fields in the first pendaki form
+            const namaPendaki1 = document.getElementById('nama-pendaki-1');
+            const teleponPendaki1 = document.getElementById('telepon-pendaki-1');
+            const alamatPendaki1 = document.getElementById('alamat-pendaki-1');
+            const kontakDarurat1 = document.getElementById('kontak-darurat-1');
+            
+            if (namaPendaki1) namaPendaki1.setAttribute('value', nama);
+            if (teleponPendaki1) teleponPendaki1.setAttribute('value', telepon);
+            if (alamatPendaki1) alamatPendaki1.setAttribute('value', alamat);
+            if (kontakDarurat1) kontakDarurat1.setAttribute('value', telepon);
+        }
+        
+        function generatePendakiForms() {
+            const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value) || 0;
+            const container = document.getElementById('pendaki-container');
+            
+            if (!container) return;
+            
+            if (jumlahPendaki <= 0 || jumlahPendaki > 10) {
+                const section = document.getElementById('pendaki-section');
+                if (section) section.style.display = 'none';
+                return;
+            }
+            
+            const section = document.getElementById('pendaki-section');
+            if (section) section.style.display = 'block';
+            
+            // Clear existing forms
+            container.innerHTML = '';
+            
+            // Generate forms for each pendaki
+            for (let i = 1; i <= jumlahPendaki; i++) {
+                const isKetua = i === 1;
+                const pendakiForm = `
+                    <div class="pendaki-form card-modern p-4 mb-4">
+                        <h4 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
+                            <i class="fas fa-hiking mr-2 text-green-500"></i>
+                            ${isKetua ? 'Ketua Rombongan' : `Anggota Rombongan ${i}`}
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="nama-pendaki-${i}">
+                                    <i class="fas fa-user mr-1"></i> Nama Lengkap
+                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                </label>
+                                <input type="text" id="nama-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                    placeholder="Nama lengkap pendaki" ${isKetua ? 'value="' + (document.getElementById('nama-ketua')?.value || '') + '" readonly' : ''}>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="nik-pendaki-${i}">
+                                    <i class="fas fa-id-card mr-1"></i> NIK
+                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                </label>
+                                <input type="text" id="nik-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                    placeholder="Nomor Induk Kependudukan" ${isKetua ? 'value="" required' : ''}>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="telepon-pendaki-${i}">
+                                    <i class="fas fa-phone mr-1"></i> Nomor Telepon
+                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                </label>
+                                <input type="tel" id="telepon-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                    placeholder="Nomor telepon pendaki" ${isKetua ? 'value="' + (document.getElementById('telepon-ketua')?.value || '') + '"' : ''}>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="kontak-darurat-${i}">
+                                    <i class="fas fa-phone-alt mr-1"></i> Kontak Darurat
+                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                </label>
+                                <input type="text" id="kontak-darurat-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                    placeholder="Kontak darurat pendaki" ${isKetua ? 'value="' + (document.getElementById('telepon-ketua')?.value || '') + '"' : ''}>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat-pendaki-${i}">
+                                    <i class="fas fa-home mr-1"></i> Alamat
+                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                </label>
+                                <input type="text" id="alamat-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                    placeholder="Alamat pendaki" ${isKetua ? 'value="' + (document.getElementById('alamat-ketua')?.value || '') + '"' : ''}>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="surat-sehat-${i}">
+                                    <i class="fas fa-file-medical mr-1"></i> Upload Surat Sehat
+                                    ${isKetua ? '' : ''}
+                                </label>
+                                <input type="file" id="surat-sehat-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" accept=".pdf">
+                                <div class="text-xs text-gray-500 mt-1">Hanya file PDF yang diperbolehkan (maks. 5MB)</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML += pendakiForm;
+            }
+            
+            // After forms are created, update the ketua's data in the first form
+            if (jumlahPendaki >= 1) {
+                updateKetuaDataInForms();
+            }
+        }
+        
+        async function checkAvailableQuota() {
+            const tanggalPendakian = document.getElementById('tanggal-pendakian')?.value;
+            const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value) || 0;
+            
+            if (!tanggalPendakian) return;
+            
+            try {
+                // Show loading state
+                const kuotaInfoDiv = document.getElementById('kuota-info');
+                if (kuotaInfoDiv) {
+                    kuotaInfoDiv.textContent = 'Memeriksa kuota...';
+                    kuotaInfoDiv.style.display = 'block';
+                }
+                
+                // Call the database function to check quota availability
+                if (window.supabase) {
+                    const { data, error } = await window.supabase
+                        .rpc('cek_ketersediaan_kuota', {
+                            p_tanggal_pendakian: tanggalPendakian,
+                            p_jumlah_diminta: jumlahPendaki
+                        });
+                    
+                    if (error) {
+                        console.error('Error checking quota:', error);
+                        if (kuotaInfoDiv) {
+                            kuotaInfoDiv.textContent = 'Error memeriksa kuota';
+                            kuotaInfoDiv.style.color = 'red';
+                        }
+                        return;
+                    }
+                    
+                    // Get the available quota for the selected date
+                    const { data: kuotaData, error: kuotaError } = await window.supabase
+                        .from('kuota_harian')
+                        .select('kuota_maksimal, kuota_terpesan')
+                        .eq('tanggal_kuota', tanggalPendakian)
+                        .single();
+                    
+                    if (kuotaData) {
+                        const available = kuotaData.kuota_maksimal - kuotaData.kuota_terpesan;
+                        const needed = jumlahPendaki || 0;
+                        
+                        if (data && data[0] === false) {
+                            if (kuotaInfoDiv) {
+                                kuotaInfoDiv.textContent = `Kuota tidak mencukupi. Tersedia: ${available} tiket, Dibutuhkan: ${needed} tiket`;
+                                kuotaInfoDiv.style.color = 'red';
+                            }
+                        } else {
+                            if (kuotaInfoDiv) {
+                                kuotaInfoDiv.textContent = `Kuota tersedia: ${available} tiket`;
+                                kuotaInfoDiv.style.color = 'green';
+                            }
+                        }
+                    } else {
+                        // If there's no quota data for this date, create a new entry or let the backend handle it
+                        if (data && data[0] === false) {
+                            if (kuotaInfoDiv) {
+                                kuotaInfoDiv.textContent = `Kuota tidak mencukupi`;
+                                kuotaInfoDiv.style.color = 'red';
+                            }
+                        } else {
+                            if (kuotaInfoDiv) {
+                                kuotaInfoDiv.textContent = `Kuota tersedia`;
+                                kuotaInfoDiv.style.color = 'green';
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error in checkAvailableQuota:', error);
+                const kuotaInfoDiv = document.getElementById('kuota-info');
+                if (kuotaInfoDiv) {
+                    kuotaInfoDiv.textContent = 'Error memeriksa kuota';
+                    kuotaInfoDiv.style.color = 'red';
+                }
+            }
+        }
+        
+        function calculateTotal() {
+            // Get values
+            const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value) || 0;
+            const jumlahTiketParkir = parseInt(document.getElementById('jumlah-tiket-parkir')?.value) || 0;
+            
+            // Validate maximum group size (10 including leader)
+            if (jumlahPendaki > 10) {
+                alert('Jumlah pendaki maksimal adalah 10 orang (termasuk ketua rombongan)');
+                document.getElementById('jumlah-pendaki').value = 10;
+                return;
+            }
+            
+            // Calculate total based on actual prices
+            const total = (jumlahPendaki * hargaTiket) + (jumlahTiketParkir * hargaParkir);
+            
+            // Format and display total
+            const totalHargaInput = document.getElementById('total-harga');
+            if (totalHargaInput) {
+                totalHargaInput.value = formatRupiah(total);
+            }
+        }
+        
+        function formatRupiah(angka) {
+            if (!angka && angka !== 0) return 'Rp 0';
+            const num = parseInt(angka) || 0;
+            if (isNaN(num)) return 'Rp 0';
+            return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        function tambahBarang() {
+            const namaBarangInput = document.getElementById('barang-sampah');
+            const jenisSampahInput = document.getElementById('jenis-sampah');
+            
+            if (!namaBarangInput || !jenisSampahInput) return;
+            
+            const namaBarang = namaBarangInput.value.trim();
+            const jenisSampah = jenisSampahInput.value;
+            
+            if (!namaBarang) {
+                alert('Nama barang harus diisi!');
+                return;
+            }
+            
+            // Add to data array
+            barangSampahData.push({
+                nama_barang: namaBarang,
+                jenis_sampah: jenisSampah
+            });
+            
+            // Update table
+            updateBarangTable();
+            
+            // Clear input
+            namaBarangInput.value = '';
+        }
+        
+        function updateBarangTable() {
+            const tbody = document.getElementById('barang-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            barangSampahData.forEach((barang, index) => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${barang.nama_barang}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${barang.jenis_sampah}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="hapus-barang-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm" data-index="${index}">
+                                <i class="fas fa-trash mr-1"></i> Hapus
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            
+            // Add event listeners to the new delete buttons
+            document.querySelectorAll('.hapus-barang-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    barangSampahData.splice(index, 1);
+                    updateBarangTable();
+                });
+            });
+        }
+        
+        function resetForm() {
+            // Reset all form fields in the new reservation section
+            const formSection = document.getElementById('bikin-reservasi-content');
+            if (formSection) {
+                const inputs = formSection.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (input.type !== 'file') {
+                        input.value = '';
+                    }
+                });
+            }
+            
+            // Clear data arrays
+            pendakiData = [];
+            barangSampahData = [];
+            
+            // Clear dynamic sections
+            const container = document.getElementById('pendaki-container');
+            if (container) container.innerHTML = '';
+            
+            const tbody = document.getElementById('barang-tbody');
+            if (tbody) tbody.innerHTML = '';
+            
+            const section = document.getElementById('pendaki-section');
+            if (section) section.style.display = 'none';
+            
+            // Recalculate total to reset it
+            calculateTotal();
+        }
+        
+        async function buatReservasi() {
+            // Show loading state
+            const btn = document.getElementById('buat-reservasi-btn');
+            if (!btn) return;
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+            btn.disabled = true;
+            
+            try {
+                // Collect form data
+                const tanggalPendakian = document.getElementById('tanggal-pendakian')?.value;
+                const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value);
+                const jumlahTiketParkir = parseInt(document.getElementById('jumlah-tiket-parkir')?.value);
+                const totalHargaText = document.getElementById('total-harga')?.value;
+                const totalHarga = parseInt(totalHargaText.replace(/\D/g, '')) || 0;
+                const jumlahPotensiSampah = parseInt(document.getElementById('jumlah-potensi-sampah')?.value) || 0;
+                
+                // Validate required fields
+                if (!tanggalPendakian) {
+                    alert('Tanggal pendakian harus diisi!');
+                    return;
+                }
+                
+                if (!jumlahPendaki || jumlahPendaki <= 0 || jumlahPendaki > 10) {
+                    alert('Jumlah pendaki harus antara 1-10!');
+                    return;
+                }
+                
+                // Since the API will handle quota validation, we'll just send the request
+                // and let the API return appropriate error if quota is exceeded
+                
+                // Get ketua data
+                const ketua = {
+                    nama_lengkap: document.getElementById('nama-ketua')?.value,
+                    email: document.getElementById('email-ketua')?.value,
+                    nomor_telepon: document.getElementById('telepon-ketua')?.value,
+                    alamat: document.getElementById('alamat-ketua')?.value
+                };
+                
+                // Collect all files to upload first
+                const fileUploadPromises = [];
+                
+                for (let i = 1; i <= jumlahPendaki; i++) {
+                    const suratSehatFile = document.getElementById(`surat-sehat-${i}`)?.files[0];
+                    if (suratSehatFile) {
+                        // Validate file type (PDF only)
+                        if (suratSehatFile.type !== 'application/pdf') {
+                            alert(`File surat sehat untuk anggota rombongan ${i} harus berupa PDF`);
+                            return;
+                        }
+                        
+                        // Validate file size (max 5MB)
+                        if (suratSehatFile.size > 5 * 1024 * 1024) {
+                            alert(`File surat sehat untuk anggota rombongan ${i} terlalu besar. Maksimal 5MB`);
+                            return;
+                        }
+                        
+                        // Create a FormData object to upload the file
+                        const formData = new FormData();
+                        formData.append('surat_sehat', suratSehatFile);
+                        
+                        const uploadPromise = fetch('api/upload_surat_sehat.php', {
+                            method: 'POST',
+                            body: formData
+                        }).then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                return { index: i, url: result.file_url };
+                            } else {
+                                throw new Error(result.error || 'Gagal mengupload file');
+                            }
+                        });
+                        
+                        fileUploadPromises.push(uploadPromise);
+                    }
+                }
+                
+                // Wait for all file uploads to complete
+                const uploadedFiles = await Promise.all(fileUploadPromises);
+                
+                // Now collect anggota data with actual URLs
+                const anggota = [];
+                for (let i = 1; i <= jumlahPendaki; i++) {
+                    const nama = document.getElementById(`nama-pendaki-${i}`)?.value;
+                    const nik = document.getElementById(`nik-pendaki-${i}`)?.value;
+                    const telepon = document.getElementById(`telepon-pendaki-${i}`)?.value;
+                    const kontakDarurat = document.getElementById(`kontak-darurat-${i}`)?.value;
+                    const alamat = document.getElementById(`alamat-pendaki-${i}`)?.value;
+                    
+                    // Get the uploaded file URL or null if no file was uploaded
+                    const uploadedFile = uploadedFiles.find(file => file.index === i);
+                    const urlSuratSehat = uploadedFile ? uploadedFile.url : null;
+                    
+                    anggota.push({
+                        nama_lengkap: nama,
+                        nik: nik,
+                        nomor_telepon: telepon,
+                        kontak_darurat: kontakDarurat,
+                        alamat: alamat,
+                        url_surat_sehat: urlSuratSehat // Add this to the payload
+                    });
+                }
+                
+                if (!ketua.nama_lengkap || !ketua.email || !ketua.nomor_telepon) {
+                    alert('Data ketua rombongan harus lengkap!');
+                    return;
+                }
+                
+                // Validate each anggota
+                for (let i = 0; i < anggota.length; i++) {
+                    if (!anggota[i].nama_lengkap || !anggota[i].nik || !anggota[i].nomor_telepon || 
+                        !anggota[i].kontak_darurat || !anggota[i].alamat) {
+                        alert(`Data anggota rombongan ${i+1} harus lengkap!`);
+                        return;
+                    }
+                }
+                
+                // Prepare reservation data
+                const reservationData = {
+                    tanggal_pendakian: tanggalPendakian,
+                    jumlah_pendaki: jumlahPendaki,
+                    jumlah_tiket_parkir: jumlahTiketParkir,
+                    total_harga: totalHarga,
+                    jumlah_potensi_sampah: jumlahPotensiSampah,
+                    ketua_rombongan: ketua,
+                    anggota_rombongan: anggota,
+                    barang_bawaan: [...barangSampahData]
+                };
+                
+                // Send data to the server
+                const response = await fetch('api/bikin_reservasi.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(reservationData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Reservasi berhasil dibuat!\nKode Reservasi: ${result.kode_reservasi}`);
+                    resetForm();
+                } else {
+                    alert(`Gagal membuat reservasi: ${result.message || 'Terjadi kesalahan'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat membuat reservasi: ' + error.message);
+            } finally {
+                // Reset button state
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // Function to set today's date
+        function setTodayAsDefaultDate() {
+            const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+            const dateInput = document.getElementById('tanggal-pendakian');
+            if (dateInput) {
+                dateInput.value = today;
+                dateInput.min = today;
+                dateInput.max = today;
+                // Also update the quota info for today
+                checkAvailableQuota();
+            }
+        }
+        
+        // Load pricing data when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to load pricing data immediately, but also set up a retry mechanism
+            loadPricingData();
+            setupNewReservationEventListeners();
+            // Set today's date as the default and only option
+            setTodayAsDefaultDate();
+            
+            // Retry loading pricing data after a delay to ensure Supabase is ready
+            setTimeout(() => {
+                loadPricingData();
+            }, 2000); // Retry after 2 seconds
+            
+            // And again after 5 seconds as a backup
+            setTimeout(() => {
+                loadPricingData();
+            }, 5000);
+            
+            // And one more retry after 10 seconds
+            setTimeout(() => {
+                loadPricingData();
+            }, 10000);
+        });
+        
+        // Also try to load when the window fully loads
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                loadPricingData();
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

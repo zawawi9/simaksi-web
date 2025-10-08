@@ -15,16 +15,22 @@ $headers = [
 function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
     global $supabaseUrl, $headers;
     
+    // Handle query parameters differently from path endpoints
+    $url_parts = explode('?', $endpoint, 2);
+    $path = $url_parts[0];
+    $query = isset($url_parts[1]) ? '?' . $url_parts[1] : '';
+    
     // Remove leading slash if it exists and check the endpoint format
-    $url = rtrim($supabaseUrl, '/') . '/' . ltrim($endpoint, '/');
+    $url = rtrim($supabaseUrl, '/') . '/' . ltrim($path, '/') . $query;
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 second timeout
     
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
@@ -52,17 +58,19 @@ function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
     curl_close($ch);
     
     if ($curlError) {
+        error_log("CURL Error: " . $curlError);
         return ['error' => 'Curl error: ' . $curlError];
     }
     
     // Log the response for debugging if it's not JSON
     $result = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        // Not valid JSON - might be an error response from Supabase
+        error_log("Invalid JSON response: HTTP " . $httpCode . " - " . $response);
         return ['error' => 'Invalid JSON response: HTTP ' . $httpCode . ' - ' . $response];
     }
     
     if ($httpCode >= 400) {
+        error_log("HTTP error: " . $httpCode . " - " . $response);
         return ['error' => 'HTTP error: ' . $httpCode . ' - ' . $response];
     }
     
