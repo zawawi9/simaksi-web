@@ -176,7 +176,7 @@ async function loadTestimonials() {
                 komentar,
                 dibuat_pada,
                 id_pengguna,
-                pengguna!inner(nama_lengkap)
+                profiles!inner(nama_lengkap)
             `)
             .order('dibuat_pada', { ascending: false })   // Order by creation date, newest first
             .limit(3); // Limit to 3 latest testimonials
@@ -229,7 +229,7 @@ function updateTestimonials(testimonials) {
                     <i class="fas fa-user text-lg"></i>
                 </div>
                 <div class="flex-1">
-                    <h4 class="font-bold text-gray-800 text-lg">${testimonial.pengguna.nama_lengkap}</h4>
+                    <h4 class="font-bold text-gray-800 text-lg">${testimonial.profiles.nama_lengkap}</h4>
                     <p class="text-sm text-gray-500">${formattedDate}</p>
                     <div class="flex text-yellow-400 mt-1">
                         <i class="fas fa-star"></i>
@@ -278,7 +278,7 @@ async function loadActiveAnnouncements() {
                 end_date,
                 dibuat_pada,
                 id_admin,
-                pengguna!inner(nama_lengkap)
+                profiles!inner(nama_lengkap)
             `)
             .lte('start_date', now)      // start_date is less than or equal to now (announcement has started)
             .gte('end_date', now)        // end_date is greater than or equal to now (announcement hasn't ended)
@@ -345,7 +345,7 @@ function updateAnnouncements(announcements) {
             </div>
             <div class="flex items-center text-sm text-gray-500 mb-4">
                 <i class="fas fa-user text-accent mr-2"></i>
-                <span class="mr-4">${announcement.pengguna.nama_lengkap}</span>
+                <span class="mr-4">${announcement.profiles.nama_lengkap}</span>
                 <i class="fas fa-calendar-alt text-accent mr-2"></i>
                 <span>${formattedStartDate} - ${formattedEndDate}</span>
             </div>
@@ -406,19 +406,19 @@ async function handleLogin(event) {
         // Small delay to ensure session is properly established
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // If login is successful, get user role from the pengguna table
+        // If login is successful, get user role from the profiles table
         const user = data.user;
         const userId = user.id;
         
-        // Query the pengguna table to get the user's role
+        // Query the profiles table to get the user's role
         const { data: userData, error: userError } = await supabase
-            .from('pengguna')
-            .select('peran')
-            .eq('id_pengguna', userId)
+            .from('profiles')
+            .select('peran, nama_lengkap')
+            .eq('id', userId)
             .single();
             
         if (userError) {
-            showMessage('login-error-message', 'Terjadi kesalahan saat mengambil data pengguna');
+            showMessage('login-error-message', 'Profil pengguna tidak ditemukan. Hubungi administrator.');
             console.error('User role error:', userError);
             return;
         }
@@ -493,21 +493,20 @@ async function handleRegister(event) {
         
         // Check if user needs email confirmation
         if (data.user) {
-            // User created successfully in Supabase Auth, now add to pengguna table
+            // User created successfully in Supabase Auth, now add to profiles table
             const { error: insertError } = await supabase
-                .from('pengguna')
+                .from('profiles')
                 .insert([{
-                    id_pengguna: data.user.id,
+                    id: data.user.id,
                     nama_lengkap: name,
                     email: email,
                     nomor_telepon: phone,
-                    peran: 'pendaki',
-                    is_verified: data.user.email_confirmed_at ? true : false  // Set based on email confirmation status
+                    peran: 'pendaki'
                 }]);
             
             if (insertError) {
-                console.error('Error inserting to pengguna table:', insertError);
-                showMessage('register-error-message', 'Terjadi kesalahan saat menyimpan data pengguna');
+                console.error('Error inserting to profiles table:', insertError);
+                showMessage('register-error-message', 'Terjadi kesalahan saat menyimpan data profil');
                 return;
             }
             
@@ -527,9 +526,9 @@ async function handleRegister(event) {
             
             // Redirect based on role
             const { data: userData, error: userError } = await supabase
-                .from('pengguna')
+                .from('profiles')
                 .select('peran')
-                .eq('id_pengguna', data.session.user.id)
+                .eq('id', data.session.user.id)
                 .single();
                 
             if (!userError && userData.peran === 'admin') {
@@ -577,103 +576,6 @@ async function handleForgotPassword(event) {
     }
 }
 
-// Function to generate a random token
-function generateVerificationToken(length = 32) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-
-// Function to create verification token in database
-async function createVerificationToken(userId, email, jenis) {
-    try {
-        // Generate a unique token
-        const token = generateVerificationToken();
-        
-        // Set expiry time (24 hours from now)
-        const expiryTime = new Date();
-        expiryTime.setHours(expiryTime.getHours() + 24); // 24 hours expiry
-        
-        // Insert verification token into database
-        const { data, error } = await supabase
-            .from('verifikasi_email')
-            .insert([{
-                id_pengguna: userId,
-                email: email,
-                token: token,
-                jenis: jenis,
-                kadaluarsa_pada: expiryTime.toISOString()
-            }])
-            .select()
-            .single();
-        
-        if (error) {
-            console.error('Error creating verification token:', error);
-            return null;
-        }
-        
-        return token;
-    } catch (err) {
-        console.error('Error creating verification token:', err);
-        return null;
-    }
-}
-
-// Function to verify token from database
-async function verifyToken(token, jenis) {
-    try {
-        const { data, error } = await supabase
-            .from('verifikasi_email')
-            .select(`
-                id_verifikasi,
-                id_pengguna,
-                email,
-                token,
-                jenis,
-                dibuat_pada,
-                kadaluarsa_pada,
-                pengguna(is_verified)
-            `)
-            .eq('token', token)
-            .eq('jenis', jenis)
-            .gt('kadaluarsa_pada', new Date().toISOString()) // Not expired
-            .single();
-        
-        if (error) {
-            console.error('Error verifying token:', error);
-            return null;
-        }
-        
-        return data;
-    } catch (err) {
-        console.error('Error verifying token:', err);
-        return null;
-    }
-}
-
-// Function to delete used verification token
-async function deleteVerificationToken(token) {
-    try {
-        const { error } = await supabase
-            .from('verifikasi_email')
-            .delete()
-            .eq('token', token);
-        
-        if (error) {
-            console.error('Error deleting verification token:', error);
-            return false;
-        }
-        
-        return true;
-    } catch (err) {
-        console.error('Error deleting verification token:', err);
-        return false;
-    }
-}
-
 // Function to handle email verification callback
 async function handleEmailVerification() {
     // This function should be called on the page that handles email verification redirects
@@ -696,12 +598,12 @@ async function handleEmailVerification() {
                 return { success: false, message: error.message };
             }
             
-            // Update the user's verification status in our pengguna table
+            // Update the user's verification status in our profiles table
             if (data.user) {
                 const { error: updateError } = await supabase
-                    .from('pengguna')
-                    .update({ is_verified: true })
-                    .eq('id_pengguna', data.user.id);
+                    .from('profiles')
+                    .update({}) // No need to update anything since is_verified was removed
+                    .eq('id', data.user.id);
                 
                 if (updateError) {
                     console.error('Error updating verification status:', updateError);
@@ -853,33 +755,35 @@ function initInteractiveFeatures() {
         });
     });
     
-    // Add scroll to top button
-    let scrollToTopBtn = document.getElementById('scroll-to-top-btn');
-    if (!scrollToTopBtn) {
-        scrollToTopBtn = document.createElement('div');
-        scrollToTopBtn.id = 'scroll-to-top-btn';
-        scrollToTopBtn.className = 'scroll-to-top';
-        scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        document.body.appendChild(scrollToTopBtn);
-    } else {
-        // If element already exists, just ensure the functionality is attached
-        scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            scrollToTopBtn.classList.add('visible');
+    // Add scroll to top button - avoid duplicate declaration
+    if (typeof window.scrollToTopBtn === 'undefined') {
+        var scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+        if (!scrollToTopBtn) {
+            scrollToTopBtn = document.createElement('div');
+            scrollToTopBtn.id = 'scroll-to-top-btn';
+            scrollToTopBtn.className = 'scroll-to-top';
+            scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            document.body.appendChild(scrollToTopBtn);
         } else {
-            scrollToTopBtn.classList.remove('visible');
+            // If element already exists, just ensure the functionality is attached
+            scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
         }
-    });
-    
-    scrollToTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
         });
-    });
+
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
     
     // Add counter animations
     const counters = document.querySelectorAll('.counter');
@@ -1287,38 +1191,6 @@ function showVerifikasiModal() {
             return;
         }
         
-        // Verify the token with the backend
-        try {
-            // This would call a function to verify the token in the database
-            const verificationResult = await verifyToken(token, 'registrasi');
-            
-            if (verificationResult) {
-                // Token is valid, update user verification status
-                const { error } = await supabase
-                    .from('pengguna')
-                    .update({ is_verified: true })
-                    .eq('id_pengguna', verificationResult.id_pengguna);
-                
-                if (error) {
-                    console.error('Error updating verification status:', error);
-                    alert('Terjadi kesalahan saat memperbarui status verifikasi');
-                    return;
-                }
-                
-                // Delete the used token
-                await deleteVerificationToken(token);
-                
-                alert('Email berhasil diverifikasi!');
-                document.body.removeChild(modal);
-                
-                // Optionally reload the page or redirect
-                // window.location.reload();
-            } else {
-                alert('Token verifikasi tidak valid atau telah kadaluarsa');
-            }
-        } catch (err) {
-            console.error('Error during verification:', err);
-            alert('Terjadi kesalahan saat memverifikasi token');
-        }
+        alert('Token verifikasi tidak valid atau telah kadaluarsa');
     });
 }

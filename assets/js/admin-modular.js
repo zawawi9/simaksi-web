@@ -127,11 +127,11 @@ async function checkAdminSession() {
         // Small delay to allow session to be properly established
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // Verify if user is an admin from the pengguna table using Supabase directly
+        // Verify if user is an admin from the profiles table using Supabase directly
         const { data: userData, error: userError } = await window.supabase
-            .from('pengguna')
+            .from('profiles')
             .select('peran, nama_lengkap')
-            .eq('id_pengguna', session.user.id)
+            .eq('id', session.user.id)
             .single();
 
         if (userError) {
@@ -742,7 +742,7 @@ function showAddPenggunaForm() {
 }
 
 // Function to show edit pengguna form in modal
-function showEditPenggunaForm(id_pengguna, penggunaData) {
+function showEditPenggunaForm(id, profileData) {
     const modalContent = document.getElementById('modal-content');
     if (!modalContent) return;
 
@@ -754,39 +754,27 @@ function showEditPenggunaForm(id_pengguna, penggunaData) {
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nama_lengkap_pengguna">
                         <i class="fas fa-user mr-1"></i> Nama Lengkap *
                     </label>
-                    <input type="text" id="edit_nama_lengkap_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nama_lengkap || ''}" required>
+                    <input type="text" id="edit_nama_lengkap_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${profileData.nama_lengkap || ''}" required>
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_email_pengguna">
                         <i class="fas fa-envelope mr-1"></i> Email *
                     </label>
-                    <input type="email" id="edit_email_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.email || ''}" required>
+                    <input type="email" id="edit_email_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${profileData.email || ''}" required>
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nomor_telepon_pengguna">
                         <i class="fas fa-phone mr-1"></i> Nomor Telepon
                     </label>
-                    <input type="text" id="edit_nomor_telepon_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nomor_telepon || ''}">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_nik_pengguna">
-                        <i class="fas fa-id-card mr-1"></i> NIK
-                    </label>
-                    <input type="text" id="edit_nik_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${penggunaData.nik || ''}">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_alamat_pengguna">
-                        <i class="fas fa-home mr-1"></i> Alamat
-                    </label>
-                    <textarea id="edit_alamat_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" rows="2">${penggunaData.alamat || ''}</textarea>
+                    <input type="text" id="edit_nomor_telepon_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" value="${profileData.nomor_telepon || ''}">
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_peran_pengguna">
                         <i class="fas fa-user-tag mr-1"></i> Peran *
                     </label>
                     <select id="edit_peran_pengguna" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                        <option value="pendaki" ${penggunaData.peran === 'pendaki' ? 'selected' : ''}>Pendaki</option>
-                        <option value="admin" ${penggunaData.peran === 'admin' ? 'selected' : ''}>Admin</option>
+                        <option value="pendaki" ${profileData.peran === 'pendaki' ? 'selected' : ''}>Pendaki</option>
+                        <option value="admin" ${profileData.peran === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
             </div>
@@ -813,28 +801,26 @@ function showEditPenggunaForm(id_pengguna, penggunaData) {
                 nama_lengkap: document.getElementById('edit_nama_lengkap_pengguna').value,
                 email: document.getElementById('edit_email_pengguna').value,
                 nomor_telepon: document.getElementById('edit_nomor_telepon_pengguna').value,
-                nik: document.getElementById('edit_nik_pengguna').value,
-                alamat: document.getElementById('edit_alamat_pengguna').value,
                 peran: document.getElementById('edit_peran_pengguna').value
             };
 
             if (window.penggunaModule) {
-                window.penggunaModule.updatePengguna(id_pengguna, updatedPenggunaData);
+                window.penggunaModule.updatePengguna(id, updatedPenggunaData);
             }
         });
     }
 }
 
 // Function to handle editing a user
-window.editPengguna = function(id_pengguna) {
-    // Fetch the specific pengguna data by ID
+window.editPengguna = function(id) {
+    // Fetch the specific profile data by ID
     fetch(`api/pengguna.php`)
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
-                const pengguna = result.data.find(p => p.id_pengguna == id_pengguna);
-                if (pengguna) {
-                    showEditPenggunaForm(id_pengguna, pengguna);
+                const profile = result.data.find(p => p.id == id);
+                if (profile) {
+                    showEditPenggunaForm(id, profile);
                 } else {
                     Utils.showMessage('error', 'Pengguna tidak ditemukan');
                 }
@@ -843,16 +829,16 @@ window.editPengguna = function(id_pengguna) {
             }
         })
         .catch(error => {
-            console.error('Error fetching pengguna data:', error);
+            console.error('Error fetching profile data:', error);
             Utils.showMessage('error', 'Error connecting to server');
         });
 };
 
 // Function to handle deleting a user
-window.deletePengguna = function(id_pengguna, nama_lengkap) {
+window.deletePengguna = function(id, nama_lengkap) {
     if (confirm(`Apakah Anda yakin ingin menghapus pengguna ${nama_lengkap}? Tindakan ini akan menghapus akun dan semua data terkait.`)) {
         if (window.penggunaModule) {
-            window.penggunaModule.deletePengguna(id_pengguna);
+            window.penggunaModule.deletePengguna(id);
         }
     }
 };

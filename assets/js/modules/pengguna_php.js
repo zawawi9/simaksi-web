@@ -63,10 +63,10 @@ export class PenggunaModule {
                 <td class="px-6 py-4 text-sm text-gray-700">${pengguna.alamat || '-'}</td>
                 <td class="px-6 py-4 text-sm text-gray-700">${roleBadge}</td>
                 <td class="px-6 py-4 text-sm text-gray-500">
-                    <button onclick="window.editPengguna('${pengguna.id_pengguna}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    <button onclick="window.editPengguna('${pengguna.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button onclick="window.deletePengguna('${pengguna.id_pengguna}', '${pengguna.nama_lengkap}')" class="text-red-600 hover:text-red-900">
+                    <button onclick="window.deletePengguna('${pengguna.id}', '${pengguna.nama_lengkap}')" class="text-red-600 hover:text-red-900">
                         <i class="fas fa-trash"></i> Hapus
                     </button>
                 </td>

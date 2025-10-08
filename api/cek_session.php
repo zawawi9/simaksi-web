@@ -87,8 +87,8 @@ if ($token) {
     exit;
 }
 
-// Now check if this user has admin role in the pengguna table
-$userRoleResponse = makeSupabaseRequest('/pengguna?select=peran,nama_lengkap&id_pengguna=eq.' . $userId);
+// Now check if this user has admin role in the profiles table
+$userRoleResponse = makeSupabaseRequest('/profiles?select=peran,nama_lengkap&id=eq.' . $userId);
 
 if (isset($userRoleResponse['error'])) {
     http_response_code(500);
