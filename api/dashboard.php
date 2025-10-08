@@ -87,7 +87,7 @@ $aktivitasTerbaru = [];
 if (isset($aktivitasResponse['data'])) {
     foreach ($aktivitasResponse['data'] as $reservasi) {
         // Get user details to get nama_lengkap
-        $userResponse = makeSupabaseRequest('/pengguna?select=nama_lengkap&id_pengguna=eq.' . $reservasi['id_pengguna']);
+        $userResponse = makeSupabaseRequest('/profiles?select=nama_lengkap&id=eq.' . $reservasi['id_pengguna']);
         $nama_pengguna = 'Unknown';
         $nama_ketua_rombongan = 'Nama tidak ditemukan';
         

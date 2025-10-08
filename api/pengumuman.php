@@ -59,10 +59,10 @@ if ($method === 'POST') {
     
     if ($id_pengumuman) {
         // Get specific pengumuman
-        $response = makeSupabaseRequest('/pengumuman?select=*,pengguna(nama_lengkap)&id_pengumuman=eq.' . $id_pengumuman);
+        $response = makeSupabaseRequest('/pengumuman?select=*,profiles(nama_lengkap)&id_pengumuman=eq.' . $id_pengumuman);
     } else {
         // Get all pengumuman
-        $response = makeSupabaseRequest('/pengumuman?select=*,pengguna(nama_lengkap)&order=diperbarui_pada.desc');
+        $response = makeSupabaseRequest('/pengumuman?select=*,profiles(nama_lengkap)&order=diperbarui_pada.desc');
     }
     
     if (isset($response['error'])) {

@@ -12,33 +12,35 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Enhanced scroll to top functionality
-let scrollToTopBtn = document.getElementById('scroll-to-top-btn');
-if (!scrollToTopBtn) {
-    scrollToTopBtn = document.createElement('div');
-    scrollToTopBtn.id = 'scroll-to-top-btn';
-    scrollToTopBtn.className = 'scroll-to-top';
-    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    document.body.appendChild(scrollToTopBtn);
-} else {
-    // If element already exists, just ensure the functionality is attached
-    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-}
-
-window.addEventListener('scroll', function() {
-    if (window.pageYOffset > 300) {
-        scrollToTopBtn.classList.add('visible');
+// Enhanced scroll to top functionality - avoid duplicate declaration
+if (typeof scrollToTopBtn === 'undefined') {
+    var scrollToTopBtn = document.getElementById('scroll-to-top-btn');
+    if (!scrollToTopBtn) {
+        scrollToTopBtn = document.createElement('div');
+        scrollToTopBtn.id = 'scroll-to-top-btn';
+        scrollToTopBtn.className = 'scroll-to-top';
+        scrollToTopBtn.innerHTML = '<i class=\"fas fa-arrow-up\"></i>';
+        document.body.appendChild(scrollToTopBtn);
     } else {
-        scrollToTopBtn.classList.remove('visible');
+        // If element already exists, just ensure the functionality is attached
+        scrollToTopBtn.innerHTML = '<i class=\"fas fa-arrow-up\"></i>';
     }
-});
 
-scrollToTopBtn.addEventListener('click', function() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            scrollToTopBtn.classList.add('visible');
+        } else {
+            scrollToTopBtn.classList.remove('visible');
+        }
     });
-});
+
+    scrollToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
 
 // Add animation on scroll for elements
 function animateOnScroll() {

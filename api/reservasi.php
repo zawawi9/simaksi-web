@@ -51,7 +51,7 @@ if ($method === 'GET') {
     // Check if searching by name - this requires a different approach
     if ($nama) {
         // First, get user IDs that match the name
-        $usersResponse = makeSupabaseRequest('/pengguna?select=id_pengguna&nama_lengkap=ilike.*' . $nama . '*');
+        $usersResponse = makeSupabaseRequest('/profiles?select=id&nama_lengkap=ilike.*' . $nama . '*');
         if (isset($usersResponse['error'])) {
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $usersResponse['error']]);
@@ -65,7 +65,7 @@ if ($method === 'GET') {
         }
         
         // Extract user IDs
-        $userIds = array_column($usersResponse['data'], 'id_pengguna');
+        $userIds = array_column($usersResponse['data'], 'id');
         
         // Build query for reservations with specific user IDs
         $query = '/reservasi?select=id_reservasi,kode_reservasi,tanggal_pendakian,jumlah_pendaki,status,id_pengguna&';
@@ -104,7 +104,7 @@ if ($method === 'GET') {
     if (isset($response['data'])) {
         foreach ($response['data'] as $reservasi) {
             // Get user details to get nama_lengkap
-            $userResponse = makeSupabaseRequest('/pengguna?select=nama_lengkap&id_pengguna=eq.' . $reservasi['id_pengguna']);
+            $userResponse = makeSupabaseRequest('/profiles?select=nama_lengkap&id=eq.' . $reservasi['id_pengguna']);
             if (!isset($userResponse['error']) && !empty($userResponse['data']) && isset($userResponse['data'][0]['nama_lengkap'])) {
                 $reservasi['nama_ketua_rombongan'] = $userResponse['data'][0]['nama_lengkap'];
             } else {

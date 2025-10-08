@@ -9,18 +9,18 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $nama_pengguna = $_GET['nama_pengguna'] ?? null;
-    $email_pengguna = $_GET['email_pengguna'] ?? null;
+    $nama_lengkap = $_GET['nama_lengkap'] ?? null;
+    $email = $_GET['email'] ?? null;
 
     // Build query based on parameters
-    $query = '/pengguna?select=id_pengguna,nama_lengkap,email,nomor_telepon,nik,alamat,peran,dibuat_pada';
+    $query = '/profiles?select=id,nama_lengkap,email,nomor_telepon,alamat,peran';
     
-    if ($nama_pengguna) {
-        $query .= '&nama_lengkap=ilike.%' . $nama_pengguna . '%';
+    if ($nama_lengkap) {
+        $query .= '&nama_lengkap=ilike.%' . $nama_lengkap . '%';
     }
     
-    if ($email_pengguna) {
-        $query .= '&email=ilike.%' . $email_pengguna . '%';
+    if ($email) {
+        $query .= '&email=ilike.%' . $email . '%';
     }
     
     $query .= '&order=nama_lengkap.asc';
@@ -33,15 +33,15 @@ if ($method === 'GET') {
         exit;
     }
     
-    $penggunaList = $response['data'] ?? [];
+    $profilesList = $response['data'] ?? [];
 
     echo json_encode([
         'status' => 'success',
-        'data' => $penggunaList
+        'data' => $profilesList
     ]);
     
 } elseif ($method === 'POST') {
-    // Create new pengguna
+    // Create new profile
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['action']) || $input['action'] !== 'create') {
@@ -51,26 +51,24 @@ if ($method === 'GET') {
     }
     
     // Validate required fields according to the database schema
-    if (!isset($input['id_pengguna']) || !isset($input['nama_lengkap']) || !isset($input['email'])) {
+    if (!isset($input['id']) || !isset($input['nama_lengkap']) || !isset($input['email'])) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'ID Pengguna, Nama Lengkap, dan Email wajib diisi']);
+        echo json_encode(['status' => 'error', 'message' => 'ID, Nama Lengkap, dan Email wajib diisi']);
         exit;
     }
     
     // Prepare data for insertion
-    $newPengguna = [
-        'id_pengguna' => $input['id_pengguna'],
+    $newProfile = [
+        'id' => $input['id'],
         'nama_lengkap' => $input['nama_lengkap'],
         'email' => $input['email'],
         'nomor_telepon' => $input['nomor_telepon'] ?? null,
-        'nik' => $input['nik'] ?? null,
         'alamat' => $input['alamat'] ?? null,
-        'peran' => $input['peran'] ?? 'pendaki',  // Default to 'pendaki'
-        'is_verified' => $input['is_verified'] ?? true  // Default to verified since admin creates
+        'peran' => $input['peran'] ?? 'pendaki'  // Default to 'pendaki'
     ];
     
     // Insert into Supabase
-    $response = makeSupabaseRequest('/pengguna', 'POST', $newPengguna);
+    $response = makeSupabaseRequest('/profiles', 'POST', $newProfile);
     
     if (isset($response['error'])) {
         http_response_code(500);
@@ -80,12 +78,12 @@ if ($method === 'GET') {
     
     echo json_encode([
         'status' => 'success',
-        'message' => 'Pengguna berhasil ditambahkan',
+        'message' => 'Profile berhasil ditambahkan',
         'data' => $response
     ]);
     
 } elseif ($method === 'PUT') {
-    // Update existing pengguna
+    // Update existing profile
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['action']) || $input['action'] !== 'update') {
@@ -94,9 +92,9 @@ if ($method === 'GET') {
         exit;
     }
     
-    if (!isset($input['id_pengguna'])) {
+    if (!isset($input['id'])) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'ID Pengguna wajib diisi']);
+        echo json_encode(['status' => 'error', 'message' => 'ID wajib diisi']);
         exit;
     }
     
@@ -111,21 +109,15 @@ if ($method === 'GET') {
     if (isset($input['nomor_telepon'])) {
         $updateData['nomor_telepon'] = $input['nomor_telepon'];
     }
-    if (isset($input['nik'])) {
-        $updateData['nik'] = $input['nik'];
-    }
     if (isset($input['alamat'])) {
         $updateData['alamat'] = $input['alamat'];
     }
     if (isset($input['peran'])) {
         $updateData['peran'] = $input['peran'];
     }
-    if (isset($input['is_verified'])) {
-        $updateData['is_verified'] = $input['is_verified'];
-    }
     
     // Update in Supabase
-    $response = makeSupabaseRequest('/pengguna?id_pengguna=eq.' . $input['id_pengguna'], 'PATCH', $updateData);
+    $response = makeSupabaseRequest('/profiles?id=eq.' . $input['id'], 'PATCH', $updateData);
     
     if (isset($response['error'])) {
         http_response_code(500);
@@ -135,18 +127,18 @@ if ($method === 'GET') {
     
     if (count($response) === 0) {
         http_response_code(404);
-        echo json_encode(['status' => 'error', 'message' => 'Pengguna tidak ditemukan']);
+        echo json_encode(['status' => 'error', 'message' => 'Profile tidak ditemukan']);
         exit;
     }
     
     echo json_encode([
         'status' => 'success',
-        'message' => 'Pengguna berhasil diperbarui',
+        'message' => 'Profile berhasil diperbarui',
         'data' => $response[0]
     ]);
     
 } elseif ($method === 'DELETE') {
-    // Delete pengguna
+    // Delete profile
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['action']) || $input['action'] !== 'delete') {
@@ -155,14 +147,14 @@ if ($method === 'GET') {
         exit;
     }
     
-    if (!isset($input['id_pengguna'])) {
+    if (!isset($input['id'])) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'ID Pengguna wajib diisi']);
+        echo json_encode(['status' => 'error', 'message' => 'ID wajib diisi']);
         exit;
     }
     
     // Delete from Supabase (this will also delete from auth due to CASCADE)
-    $response = makeSupabaseRequest('/pengguna?id_pengguna=eq.' . $input['id_pengguna'], 'DELETE');
+    $response = makeSupabaseRequest('/profiles?id=eq.' . $input['id'], 'DELETE');
     
     if (isset($response['error'])) {
         http_response_code(500);
@@ -172,13 +164,13 @@ if ($method === 'GET') {
     
     if (count($response) === 0) {
         http_response_code(404);
-        echo json_encode(['status' => 'error', 'message' => 'Pengguna tidak ditemukan']);
+        echo json_encode(['status' => 'error', 'message' => 'Profile tidak ditemukan']);
         exit;
     }
     
     echo json_encode([
         'status' => 'success',
-        'message' => 'Pengguna berhasil dihapus'
+        'message' => 'Profile berhasil dihapus'
     ]);
     
 } else {
