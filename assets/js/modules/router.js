@@ -120,6 +120,10 @@ export class Router {
                 pageTitle.innerHTML = '<i class="fas fa-ticket-alt mr-2 text-green-600"></i> Manajemen Kuota';
             }
             this.quotasModule.loadKuotaData();
+            // Load pricing settings when accessing the kuota module
+            if (window.pricingSettingsModule) {
+                window.pricingSettingsModule.loadPricingData();
+            }
         } else if (contentType === 'keuangan' && keuanganContent) {
             document.getElementById('nav-keuangan').classList.add('active');
             document.getElementById('nav-keuangan').classList.remove('hover:bg-green-700');
