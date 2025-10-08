@@ -3,6 +3,7 @@
 import { DashboardModule } from './modules/dashboard_php.js';
 import { ReservationsModule } from './modules/reservasi_php.js';
 import { QuotasModule } from './modules/quotas_php.js';
+import { PricingSettingsModule } from './modules/pricing_settings.js';
 import { FinanceModule } from './modules/finance_php.js';
 import { AnnouncementModule } from './modules/pengumuman_php.js';
 import { PenggunaModule } from './modules/pengguna_php.js';
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const dashboardModule = new DashboardModule();
         const reservationsModule = new ReservationsModule();
         const quotasModule = new QuotasModule();
+        const pricingSettingsModule = new PricingSettingsModule();
         const financeModule = new FinanceModule();
         const announcementModule = new AnnouncementModule();
         const penggunaModule = new PenggunaModule();
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.dashboardModule = dashboardModule;
         window.reservationsModule = reservationsModule;
         window.quotasModule = quotasModule;
+        window.pricingSettingsModule = pricingSettingsModule;
         window.financeModule = financeModule;
         window.announcementModule = announcementModule;
         window.penggunaModule = penggunaModule;
@@ -449,6 +452,16 @@ function setupKuotaForm(quotasModule) {
             
             if (quotasModule) {
                 quotasModule.saveKuota(tanggal, kuotaMaksimal);
+            }
+        });
+    }
+    
+    // Set up pricing settings form
+    const simpanHargaBtn = document.getElementById('simpan-harga');
+    if (simpanHargaBtn) {
+        simpanHargaBtn.addEventListener('click', function() {
+            if (window.pricingSettingsModule) {
+                window.pricingSettingsModule.savePricing();
             }
         });
     }
