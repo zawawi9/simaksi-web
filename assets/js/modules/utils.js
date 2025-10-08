@@ -80,7 +80,11 @@ export class Utils {
         if (typeof angka !== 'number') {
             angka = parseFloat(angka) || 0;
         }
-        return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        }).format(angka);
     }
     
     static parseRupiah(rupiah) {
