@@ -17,7 +17,7 @@ export class Router {
         const navKeuangan = document.getElementById('nav-keuangan');
         const navPengumuman = document.getElementById('nav-pengumuman');
         const navPengguna = document.getElementById('nav-pengguna');
-        const navPendaki = document.getElementById('nav-pendaki');
+        const navBikinReservasi = document.getElementById('nav-bikin-reservasi');
 
         if (navDashboard) {
             navDashboard.addEventListener('click', (e) => {
@@ -61,10 +61,10 @@ export class Router {
             });
         }
 
-        if (navPendaki) {
-            navPendaki.addEventListener('click', (e) => {
+        if (navBikinReservasi) {
+            navBikinReservasi.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.switchContent('pendaki');
+                this.switchContent('bikin-reservasi');
             });
         }
     }
@@ -77,7 +77,7 @@ export class Router {
         const keuanganContent = document.getElementById('keuangan-content');
         const pengumumanContent = document.getElementById('pengumuman-content');
         const penggunaContent = document.getElementById('pengguna-content');
-        const pendakiContent = document.getElementById('pendaki-content');
+        const bikinReservasiContent = document.getElementById('bikin-reservasi-content');
 
         if (dashboardContent) dashboardContent.classList.add('hidden');
         if (reservasiContent) reservasiContent.classList.add('hidden');
@@ -85,7 +85,7 @@ export class Router {
         if (keuanganContent) keuanganContent.classList.add('hidden');
         if (pengumumanContent) pengumumanContent.classList.add('hidden');
         if (penggunaContent) penggunaContent.classList.add('hidden');
-        if (pendakiContent) pendakiContent.classList.add('hidden');
+        if (bikinReservasiContent) bikinReservasiContent.classList.add('hidden');
 
         // Remove active class from all nav items
         document.querySelectorAll('nav a').forEach(link => {
@@ -165,16 +165,12 @@ export class Router {
             if (this.penggunaModule) {
                 this.penggunaModule.loadPenggunaData();
             }
-        } else if (contentType === 'pendaki' && pendakiContent) {
-            document.getElementById('nav-pendaki').classList.add('active');
-            document.getElementById('nav-pendaki').classList.remove('hover:bg-green-700');
-            pendakiContent.classList.remove('hidden');
+        } else if (contentType === 'bikin-reservasi' && bikinReservasiContent) {
+            document.getElementById('nav-bikin-reservasi').classList.add('active');
+            document.getElementById('nav-bikin-reservasi').classList.remove('hover:bg-green-700');
+            bikinReservasiContent.classList.remove('hidden');
             if (pageTitle) {
-                pageTitle.innerHTML = '<i class="fas fa-hiking mr-2 text-green-600"></i> Manajemen Pendaki';
-            }
-            // Load pendaki data if module is available
-            if (this.pendakiModule) {
-                this.pendakiModule.loadPendakiData();
+                pageTitle.innerHTML = '<i class="fas fa-calendar-plus mr-2 text-green-600"></i> Buat Reservasi Baru';
             }
         }
     }
