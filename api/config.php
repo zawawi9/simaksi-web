@@ -3,12 +3,22 @@
 $supabaseUrl = 'https://kitxtcpfnccblznbagzx.supabase.co/rest/v1';
 $supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpdHh0Y3BmbmNjYmx6bmJhZ3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODIxMzEsImV4cCI6MjA3NTE1ODEzMX0.OySigpw4AWI3G7JW_8r8yXu7re0Mr9CYv8u3d9Fr548'; // anon key
 $serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpdHh0Y3BmbmNjYmx6bmJhZ3p4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTU4MjEzMSwiZXhwIjoyMDc1MTU4MTMxfQ.eSggC5imTRztxGNQyW9exZTQo3CU-8QmZ54BhfUDTcE'; // service role key
+
 // Set headers for Supabase API requests
 $headers = [
     'Content-Type: application/json',
     'apikey: ' . $supabaseKey,
     'Authorization: Bearer ' . $serviceRoleKey,
     'Prefer: return=representation'
+];
+
+// Supabase Storage configuration
+$storageUrl = str_replace('/rest/v1', '/storage/v1', $supabaseUrl);
+
+// Headers for Storage API requests
+$storageHeaders = [
+    'Authorization: Bearer ' . $serviceRoleKey,
+    'apikey: ' . $serviceRoleKey
 ];
 
 // Function to make API requests to Supabase
@@ -78,5 +88,94 @@ function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
         'status_code' => $httpCode,
         'data' => $result
     ];
+}
+
+// Function to upload file to Supabase Storage
+function uploadToSupabaseStorage($filePath, $fileContent, $bucket = 'surat-sehat') {
+    global $storageUrl, $storageHeaders;
+    
+    $uploadUrl = $storageUrl . '/object/' . $bucket . '/' . $filePath;
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $uploadUrl);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fileContent);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $storageHeaders);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 second timeout for larger files
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    
+    curl_close($ch);
+    
+    if ($curlError) {
+        return [
+            'success' => false,
+            'error' => 'Curl error: ' . $curlError
+        ];
+    }
+    
+    if ($httpCode >= 400) {
+        return [
+            'success' => false,
+            'error' => 'HTTP error: ' . $httpCode . ' - ' . $response
+        ];
+    }
+    
+    return [
+        'success' => true,
+        'response' => $response
+    ];
+}
+
+// Function to delete file from Supabase Storage
+function deleteFromSupabaseStorage($filePath, $bucket = 'surat-sehat') {
+    global $storageUrl, $storageHeaders;
+    
+    $deleteUrl = $storageUrl . '/object/' . $bucket . '/' . $filePath;
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $deleteUrl);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $storageHeaders);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    
+    curl_close($ch);
+    
+    if ($curlError) {
+        return [
+            'success' => false,
+            'error' => 'Curl error: ' . $curlError
+        ];
+    }
+    
+    if ($httpCode >= 400) {
+        return [
+            'success' => false,
+            'error' => 'HTTP error: ' . $httpCode . ' - ' . $response
+        ];
+    }
+    
+    return [
+        'success' => true,
+        'response' => $response
+    ];
+}
+
+// Function to get public URL for a file in Supabase Storage
+function getSupabaseStoragePublicUrl($filePath, $bucket = 'surat-sehat') {
+    global $storageUrl;
+    
+    // Extract project ref from original URL
+    $projectRef = parse_url($storageUrl, PHP_URL_HOST);
+    $projectRef = explode('.', $projectRef)[0]; // Get the first part of the hostname
+    
+    return "https://{$projectRef}.supabase.co/storage/v1/object/public/{$bucket}/{$filePath}";
 }
 ?>

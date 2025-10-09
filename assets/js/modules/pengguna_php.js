@@ -81,18 +81,7 @@ export class PenggunaModule {
 
     async addPengguna(penggunaData) {
         try {
-            // First, create a Supabase user
-            const { data: authData, error: authError } = await window.supabase.auth.admin.createUser({
-                email: penggunaData.email,
-                password: penggunaData.password || 'DefaultPassword123!', // Default password for admin-created users
-                emailConfirm: true // Assuming admin creates verified users
-            });
-
-            if (authError) {
-                throw new Error(authError.message);
-            }
-
-            // Then add to the pengguna table
+            // Call the PHP backend to create user (which has service role access)
             const response = await fetch(`${this.apiBaseUrl}/pengguna.php`, {
                 method: 'POST',
                 headers: {
@@ -100,7 +89,6 @@ export class PenggunaModule {
                 },
                 body: JSON.stringify({
                     action: 'create',
-                    id_pengguna: authData.user.id,
                     ...penggunaData
                 })
             });
@@ -122,7 +110,7 @@ export class PenggunaModule {
             }
         } catch (error) {
             console.error('Error adding pengguna:', error);
-            this.showMessage('error', error.message || 'Error connecting to server');
+            this.showMessage('error', 'Error connecting to server');
             return false;
         }
     }

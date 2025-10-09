@@ -32,7 +32,7 @@ try {
         // Validate required fields
         if (!isset($data['tanggal_pendakian']) || !isset($data['jumlah_pendaki']) || 
             !isset($data['jumlah_tiket_parkir']) || !isset($data['total_harga']) || 
-            !isset($data['ketua_rombongan']) || !isset($data['anggota_rombongan'])) {
+            !isset($data['id_pengguna']) || !isset($data['anggota_rombongan'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Data tidak lengkap']);
             exit;
@@ -43,12 +43,12 @@ try {
         $jumlah_tiket_parkir = $data['jumlah_tiket_parkir'];
         $total_harga = $data['total_harga'];
         $jumlah_potensi_sampah = $data['jumlah_potensi_sampah'] ?? 0;
-        $ketua_rombongan = $data['ketua_rombongan'];
+        $id_pengguna = $data['id_pengguna']; // Ambil ID pengguna dari data yang dikirim
         $anggota_rombongan = $data['anggota_rombongan'];
         $barang_bawaan = $data['barang_bawaan'] ?? [];
 
         // Log data yang diterima untuk debugging
-        error_log("Data received: tanggal_pendakian=" . $tanggal_pendakian . ", jumlah_pendaki=" . $jumlah_pendaki);
+        error_log("Data received: tanggal_pendakian=" . $tanggal_pendakian . ", jumlah_pendaki=" . $jumlah_pendaki . ", id_pengguna=" . $id_pengguna);
 
         // Check quota availability manually by fetching from kuota_harian table
         error_log("Checking quota for date: " . $tanggal_pendakian);
@@ -84,8 +84,8 @@ try {
         }
 
         // Check if user exists in profiles
-        error_log("Checking user with email: " . $ketua_rombongan['email']);
-        $user_response = makeSupabaseRequest('profiles?select=id&email=eq.' . urlencode($ketua_rombongan['email']), 'GET');
+        error_log("Checking user with ID: " . $id_pengguna);
+        $user_response = makeSupabaseRequest('profiles?select=id,nama_lengkap&' . 'id=eq.' . urlencode($id_pengguna), 'GET');
         
         if (isset($user_response['error'])) {
             error_log("User check error: " . $user_response['error']);
@@ -99,29 +99,9 @@ try {
             $user_id = $user_response['data'][0]['id'];
             error_log("Found existing user with ID: " . $user_id);
         } else {
-            // The user doesn't exist, so we need to create them
-            $new_user_id = bin2hex(random_bytes(16)); // Generate a UUID-like ID
-            error_log("Creating new user with ID: " . $new_user_id);
-            
-            $insert_profile_data = [
-                'id' => $new_user_id,
-                'nama_lengkap' => $ketua_rombongan['nama_lengkap'],
-                'email' => $ketua_rombongan['email'],
-                'nomor_telepon' => $ketua_rombongan['nomor_telepon'],
-                'alamat' => $ketua_rombongan['alamat'],
-                'peran' => 'pendaki'
-            ];
-            
-            $insert_profile_response = makeSupabaseRequest('profiles', 'POST', $insert_profile_data);
-
-            if (isset($insert_profile_response['error'])) {
-                error_log("Failed to create user: " . $insert_profile_response['error']);
-                http_response_code(500);
-                echo json_encode(['error' => 'Gagal membuat profil pengguna: ' . $insert_profile_response['error']]);
-                exit;
-            }
-            
-            $user_id = $new_user_id;
+            http_response_code(400);
+            echo json_encode(['error' => 'User tidak ditemukan di database. Harap daftarkan user terlebih dahulu sebelum membuat reservasi.']);
+            exit;
         }
 
         // Generate reservation code
