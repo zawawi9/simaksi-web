@@ -1286,6 +1286,12 @@
                     <button id="confirmPayment" class="hidden bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
                         Konfirmasi Pembayaran & Check-in
                     </button>
+                    <button id="sampahSesuai" class="hidden bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded">
+                        Sampah Sesuai
+                    </button>
+                    <button id="sampahTidakSesuai" class="hidden bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded">
+                        Sampah Tidak Sesuai
+                    </button>
                     <button id="cancelModal" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded">
                         Batal
                     </button>
@@ -1765,28 +1771,37 @@
         function tambahBarang() {
             const namaBarangInput = document.getElementById('barang-sampah');
             const jenisSampahInput = document.getElementById('jenis-sampah');
+            const jumlahBarangInput = document.getElementById('jumlah-barang');
             
-            if (!namaBarangInput || !jenisSampahInput) return;
+            if (!namaBarangInput || !jenisSampahInput || !jumlahBarangInput) return;
             
             const namaBarang = namaBarangInput.value.trim();
             const jenisSampah = jenisSampahInput.value;
+            const jumlahBarang = parseInt(jumlahBarangInput.value) || 1; // Default to 1 if not specified
             
             if (!namaBarang) {
                 alert('Nama barang harus diisi!');
                 return;
             }
             
+            if (jumlahBarang <= 0) {
+                alert('Jumlah barang harus lebih dari 0!');
+                return;
+            }
+            
             // Add to data array
             barangSampahData.push({
                 nama_barang: namaBarang,
-                jenis_sampah: jenisSampah
+                jenis_sampah: jenisSampah,
+                jumlah: jumlahBarang
             });
             
             // Update table
             updateBarangTable();
             
-            // Clear input
+            // Clear inputs
             namaBarangInput.value = '';
+            jumlahBarangInput.value = '';
         }
         
         function updateBarangTable() {
@@ -1800,6 +1815,7 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${barang.nama_barang}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${barang.jenis_sampah}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${barang.jumlah || 1}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <button class="hapus-barang-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm" data-index="${index}">
                                 <i class="fas fa-trash mr-1"></i> Hapus
@@ -2091,3 +2107,4 @@
     </script>
 </body>
 </html>
+

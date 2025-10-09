@@ -158,7 +158,8 @@ try {
             $barang_data = [
                 'id_reservasi' => $id_reservasi,
                 'nama_barang' => $barang['nama_barang'],
-                'jenis_sampah' => $barang['jenis_sampah']
+                'jenis_sampah' => $barang['jenis_sampah'],
+                'jumlah' => $barang['jumlah'] ?? 1  // Default to 1 if jumlah is not provided
             ];
             
             $barang_response = makeSupabaseRequest('barang_bawaan_sampah', 'POST', $barang_data);
