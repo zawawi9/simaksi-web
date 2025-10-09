@@ -543,7 +543,7 @@ window.showReservationDetail = function(id_reservasi) {
                     reservasi.barang_bawaan.forEach(barang => {
                         const li = document.createElement('li');
                         li.className = 'mb-2';
-                        li.textContent = `${barang.nama_barang} (${barang.jenis_sampah})`;
+                        li.textContent = `${barang.nama_barang} (${barang.jenis_sampah}) - Jumlah: ${barang.jumlah || 1}`;
                         barangList.appendChild(li);
                     });
                 }
