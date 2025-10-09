@@ -147,22 +147,23 @@ export class ReservationsModule {
 
     async confirmPayment(id_reservasi, kode_reservasi) {
         try {
-            // Get the current admin ID from the session
+            // Get the current admin ID from the session and access token
             const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
             if (sessionError || !session) {
                 throw new Error('Sesi admin tidak valid');
             }
             
-            const adminId = session.user.id;
+            // Get access token to include in authorization header
+            const accessToken = session.access_token;
             
             const response = await fetch(`${this.apiBaseUrl}/konfirmasi_pembayaran.php`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`  // Include access token for auth context
                 },
                 body: JSON.stringify({
-                    id_reservasi: id_reservasi,
-                    id_admin: adminId
+                    id_reservasi: id_reservasi
                 })
             });
             

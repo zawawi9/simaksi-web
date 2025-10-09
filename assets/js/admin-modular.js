@@ -718,6 +718,14 @@ function showAddPenggunaForm() {
                     <p class="text-xs text-gray-500 mt-1">Biarkan kosong untuk menggunakan password default</p>
                 </div>
             </div>
+            <div class="flex justify-end space-x-3 mt-4 pt-4 border-t border-gray-200">
+                <button type="button" id="cancel-pengguna-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg">
+                    Batal
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg">
+                    <i class="fas fa-save mr-2"></i> Simpan Pengguna
+                </button>
+            </div>
         </form>
     `;
 
@@ -750,6 +758,14 @@ function showAddPenggunaForm() {
             if (window.penggunaModule) {
                 window.penggunaModule.addPengguna(penggunaData);
             }
+        });
+    }
+    
+    // Add event listener for cancel button
+    const cancelBtn = document.getElementById('cancel-pengguna-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            Utils.hideModal();
         });
     }
 }
@@ -791,6 +807,14 @@ function showEditPenggunaForm(id, profileData) {
                     </select>
                 </div>
             </div>
+            <div class="flex justify-end space-x-3 mt-4 pt-4 border-t border-gray-200">
+                <button type="button" id="cancel-edit-pengguna-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg">
+                    Batal
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg">
+                    <i class="fas fa-save mr-2"></i> Simpan Perubahan
+                </button>
+            </div>
         </form>
     `;
 
@@ -820,6 +844,14 @@ function showEditPenggunaForm(id, profileData) {
             if (window.penggunaModule) {
                 window.penggunaModule.updatePengguna(id, updatedPenggunaData);
             }
+        });
+    }
+    
+    // Add event listener for cancel button
+    const cancelEditBtn = document.getElementById('cancel-edit-pengguna-btn');
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+            Utils.hideModal();
         });
     }
 }

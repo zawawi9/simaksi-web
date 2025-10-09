@@ -1174,30 +1174,14 @@
                             Informasi Ketua Rombongan
                         </h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="grid grid-cols-1 gap-6 mb-6">
                             <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="nama-ketua">
-                                    <i class="fas fa-user mr-1"></i> Nama Lengkap
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="id-pengguna">
+                                    <i class="fas fa-users mr-1"></i> Pilih Ketua Rombongan
                                 </label>
-                                <input type="text" id="nama-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nama lengkap ketua rombongan">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="email-ketua">
-                                    <i class="fas fa-envelope mr-1"></i> Email
-                                </label>
-                                <input type="email" id="email-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Email ketua rombongan">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="telepon-ketua">
-                                    <i class="fas fa-phone mr-1"></i> Nomor Telepon
-                                </label>
-                                <input type="tel" id="telepon-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nomor telepon ketua rombongan">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat-ketua">
-                                    <i class="fas fa-home mr-1"></i> Alamat
-                                </label>
-                                <input type="text" id="alamat-ketua" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Alamat ketua rombongan">
+                                <select id="id-pengguna" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">Pilih ketua rombongan dari daftar user terdaftar</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1349,10 +1333,6 @@
             const tambahBarangBtn = document.getElementById('tambah-barang-btn');
             const buatReservasiBtn = document.getElementById('buat-reservasi-btn');
             const resetFormBtn = document.getElementById('reset-form');
-            const namaKetuaInput = document.getElementById('nama-ketua');
-            const teleponKetuaInput = document.getElementById('telepon-ketua');
-            const alamatKetuaInput = document.getElementById('alamat-ketua');
-            
             if (jumlahPendakiInput) {
                 jumlahPendakiInput.addEventListener('input', function() {
                     // Validate maximum group size (10 including leader)
@@ -1407,6 +1387,7 @@
                             console.log('Buat Reservasi content ditampilkan, memuat ulang harga...');
                             setTimeout(() => {
                                 loadPricingData();
+                                loadUsers(); // Also reload users when the section is shown
                             }, 1000); // Delay kecil untuk memastikan elemen benar-benar siap
                         }
                     }
@@ -1435,17 +1416,6 @@
             
             if (resetFormBtn) {
                 resetFormBtn.addEventListener('click', resetForm);
-            }
-            
-            // Update pendaki forms when ketua data is entered
-            if (namaKetuaInput) {
-                namaKetuaInput.addEventListener('input', updateKetuaDataInForms);
-            }
-            if (teleponKetuaInput) {
-                teleponKetuaInput.addEventListener('input', updateKetuaDataInForms);
-            }
-            if (alamatKetuaInput) {
-                alamatKetuaInput.addEventListener('input', updateKetuaDataInForms);
             }
         }
         
@@ -1593,22 +1563,8 @@
             }
         }
         
-        function updateKetuaDataInForms() {
-            const nama = document.getElementById('nama-ketua')?.value || '';
-            const telepon = document.getElementById('telepon-ketua')?.value || '';
-            const alamat = document.getElementById('alamat-ketua')?.value || '';
-            
-            // Update the ketua fields in the first pendaki form
-            const namaPendaki1 = document.getElementById('nama-pendaki-1');
-            const teleponPendaki1 = document.getElementById('telepon-pendaki-1');
-            const alamatPendaki1 = document.getElementById('alamat-pendaki-1');
-            const kontakDarurat1 = document.getElementById('kontak-darurat-1');
-            
-            if (namaPendaki1) namaPendaki1.setAttribute('value', nama);
-            if (teleponPendaki1) teleponPendaki1.setAttribute('value', telepon);
-            if (alamatPendaki1) alamatPendaki1.setAttribute('value', alamat);
-            if (kontakDarurat1) kontakDarurat1.setAttribute('value', telepon);
-        }
+        // Fungsi ini tidak lagi digunakan karena ketua rombongan dipilih dari dropdown
+        // dan tidak perlu disalin ke form pendaki pertama
         
         function generatePendakiForms() {
             const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value) || 0;
@@ -1642,52 +1598,51 @@
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="nama-pendaki-${i}">
                                     <i class="fas fa-user mr-1"></i> Nama Lengkap
-                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                    ${isKetua ? '<span class="text-red-500">*</span>' : '<span class="text-red-500">*</span>'}
                                 </label>
                                 <input type="text" id="nama-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                    placeholder="Nama lengkap pendaki" ${isKetua ? 'value="' + (document.getElementById('nama-ketua')?.value || '') + '" readonly' : ''}>
+                                    placeholder="Nama lengkap pendaki">
                             </div>
                             
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="nik-pendaki-${i}">
                                     <i class="fas fa-id-card mr-1"></i> NIK
-                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                    ${isKetua ? '<span class="text-red-500">*</span>' : '<span class="text-red-500">*</span>'}
                                 </label>
                                 <input type="text" id="nik-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                    placeholder="Nomor Induk Kependudukan" ${isKetua ? 'value="" required' : ''}>
+                                    placeholder="Nomor Induk Kependudukan">
                             </div>
                             
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="telepon-pendaki-${i}">
                                     <i class="fas fa-phone mr-1"></i> Nomor Telepon
-                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                    ${isKetua ? '<span class="text-red-500">*</span>' : '<span class="text-red-500">*</span>'}
                                 </label>
                                 <input type="tel" id="telepon-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                    placeholder="Nomor telepon pendaki" ${isKetua ? 'value="' + (document.getElementById('telepon-ketua')?.value || '') + '"' : ''}>
+                                    placeholder="Nomor telepon pendaki">
                             </div>
                             
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="kontak-darurat-${i}">
                                     <i class="fas fa-phone-alt mr-1"></i> Kontak Darurat
-                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                    ${isKetua ? '<span class="text-red-500">*</span>' : '<span class="text-red-500">*</span>'}
                                 </label>
                                 <input type="text" id="kontak-darurat-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                    placeholder="Kontak darurat pendaki" ${isKetua ? 'value="' + (document.getElementById('telepon-ketua')?.value || '') + '"' : ''}>
+                                    placeholder="Kontak darurat pendaki">
                             </div>
                             
                             <div class="md:col-span-2">
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="alamat-pendaki-${i}">
                                     <i class="fas fa-home mr-1"></i> Alamat
-                                    ${isKetua ? '' : '<span class="text-red-500">*</span>'}
+                                    ${isKetua ? '<span class="text-red-500">*</span>' : '<span class="text-red-500">*</span>'}
                                 </label>
                                 <input type="text" id="alamat-pendaki-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                    placeholder="Alamat pendaki" ${isKetua ? 'value="' + (document.getElementById('alamat-ketua')?.value || '') + '"' : ''}>
+                                    placeholder="Alamat pendaki">
                             </div>
                             
                             <div class="md:col-span-2">
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="surat-sehat-${i}">
                                     <i class="fas fa-file-medical mr-1"></i> Upload Surat Sehat
-                                    ${isKetua ? '' : ''}
                                 </label>
                                 <input type="file" id="surat-sehat-${i}" class="input-modern w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" accept=".pdf">
                                 <div class="text-xs text-gray-500 mt-1">Hanya file PDF yang diperbolehkan (maks. 5MB)</div>
@@ -1697,11 +1652,6 @@
                 `;
                 
                 container.innerHTML += pendakiForm;
-            }
-            
-            // After forms are created, update the ketua's data in the first form
-            if (jumlahPendaki >= 1) {
-                updateKetuaDataInForms();
             }
         }
         
@@ -1932,14 +1882,6 @@
                 // Since the API will handle quota validation, we'll just send the request
                 // and let the API return appropriate error if quota is exceeded
                 
-                // Get ketua data
-                const ketua = {
-                    nama_lengkap: document.getElementById('nama-ketua')?.value,
-                    email: document.getElementById('email-ketua')?.value,
-                    nomor_telepon: document.getElementById('telepon-ketua')?.value,
-                    alamat: document.getElementById('alamat-ketua')?.value
-                };
-                
                 // Collect all files to upload first
                 const fileUploadPromises = [];
                 
@@ -1962,7 +1904,7 @@
                         const formData = new FormData();
                         formData.append('surat_sehat', suratSehatFile);
                         
-                        const uploadPromise = fetch('api/upload_surat_sehat.php', {
+                        const uploadPromise = fetch('api/upload_surat_sehat_to_supabase.php', {
                             method: 'POST',
                             body: formData
                         }).then(response => response.json())
@@ -2004,11 +1946,6 @@
                     });
                 }
                 
-                if (!ketua.nama_lengkap || !ketua.email || !ketua.nomor_telepon) {
-                    alert('Data ketua rombongan harus lengkap!');
-                    return;
-                }
-                
                 // Validate each anggota
                 for (let i = 0; i < anggota.length; i++) {
                     if (!anggota[i].nama_lengkap || !anggota[i].nik || !anggota[i].nomor_telepon || 
@@ -2018,14 +1955,22 @@
                     }
                 }
                 
+                // Get the selected user ID for the group leader
+                const idPengguna = document.getElementById('id-pengguna')?.value;
+                
+                if (!idPengguna) {
+                    alert('Ketua rombongan harus dipilih dari daftar user terdaftar!');
+                    return;
+                }
+                
                 // Prepare reservation data
                 const reservationData = {
                     tanggal_pendakian: tanggalPendakian,
+                    id_pengguna: idPengguna, // Use the selected user ID instead of creating a new user
                     jumlah_pendaki: jumlahPendaki,
                     jumlah_tiket_parkir: jumlahTiketParkir,
                     total_harga: totalHarga,
                     jumlah_potensi_sampah: jumlahPotensiSampah,
-                    ketua_rombongan: ketua,
                     anggota_rombongan: anggota,
                     barang_bawaan: [...barangSampahData]
                 };
@@ -2074,6 +2019,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Try to load pricing data immediately, but also set up a retry mechanism
             loadPricingData();
+            loadUsers();
             setupNewReservationEventListeners();
             // Set today's date as the default and only option
             setTodayAsDefaultDate();
@@ -2093,6 +2039,48 @@
                 loadPricingData();
             }, 10000);
         });
+        
+        // Function to load users from profiles table
+        async function loadUsers() {
+            try {
+                // Wait for the global supabase client to be available
+                let attempt = 0;
+                while (!window.supabase && attempt < 20) {
+                    console.log(`Menunggu Supabase, percobaan ke-${attempt + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempt++;
+                }
+                
+                if (!window.supabase) {
+                    console.error('Supabase client tidak ditemukan');
+                    return;
+                }
+                
+                const { data, error } = await window.supabase
+                    .from('profiles')
+                    .select('id, nama_lengkap, email')
+                    .order('nama_lengkap', { ascending: true });
+                
+                if (error) {
+                    console.error('Error fetching users:', error);
+                    return;
+                }
+                
+                const userSelect = document.getElementById('id-pengguna');
+                if (userSelect) {
+                    userSelect.innerHTML = '<option value="">Pilih ketua rombongan dari daftar user terdaftar</option>';
+                    
+                    data.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.nama_lengkap} (${user.email})`;
+                        userSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
         
         // Also try to load when the window fully loads
         window.addEventListener('load', function() {

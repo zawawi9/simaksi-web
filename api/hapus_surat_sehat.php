@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once 'config_storage.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -29,38 +29,12 @@ try {
     
     $file_path = $input['file_path'];
     
-    // Format untuk menghapus file di Supabase Storage
-    // URL format: /storage/v1/object/bucket_name/file_path
-    $storageUrl = str_replace('/rest/v1', '/storage/v1', $supabaseUrl);
-    $deleteUrl = $storageUrl . '/object/surat-sehat/' . ltrim($file_path, '/');
+    // Hapus file dari Supabase Storage
+    $result = deleteFromSupabaseStorage(ltrim($file_path, '/'), 'surat-sehat');
     
-    $headers = [
-        'apikey: ' . $serviceRoleKey,
-        'Authorization: Bearer ' . $serviceRoleKey,
-        'Content-Type: application/json'
-    ];
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $deleteUrl);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    
-    curl_close($ch);
-    
-    if ($curlError) {
+    if (!$result['success']) {
         http_response_code(500);
-        echo json_encode(['error' => 'Curl error: ' . $curlError]);
-        exit;
-    }
-    
-    if ($httpCode >= 400) {
-        http_response_code($httpCode);
-        echo json_encode(['error' => 'HTTP error: ' . $httpCode . ' - ' . $response]);
+        echo json_encode(['error' => 'Gagal menghapus file dari Supabase Storage: ' . $result['error']]);
         exit;
     }
     

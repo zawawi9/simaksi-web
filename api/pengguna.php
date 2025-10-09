@@ -41,7 +41,7 @@ if ($method === 'GET') {
     ]);
     
 } elseif ($method === 'POST') {
-    // Create new profile
+    // Create new profile and user
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($input['action']) || $input['action'] !== 'create') {
@@ -51,15 +51,76 @@ if ($method === 'GET') {
     }
     
     // Validate required fields according to the database schema
-    if (!isset($input['id']) || !isset($input['nama_lengkap']) || !isset($input['email'])) {
+    if (!isset($input['nama_lengkap']) || !isset($input['email'])) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'ID, Nama Lengkap, dan Email wajib diisi']);
+        echo json_encode(['status' => 'error', 'message' => 'Nama Lengkap dan Email wajib diisi']);
         exit;
     }
     
-    // Prepare data for insertion
+    // First, create a Supabase auth user via API call
+    // We need to make an HTTP request to Supabase Auth API using cURL
+    $supabaseAuthUrl = 'https://kitxtcpfnccblznbagzx.supabase.co/auth/v1/admin/users';
+    $password = $input['password'] ?? 'DefaultPassword123!'; // Default password for admin-created users
+    $email = $input['email'];
+    $emailConfirm = true; // Admin-created users are considered verified
+    
+    $authData = [
+        'email' => $email,
+        'password' => $password,
+        'email_confirm' => $emailConfirm
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $supabaseAuthUrl);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($authData));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $serviceRoleKey,  // Using service role key for admin access
+        'apikey: ' . $supabaseKey
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    
+    $authResponse = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    
+    curl_close($ch);
+    
+    if ($curlError) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Curl error: ' . $curlError]);
+        exit;
+    }
+    
+    if ($httpCode >= 400) {
+        // Log the error for debugging
+        error_log("Supabase Auth API error: HTTP " . $httpCode . " - " . $authResponse);
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to create user in auth system: HTTP ' . $httpCode . ' - ' . $authResponse]);
+        exit;
+    }
+    
+    $authResult = json_decode($authResponse, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON response from auth system']);
+        exit;
+    }
+    
+    // Extract the user ID from the auth response
+    $userId = $authResult['id'] ?? null;
+    if (!$userId) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to get user ID from auth system']);
+        exit;
+    }
+    
+    // Now create the profile record with the user ID
     $newProfile = [
-        'id' => $input['id'],
+        'id' => $userId,
         'nama_lengkap' => $input['nama_lengkap'],
         'email' => $input['email'],
         'nomor_telepon' => $input['nomor_telepon'] ?? null,
@@ -67,10 +128,25 @@ if ($method === 'GET') {
         'peran' => $input['peran'] ?? 'pendaki'  // Default to 'pendaki'
     ];
     
-    // Insert into Supabase
+    // Insert into Supabase profiles table
     $response = makeSupabaseRequest('/profiles', 'POST', $newProfile);
     
     if (isset($response['error'])) {
+        // If profile creation failed, try to delete the auth user to rollback
+        $deleteCh = curl_init();
+        curl_setopt($deleteCh, CURLOPT_URL, $supabaseAuthUrl . '/' . $userId);
+        curl_setopt($deleteCh, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($deleteCh, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $serviceRoleKey,
+            'apikey: ' . $supabaseKey
+        ]);
+        curl_setopt($deleteCh, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($deleteCh, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($deleteCh, CURLOPT_TIMEOUT, 30);
+        
+        curl_exec($deleteCh);
+        curl_close($deleteCh);
+        
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => $response['error']]);
         exit;
@@ -78,7 +154,7 @@ if ($method === 'GET') {
     
     echo json_encode([
         'status' => 'success',
-        'message' => 'Profile berhasil ditambahkan',
+        'message' => 'User berhasil ditambahkan',
         'data' => $response
     ]);
     

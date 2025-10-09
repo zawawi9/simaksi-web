@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once 'config_storage.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -46,11 +46,14 @@ try {
             // Ekstrak nama file dari URL
             $file_path = basename(parse_url($pendaki['url_surat_sehat'], PHP_URL_PATH));
             
-            // Panggil API untuk menghapus file dari storage
-            $delete_response = makeSupabaseRequest('object/surat-sehat/' . $file_path, 'DELETE');
+            // Hapus file dari Supabase Storage
+            $delete_result = deleteFromSupabaseStorage($file_path, 'surat-sehat');
             
-            if (!isset($delete_response['error'])) {
+            if ($delete_result['success']) {
                 $deleted_files[] = $file_path;
+            } else {
+                // Log error jika gagal menghapus
+                error_log('Gagal menghapus file surat sehat: ' . $file_path . ' - ' . $delete_result['error']);
             }
         }
     }
