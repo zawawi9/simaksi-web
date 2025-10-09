@@ -4,52 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buat Reservasi Baru - Admin</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/output.css">
     <style>
-        :root {
-            --primary: #1E8449;
-            --accent: #2ECC71;
-            --dark-green: #145A32;
-        }
-        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8fafc;
-        }
-        
-        .input-modern {
-            border-radius: 8px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        
-        .input-modern:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
-        }
-        
-        .btn-modern {
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-        
-        .btn-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-modern {
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        
-        .card-modern:hover {
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -65,6 +25,38 @@
             <a href="dashboard-admin.html" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm btn-modern flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
             </a>
+        </div>
+
+        <!-- Card view for ticket prices at the top -->
+        <div class="card-modern p-6 mb-6 gradient-bg border-2 border-green-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-tags mr-2 text-green-600"></i>
+                Harga Tiket Terkini
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-full mr-3">
+                            <i class="fas fa-hiking text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Tiket Pendakian</p>
+                            <p id="harga-tiket" class="text-lg font-bold text-green-700">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-full mr-3">
+                            <i class="fas fa-car text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Tiket Parkir</p>
+                            <p id="harga-parkir" class="text-lg font-bold text-green-700">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="card-modern p-6 mb-6">
@@ -91,18 +83,6 @@
                         <i class="fas fa-car mr-1"></i> Jumlah Tiket Parkir (Motor)
                     </label>
                     <input type="number" id="jumlah-tiket-parkir" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="0" placeholder="Jumlah motor">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="harga-tiket">
-                        <i class="fas fa-tag mr-1"></i> Harga Tiket Per Pendaki
-                    </label>
-                    <input type="text" id="harga-tiket" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" readonly>
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="harga-parkir">
-                        <i class="fas fa-tag mr-1"></i> Harga Tiket Parkir Per Motor
-                    </label>
-                    <input type="text" id="harga-parkir" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" readonly>
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="total-harga">
@@ -298,10 +278,12 @@
                 data.forEach(item => {
                     if (item.nama_item.toLowerCase().includes('tiket') && item.nama_item.toLowerCase().includes('masuk')) {
                         hargaTiket = item.harga;
-                        document.getElementById('harga-tiket').value = formatRupiah(item.harga);
+                        // Update the new card display
+                        document.getElementById('harga-tiket').textContent = formatRupiah(item.harga);
                     } else if (item.nama_item.toLowerCase().includes('parkir')) {
                         hargaParkir = item.harga;
-                        document.getElementById('harga-parkir').value = formatRupiah(item.harga);
+                        // Update the new card display
+                        document.getElementById('harga-parkir').textContent = formatRupiah(item.harga);
                     }
                 });
                 

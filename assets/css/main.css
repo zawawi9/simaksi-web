@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+:root {
+    --primary: #1E8449;
+    --accent: #2ECC71;
+    --dark-green: #145A32;
+}
+
+.input-modern {
+    @apply rounded-lg border-2 border-gray-200 transition-all duration-300;
+}
+
+.input-modern:focus {
+    @apply border-green-500 ring-2 ring-green-200;
+}
+
+.btn-modern {
+    @apply rounded-lg transition-all duration-200 font-medium;
+}
+
+.btn-modern:hover {
+    @apply transform -translate-y-0.5 shadow-md;
+}
+
+.card-modern {
+    @apply rounded-xl shadow-sm border border-gray-200 transition-all duration-300;
+}
+
+.card-modern:hover {
+    @apply shadow-lg transform -translate-y-0.5;
+}
+
+.table-modern {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+.table-modern thead th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+}
+
+.table-modern tbody td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-700;
+}
+
+/* Gradient utilities */
+.gradient-bg {
+    @apply bg-gradient-to-r from-green-50 to-emerald-50;
+}
+
+/* Additional styles from the original CSS */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8fafc;
+}
