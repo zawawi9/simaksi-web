@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buat Reservasi Baru - Admin</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/LOGO_WEB.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/output.css">
     <style>
@@ -70,7 +71,7 @@
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-pendakian">
                         <i class="fas fa-calendar mr-1"></i> Tanggal Pendakian
                     </label>
-                    <input type="date" id="tanggal-pendakian" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <input type="date" id="tanggal-pendakian" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="" max="">
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="jumlah-pendaki">
@@ -196,6 +197,14 @@
             loadPricingData();
             loadUsers();
             setupEventListeners();
+            
+            // Set default date to today and restrict date selection
+            const today = new Date().toISOString().split('T')[0];
+            const tanggalPendakianInput = document.getElementById('tanggal-pendakian');
+            if (tanggalPendakianInput) {
+                tanggalPendakianInput.value = today;
+                tanggalPendakianInput.min = today;
+            }
         });
         
         // Function to load users from profiles table
