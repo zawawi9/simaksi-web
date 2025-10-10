@@ -172,6 +172,24 @@ export class Router {
             if (pageTitle) {
                 pageTitle.innerHTML = '<i class="fas fa-calendar-plus mr-2 text-green-600"></i> Buat Reservasi Baru';
             }
+            // Load pricing data and users when accessing the new reservation module
+            setTimeout(() => {
+                console.log('Mencoba memanggil loadPricingData dari router');
+                if (typeof loadPricingData === 'function') {
+                    console.log('Memanggil loadPricingData');
+                    loadPricingData();
+                } else {
+                    console.log('Fungsi loadPricingData tidak ditemukan');
+                }
+                
+                console.log('Mencoba memanggil loadUsers dari router');
+                if (typeof loadUsers === 'function') {
+                    console.log('Memanggil loadUsers');
+                    loadUsers();
+                } else {
+                    console.log('Fungsi loadUsers tidak ditemukan');
+                }
+            }, 500); // Small delay to ensure elements are ready
         }
     }
 }
