@@ -1212,12 +1212,13 @@
                             </div>
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">Barang Bawaan Rinci</label>
-                                <div class="flex">
-                                    <input type="text" id="barang-sampah" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-r-none" placeholder="Nama barang bawaan">
-                                    <select id="jenis-sampah" class="input-modern py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-l-none border-l-0" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <input type="text" id="barang-sampah" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nama barang bawaan">
+                                    <select id="jenis-sampah" class="input-modern py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"">
                                         <option value="organik">Organik</option>
                                         <option value="non-organik">Non-organik</option>
                                     </select>
+                                    <input type="number" id="jumlah-barang" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" min="1" value="1" placeholder="Jumlah">
                                 </div>
                                 <div class="mt-2">
                                     <button id="tambah-barang-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg btn-modern flex items-center">
@@ -1233,6 +1234,7 @@
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Barang</th>
                                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis Sampah</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jumlah</th>
                                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
@@ -1773,19 +1775,16 @@
             const jenisSampahInput = document.getElementById('jenis-sampah');
             const jumlahBarangInput = document.getElementById('jumlah-barang');
             
-            if (!namaBarangInput || !jenisSampahInput || !jumlahBarangInput) return;
+            if (!namaBarangInput || !jenisSampahInput) return;
             
             const namaBarang = namaBarangInput.value.trim();
             const jenisSampah = jenisSampahInput.value;
-            const jumlahBarang = parseInt(jumlahBarangInput.value) || 1; // Default to 1 if not specified
+            // Make jumlah_barang optional - default to 1 if input doesn't exist or is empty
+            const jumlahBarangInputValue = jumlahBarangInput ? parseInt(jumlahBarangInput.value) || 1 : 1;
+            const jumlahBarang = jumlahBarangInputValue <= 0 ? 1 : jumlahBarangInputValue;
             
             if (!namaBarang) {
                 alert('Nama barang harus diisi!');
-                return;
-            }
-            
-            if (jumlahBarang <= 0) {
-                alert('Jumlah barang harus lebih dari 0!');
                 return;
             }
             
@@ -1801,7 +1800,9 @@
             
             // Clear inputs
             namaBarangInput.value = '';
-            jumlahBarangInput.value = '';
+            if (jumlahBarangInput) {
+                jumlahBarangInput.value = '1'; // Reset to default value instead of empty
+            }
         }
         
         function updateBarangTable() {
@@ -1809,6 +1810,18 @@
             if (!tbody) return;
             
             tbody.innerHTML = '';
+            
+            // Calculate total jumlah potensi sampah (sum of all quantities)
+            let totalJumlah = 0;
+            barangSampahData.forEach(item => {
+                totalJumlah += (item.jumlah || 1);
+            });
+            
+            // Update the jumlah-potensi-sampah field to match the total quantity
+            const jumlahPotensiSampahInput = document.getElementById('jumlah-potensi-sampah');
+            if (jumlahPotensiSampahInput) {
+                jumlahPotensiSampahInput.value = totalJumlah;
+            }
             
             barangSampahData.forEach((barang, index) => {
                 const row = `

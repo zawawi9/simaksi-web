@@ -248,7 +248,8 @@
             document.getElementById('buat-reservasi-btn').addEventListener('click', buatReservasi);
             document.getElementById('reset-form').addEventListener('click', resetForm);
             
-
+            // Debug: Verify event listeners are attached
+            console.log('Event listeners attached');
         }
         
         async function loadPricingData() {
@@ -422,6 +423,9 @@
         function updateBarangTable() {
             const tbody = document.getElementById('barang-tbody');
             tbody.innerHTML = '';
+            
+            // Update the potensi sampah count field to match the number of items
+            document.getElementById('jumlah-potensi-sampah').value = barangSampahData.length;
             
             barangSampahData.forEach((barang, index) => {
                 const row = `
