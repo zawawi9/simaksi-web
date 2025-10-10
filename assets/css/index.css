@@ -56,14 +56,59 @@ body {
     height: 12px;
     border-radius: 10px;
     overflow: hidden;
-    background-color: #e2e8f0;
+    background-color: #cbd5e0; /* Changed to a more visible gray */
     position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid #9ca3af;
 }
 
 .progress-fill {
     height: 100%;
-    border-radius: 10px;
+    border-radius: 9px; /* Slightly smaller to fit within border */
     transition: width 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.difficulty-bar {
+    height: 24px; /* Made it taller for better visibility */
+}
+
+.difficulty-bar .progress-fill {
+    background: linear-gradient(90deg, var(--orange), var(--red));
+    box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+.elevation-bar .progress-fill {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    box-shadow: 0 0 8px rgba(30, 132, 73, 0.4);
+}
+
+/* Text color for difficulty section */
+.difficulty-section .text-orange {
+    color: var(--orange);
+}
+
+.difficulty-section .text-red {
+    color: var(--red);
+}
+
+.difficulty-bar .progress-fill {
+    background: linear-gradient(90deg, var(--orange), var(--red));
+    box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+.elevation-bar .progress-fill {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    box-shadow: 0 0 8px rgba(30, 132, 73, 0.4);
+}
+
+/* Text color for difficulty section */
+.difficulty-section .text-orange {
+    color: var(--orange);
+}
+
+.difficulty-section .text-red {
+    color: var(--red);
 }
 
 #custom-cursor, #cursor-follower {
@@ -405,4 +450,32 @@ body {
 
 #verifikasi-modal.hidden {
     display: none !important;
+}
+
+/* Weather forecast styles */
+.weather-card {
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.weather-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.weather-icon-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.weather-icon-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
