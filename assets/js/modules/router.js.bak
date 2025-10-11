@@ -169,7 +169,7 @@ export class Router {
             document.getElementById('nav-promosi-poster').classList.remove('hover:bg-green-700');
             promosiPosterContent.classList.remove('hidden');
             if (pageTitle) {
-                pageTitle.innerHTML = '<i class="fas fa-image mr-2 text-green-600"></i> Manajemen Promosi';
+                pageTitle.innerHTML = '<i class=\"fas fa-image mr-2 text-green-600\"></i> Manajemen Promosi';
             }
             // Initialize promosi poster tabs
             setTimeout(() => {
@@ -211,52 +211,6 @@ export class Router {
                     console.log('Fungsi loadUsers tidak ditemukan');
                 }
             }, 500); // Small delay to ensure elements are ready
-        }
-    }
-    
-    initializePromosiPosterTabs() {
-        const daftarPromosiTab = document.getElementById('daftar-promosi-tab');
-        const tambahPromosiTab = document.getElementById('tambah-promosi-tab');
-        
-        if (daftarPromosiTab) {
-            // Set default to daftar promosi
-            document.getElementById('daftar-promosi-content').classList.remove('hidden');
-            document.getElementById('tambah-promosi-content').classList.add('hidden');
-            
-            // Update active tab styling
-            daftarPromosiTab.classList.add('active', 'text-green-600', 'border-green-600');
-            if (tambahPromosiTab) {
-                tambahPromosiTab.classList.remove('active', 'text-green-600', 'border-green-600');
-            }
-            
-            // Add click event for "Tambah Promosi Baru" button
-            setTimeout(() => {
-                if (tambahPromosiTab) {
-                    tambahPromosiTab.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        document.getElementById('tambah-promosi-content').classList.remove('hidden');
-                        document.getElementById('daftar-promosi-content').classList.add('hidden');
-                        
-                        // Update active tab styling
-                        tambahPromosiTab.classList.add('active', 'text-green-600', 'border-green-600');
-                        daftarPromosiTab.classList.remove('active', 'text-green-600', 'border-green-600');
-                    });
-                }
-                
-                if (daftarPromosiTab) {
-                    daftarPromosiTab.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        document.getElementById('daftar-promosi-content').classList.remove('hidden');
-                        document.getElementById('tambah-promosi-content').classList.add('hidden');
-                        
-                        // Update active tab styling
-                        daftarPromosiTab.classList.add('active', 'text-green-600', 'border-green-600');
-                        if (tambahPromosiTab) {
-                            tambahPromosiTab.classList.remove('active', 'text-green-600', 'border-green-600');
-                        }
-                    });
-                }
-            }, 100);
         }
     }
 }
