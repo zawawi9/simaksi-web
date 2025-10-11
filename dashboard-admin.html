@@ -7,6 +7,9 @@
     <link rel="icon" type="image/x-icon" href="assets/images/LOGO_WEB.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/output.css">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Modern Admin Dashboard Styles */
         :root {
@@ -435,9 +438,8 @@
                                     <p class="text-2xl font-bold text-gray-800" id="pendapatan-hari-ini">Rp 0</p>
                                 </div>
                             </div>
-                            <div class="mt-4">
+                            <div class="mt-4 hidden">
                                 <div class="text-xs text-gray-500 flex justify-between">
-                                    <span>Target: Rp 5.000.000</span>
                                     <span id="persentase-pendapatan">0%</span>
                                 </div>
                                 <div class="progress-bar mt-1">
@@ -471,6 +473,43 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        <div class="card-modern p-6 stat-card bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-500 mr-4">
+                                    <i class="fas fa-check-circle text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-gray-500 text-sm font-semibold mb-1">Reservasi Terkonfirmasi</h4>
+                                    <p class="text-2xl font-bold text-gray-800" id="reservasi-terkonfirmasi">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-modern p-6 stat-card bg-gradient-to-br from-red-50 to-red-100 border border-red-200">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-red-500 mr-4">
+                                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-gray-500 text-sm font-semibold mb-1">Sampah Tidak Sesuai</h4>
+                                    <p class="text-2xl font-bold text-gray-800" id="sampah-tidak-sesuai">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-modern p-6 stat-card bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-indigo-500 mr-4">
+                                    <i class="fas fa-file-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-gray-500 text-sm font-semibold mb-1">Pengumuman Aktif</h4>
+                                    <p class="text-2xl font-bold text-gray-800" id="pengumuman-aktif">0</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Charts Section -->
@@ -481,13 +520,8 @@
                                 <i class="fas fa-chart-bar mr-2 text-green-600"></i>
                                 Status Reservasi
                             </h3>
-                            <div class="flex items-center justify-center h-64">
-                                <div id="reservasi-chart" class="w-full h-full flex items-center justify-center">
-                                    <div class="text-center text-gray-500">
-                                        <i class="fas fa-chart-pie text-4xl mb-2"></i>
-                                        <p>Visualisasi data reservasi</p>
-                                    </div>
-                                </div>
+                            <div class="h-64">
+                                <canvas id="reservasi-chart"></canvas>
                             </div>
                         </div>
 
@@ -497,13 +531,8 @@
                                 <i class="fas fa-chart-line mr-2 text-blue-600"></i>
                                 Pendapatan Mingguan
                             </h3>
-                            <div class="flex items-center justify-center h-64">
-                                <div id="pendapatan-chart" class="w-full h-full flex items-center justify-center">
-                                    <div class="text-center text-gray-500">
-                                        <i class="fas fa-chart-line text-4xl mb-2"></i>
-                                        <p>Visualisasi pendapatan harian</p>
-                                    </div>
-                                </div>
+                            <div class="h-64">
+                                <canvas id="pendapatan-chart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -2940,6 +2969,376 @@
                 window.showErrorMessage('Gagal menghapus poster promosi: ' + error.message);
             }
         }
+        
+        // Function to load additional statistics for the dashboard
+        async function loadAdditionalStats() {
+            try {
+                // Get today's date for filtering
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0];
+                
+                // Get total pendaki hari ini (from confirmed reservations)
+                const { data: pendakiHariIni, error: pendakiError } = await supabase
+                    .from('reservasi')
+                    .select(' jumlah_pendaki ')
+                    .eq('status', 'terkonfirmasi')
+                    .gte('tanggal_pendakian', todayString)
+                    .lte('tanggal_pendakian', todayString);
+                
+                if (pendakiError) {
+                    console.error('Error fetching pendaki data:', pendakiError);
+                } else {
+                    const totalPendaki = pendakiHariIni.reduce((sum, res) => sum + res.jumlah_pendaki, 0);
+                    // Update the element that the PHP module expects
+                    const totalPendakiElement = document.getElementById('total-pendaki-hari-ini');
+                    if (totalPendakiElement) {
+                        totalPendakiElement.textContent = totalPendaki;
+                    }
+                    
+                    // Calculate percentage based on a reasonable target (e.g., 100)
+                    const targetPendaki = 100;
+                    const persentasePendaki = targetPendaki > 0 ? Math.round((totalPendaki / targetPendaki) * 100) : 0;
+                    const persentasePendakiElement = document.getElementById('persentase-pendaki');
+                    const progressPendakiElement = document.getElementById('progress-pendaki');
+                    if (persentasePendakiElement) {
+                        persentasePendakiElement.textContent = `${persentasePendaki}%`;
+                    }
+                    if (progressPendakiElement) {
+                        progressPendakiElement.style.width = `${persentasePendaki}%`;
+                    }
+                }
+                
+                // Get total confirmed reservations
+                const { data: confirmedReservasi, error: confirmedError } = await supabase
+                    .from('reservasi')
+                    .select('*', { count: 'exact' })
+                    .eq('status', 'terkonfirmasi');
+                
+                if (confirmedError) {
+                    console.error('Error fetching confirmed reservations:', confirmedError);
+                } else {
+                    const confirmedCount = confirmedReservasi.count || 0;
+                    document.getElementById('reservasi-terkonfirmasi').textContent = confirmedCount;
+                    
+                    // Update total-reservasi element as well (for the PHP module)
+                    const totalReservasiElement = document.getElementById('total-reservasi');
+                    if (totalReservasiElement) {
+                        // Calculate total reservations including all statuses
+                        const { data: allReservasi, error: allReservasiError } = await supabase
+                            .from('reservasi')
+                            .select('*', { count: 'exact' });
+                        if (!allReservasiError) {
+                            totalReservasiElement.textContent = allReservasi.count || 0;
+                            
+                            // Calculate and update progress for reservations
+                            const progressReservasiElement = document.getElementById('progress-reservasi');
+                            const persentaseReservasi = allReservasi.count > 0 ? Math.round((confirmedCount / allReservasi.count) * 100) : 0;
+                            if (progressReservasiElement) {
+                                progressReservasiElement.style.width = `${persentaseReservasi}%`;
+                            }
+                            
+                            // Update waiting and paid reservations
+                            const { data: waitingReservasi, error: waitingError } = await supabase
+                                .from('reservasi')
+                                .select('*', { count: 'exact' })
+                                .eq('status', 'menunggu_pembayaran');
+                            const { data: paidReservasi, error: paidError } = await supabase
+                                .from('reservasi')
+                                .select('*', { count: 'exact' })
+                                .eq('status', 'terkonfirmasi');
+                                
+                            if (!waitingError) {
+                                const waitingElement = document.getElementById('reservasi-menunggu');
+                                if (waitingElement) {
+                                    waitingElement.textContent = waitingReservasi.count || 0;
+                                }
+                            }
+                            if (!paidError) {
+                                const paidElement = document.getElementById('reservasi-terbayar');
+                                if (paidElement) {
+                                    paidElement.textContent = paidReservasi.count || 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Get today's revenue
+                const { data: revenueData, error: revenueError } = await supabase
+                    .from('reservasi')
+                    .select(' total_harga ')
+                    .eq('status', 'terkonfirmasi')
+                    .gte('tanggal_pendakian', todayString)
+                    .lte('tanggal_pendakian', todayString);
+                
+                if (revenueError) {
+                    console.error('Error fetching revenue data:', revenueError);
+                } else {
+                    const totalRevenue = revenueData.reduce((sum, res) => sum + (res.total_harga || 0), 0);
+                    const pendapatanElement = document.getElementById('pendapatan-hari-ini');
+                    if (pendapatanElement) {
+                        // Format as currency (assuming the element expects formatted currency)
+                        pendapatanElement.textContent = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+                        
+                        // Update progress elements for revenue (set to 0% if no target)
+                        const persentasePendapatanElement = document.getElementById('persentase-pendapatan');
+                        const progressPendapatanElement = document.getElementById('progress-pendapatan');
+                        if (persentasePendapatanElement) {
+                            persentasePendapatanElement.textContent = '0%'; // No target set
+                        }
+                        if (progressPendapatanElement) {
+                            progressPendapatanElement.style.width = '0%';
+                        }
+                    }
+                }
+                
+                // Calculate average rating
+                const { data: ratingsData, error: ratingsError } = await supabase
+                    .from('komentar')
+                    .select(' rating ');
+                
+                if (ratingsError) {
+                    console.error('Error fetching ratings data:', ratingsError);
+                } else {
+                    if (ratingsData && ratingsData.length > 0) {
+                        const totalRating = ratingsData.reduce((sum, rate) => sum + (rate.rating || 0), 0);
+                        const avgRating = totalRating / ratingsData.length;
+                        const rataRatingElement = document.getElementById('rata-rating');
+                        const jumlahRatingElement = document.getElementById('jumlah-rating');
+                        if (rataRatingElement) {
+                            rataRatingElement.textContent = avgRating.toFixed(1);
+                        }
+                        if (jumlahRatingElement) {
+                            jumlahRatingElement.textContent = ratingsData.length;
+                        }
+                    }
+                }
+                
+                // Get total reservations with non-compliant trash
+                const { data: nonCompliantTrash, error: trashError } = await supabase
+                    .from('reservasi')
+                    .select('*', { count: 'exact' })
+                    .eq('status_sampah', 'tidak_sesuai');
+                
+                if (trashError) {
+                    console.error('Error fetching trash compliance data:', trashError);
+                } else {
+                    document.getElementById('sampah-tidak-sesuai').textContent = nonCompliantTrash.count || 0;
+                }
+                
+                // Get total active announcements
+                const now = new Date().toISOString();
+                const { data: activeAnnouncements, error: announcementError } = await supabase
+                    .from('pengumuman')
+                    .select('*', { count: 'exact' })
+                    .eq('telah_terbit', true)
+                    .gte('start_date', now)
+                    .lte('end_date', now);
+                
+                if (announcementError) {
+                    console.error('Error fetching announcements:', announcementError);
+                } else {
+                    document.getElementById('pengumuman-aktif').textContent = activeAnnouncements.count || 0;
+                }
+                
+            } catch (error) {
+                console.error('Error loading additional stats:', error);
+            }
+        }
+        
+        // Call the function to load additional statistics when the page loads
+        loadAdditionalStats();
+        
+        // Refresh additional stats every minute
+        setInterval(loadAdditionalStats, 60000);
+        
+        // Initialize charts after page loads
+        let reservasiChart = null;
+        let pendapatanChart = null;
+        
+        // Function to load reservation chart data
+        async function loadReservasiChart() {
+            try {
+                // Get reservation status data
+                const { data: reservationData, error: reservationError } = await supabase
+                    .from('reservasi')
+                    .select('status')
+                    .gte('tanggal_pendakian', new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]); // Last 30 days
+                
+                if (reservationError) {
+                    console.error('Error fetching reservation data:', reservationError);
+                    return;
+                }
+                
+                // Count status occurrences
+                const statusCounts = {
+                    'menunggu_pembayaran': 0,
+                    'terkonfirmasi': 0,
+                    'dibatalkan': 0,
+                    'selesai': 0
+                };
+                
+                reservationData.forEach(res => {
+                    if (statusCounts.hasOwnProperty(res.status)) {
+                        statusCounts[res.status]++;
+                    }
+                });
+                
+                // Get chart context
+                const ctx = document.getElementById('reservasi-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (reservasiChart) {
+                    reservasiChart.destroy();
+                }
+                
+                // Create new chart
+                reservasiChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Menunggu Pembayaran', 'Terkonfirmasi', 'Dibatalkan', 'Selesai'],
+                        datasets: [{
+                            data: [
+                                statusCounts['menunggu_pembayaran'],
+                                statusCounts['terkonfirmasi'], 
+                                statusCounts['dibatalkan'],
+                                statusCounts['selesai']
+                            ],
+                            backgroundColor: [
+                                '#F44336', // Red for pending
+                                '#4CAF50', // Green for confirmed
+                                '#FF9800', // Orange for cancelled
+                                '#2196F3'  // Blue for completed
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading reservation chart:', error);
+            }
+        }
+        
+        // Function to load weekly revenue chart data
+        async function loadPendapatanChart() {
+            try {
+                // Get revenue data for the last 7 days
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(endDate.getDate() - 7);
+                
+                const { data: revenueData, error: revenueError } = await supabase
+                    .from('reservasi')
+                    .select(`
+                        tanggal_pendakian,
+                        total_harga
+                    `)
+                    .gte('tanggal_pendakian', startDate.toISOString().split('T')[0])
+                    .lte('tanggal_pendakian', endDate.toISOString().split('T')[0])
+                    .eq('status', 'terkonfirmasi');
+                
+                if (revenueError) {
+                    console.error('Error fetching revenue data:', revenueError);
+                    return;
+                }
+                
+                // Group revenue by date
+                const dailyRevenue = {};
+                
+                // Initialize the last 7 days with 0 revenue
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    dailyRevenue[dateStr] = 0;
+                }
+                
+                // Add actual revenue data
+                revenueData.forEach(res => {
+                    const date = res.tanggal_pendakian;
+                    if (dailyRevenue.hasOwnProperty(date)) {
+                        dailyRevenue[date] += res.total_harga;
+                    }
+                });
+                
+                // Prepare chart data
+                const labels = Object.keys(dailyRevenue).map(date => {
+                    const dateObj = new Date(date);
+                    return dateObj.toLocaleDateString('id-ID', { weekday: 'short' });
+                });
+                
+                const data = Object.values(dailyRevenue);
+                
+                // Get chart context
+                const ctx = document.getElementById('pendapatan-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (pendapatanChart) {
+                    pendapatanChart.destroy();
+                }
+                
+                // Create new chart
+                pendapatanChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Pendapatan (Rp)',
+                            data: data,
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading revenue chart:', error);
+            }
+        }
+        
+        // Load charts when the page loads
+        loadReservasiChart();
+        loadPendapatanChart();
+        
+        // Refresh charts every 5 minutes
+        setInterval(() => {
+            loadReservasiChart();
+            loadPendapatanChart();
+        }, 300000);
     </script>
 </body>
 </html>
