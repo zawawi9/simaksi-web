@@ -783,6 +783,53 @@
         </div>
     </section>
 
+    <!-- Poster Slider Section -->
+    <section id="poster-slider" class="py-20 bg-gradient-to-br from-white to-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 animated-border inline-block">Poster Promosi</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+                    Temukan informasi terbaru dan promosi menarik dari Gunung Butak
+                </p>
+            </div>
+            
+            <!-- Sliding Posters Section -->
+            <div class="relative mb-16">
+                <div class="overflow-hidden">
+                    <div id="poster-container" class="flex transition-transform duration-500 ease-in-out">
+                        <!-- Poster items will be dynamically loaded -->
+                        <div class="poster-card animate-pulse w-full flex-shrink-0 px-4">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
+                        <div class="poster-card animate-pulse w-full flex-shrink-0 px-4">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
+                        <div class="poster-card animate-pulse w-full flex-shrink-0 px-4">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Arrows -->
+                <button id="prev-poster" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-chevron-left text-primary text-xl"></i>
+                </button>
+                <button id="next-poster" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-chevron-right text-primary text-xl"></i>
+                </button>
+                
+                <!-- Pagination Dots -->
+                <div id="poster-dots" class="flex justify-center mt-8 space-x-2"></div>
+            </div>
+        </div>
+    </section>
+
     <!-- Auth Section -->
     <section id="auth" class="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div class="container mx-auto px-4">
@@ -1373,6 +1420,9 @@
     
     <!-- Include weather forecast -->
     <script src="assets/js/weather-forecast.js"></script>
+    
+    <!-- Include poster slider -->
+    <script src="assets/js/poster-slider.js"></script>
     
     <!-- Close the main content div -->
     </div>

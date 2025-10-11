@@ -517,3 +517,33 @@ body {
     .testimonial-card .text-xl { font-size: 1.25rem; }
     .testimonial-card .text-lg { font-size: 1.1rem; }
 }
+
+/* Styles for poster slider */
+.poster-card {
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    animation: fadeInSlideUp 0.8s forwards;
+}
+
+.poster-card:nth-child(1) { animation-delay: 0.2s; }
+.poster-card:nth-child(2) { animation-delay: 0.4s; }
+.poster-card:nth-child(3) { animation-delay: 0.6s; }
+
+#prev-poster,
+#next-poster {
+    transition: all 0.3s ease;
+}
+
+#prev-poster:hover,
+#next-poster:hover {
+    transform: scale(1.1);
+    background-color: #f3f4f6;
+}
+
+/* Responsive adjustments for posters */
+@media (max-width: 768px) {
+    .poster-card .text-2xl { font-size: 1.5rem; }
+    .poster-card .text-xl { font-size: 1.25rem; }
+    .poster-card .text-lg { font-size: 1.1rem; }
+}
