@@ -982,6 +982,20 @@ function initInteractiveFeatures() {
     // Initialize UI based on current auth status
     updateAuthUI();
     
+    // Add scroll effect to navbar to make it more visible when scrolling
+    const navbar = document.querySelector('nav');
+    if (navbar) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                // Add the navbar-scrolled class for enhanced visibility when scrolling
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                // Remove the scrolled class when at the top
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+    }
+    
     // Add parallax effect to hero section
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;
@@ -1016,13 +1030,17 @@ function initInteractiveFeatures() {
     // Add smooth scrolling for anchor links
     document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                window.scrollTo({
-                    top: target.offsetTop - 80,
-                    behavior: 'smooth'
-                });
+            const href = this.getAttribute('href');
+            // Check if href is not just "#" before trying to use as selector
+            if (href && href !== '#') {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
             }
         });
     });

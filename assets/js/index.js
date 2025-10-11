@@ -1,13 +1,17 @@
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            window.scrollTo({
-                top: target.offsetTop - 80,
-                behavior: 'smooth'
-            });
+        const href = this.getAttribute('href');
+        // Check if href is not just "#" before trying to use as selector
+        if (href && href !== '#') {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+                window.scrollTo({
+                    top: target.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
         }
     });
 });
@@ -74,11 +78,13 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(animateOnScroll, 100);
 });
 
-// Add floating effect to hero section
-const heroElements = document.querySelectorAll('.hero-background h1, .hero-background h2, .hero-background p, .hero-background a, .hero-background .counter');
-heroElements.forEach(el => {
-    el.classList.add('floating');
-});
+// Add floating effect to hero section (avoid duplicate declaration)
+if (typeof heroElements === 'undefined') {
+    const heroElements = document.querySelectorAll('.hero-background h1, .hero-background h2, .hero-background p, .hero-background a, .hero-background .counter');
+    heroElements.forEach(el => {
+        el.classList.add('floating');
+    });
+}
 
 // Enhanced counter animation for stats
 function animateCounter(element, target, duration) {
