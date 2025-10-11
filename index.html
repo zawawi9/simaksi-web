@@ -18,56 +18,42 @@
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Custom Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#1E8449',
-                        'accent': '#2ECC71',
-                        'dark-green': '#145A32',
-                        'orange': '#FF8C00',
-                        'red': '#E74C3C',
-                        'blue': '#3498DB'
-                    },
-                    fontFamily: {
-                        'sans': ['Poppins', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="stylesheet" href="assets/css/index.css">
 </head>
 <body class="bg-white">
-    <!-- Navbar -->
-    <nav class="fixed w-full z-50 py-4 px-6 flex justify-between items-center bg-primary text-white">
-        <div class="flex items-center">
-            <img src="assets/images/LOGO_WEB.png" alt="Logo Gunung Butak" class="w-10 h-10 mr-3">
-            <h1 class="text-lg font-bold">Gunung Butak | Reservasi Pendakian</h1>
-        </div>
-        <div class="flex items-center space-x-4">
-            <button class="text-xl">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div id="auth-container">
-                <a href="#auth" id="auth-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
-                    Login
-                </a>
-                <a href="#" id="logout-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300 hidden">
-                    Logout
-                </a>
+    <!-- Main Content -->
+    <div class="flex flex-col main-content">
+        <!-- Header -->
+        <header class="header-shadow bg-primary text-white py-4 px-6 static">
+            <div class="container mx-auto">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img src="assets/images/LOGO_WEB.png" alt="Logo Gunung Butak" class="w-10 h-10 mr-3">
+                        <h1 class="text-xl font-bold">Gunung Butak | Reservasi Pendakian</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="text-xl">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div id="auth-container">
+                            <a href="#auth" id="auth-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
+                                Login
+                            </a>
+                            <a href="#" id="logout-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300 hidden">
+                                Logout
+                            </a>
+                        </div>
+                        <div id="user-greeting" class="hidden flex items-center space-x-3">
+                            <span id="greeting-text" class="text-sm"></span>
+                            <span id="user-fullname" class="font-semibold text-sm"></span>
+                            <a href="#" id="logout-link-header" class="border border-white px-3 py-1 rounded-full text-xs hover:bg-white hover:text-primary transition duration-300">
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="user-greeting" class="hidden flex items-center space-x-3">
-                <span id="greeting-text" class="text-sm"></span>
-                <span id="user-fullname" class="font-semibold text-sm"></span>
-                <a href="#" id="logout-link-header" class="border border-white px-3 py-1 rounded-full text-xs hover:bg-white hover:text-primary transition duration-300">
-                    Logout
-                </a>
-            </div>
-        </div>
-    </nav>
+        </header>
 
     <!-- Hero Section -->
     <section class="hero-background min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -1352,25 +1338,7 @@
         
         window.addEventListener('scroll', highlightNavOnScroll);
         
-        // Add glassmorphism effect to navbar on scroll
-        const navbar = document.querySelector('nav');
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 50) {
-                navbar.classList.add('navbar-scrolled');
-            } else {
-                navbar.classList.remove('navbar-scrolled');
-            }
-        });
-        
-        // Ensure navbar remains visible on all scroll positions
-        window.addEventListener('scroll', function() {
-            // Always ensure the navbar has appropriate contrast
-            if (window.scrollY > 50) {
-                navbar.classList.add('navbar-scrolled');
-            } else {
-                navbar.classList.remove('navbar-scrolled');
-            }
-        });
+        // No scroll effect needed for static header
     </script>
     
     <!-- Modal Verifikasi Token -->
@@ -1411,5 +1379,8 @@
     
     <!-- Include weather forecast -->
     <script src="assets/js/weather-forecast.js"></script>
+    
+    <!-- Close the main content div -->
+    </div>
 </body>
 </html>

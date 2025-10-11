@@ -226,6 +226,12 @@ async function loadKomentar() {
 function updateKomentarList(komentarList) {
     const container = document.getElementById('daftar-komentar');
     
+    // Check if container exists before trying to access it
+    if (!container) {
+        console.error('daftar-komentar container not found');
+        return;
+    }
+    
     if (!komentarList || komentarList.length === 0) {
         container.innerHTML = `
             <div class="text-center py-8">
@@ -289,6 +295,13 @@ function generateStars(rating) {
 // Function to show an error if comments fail to load
 function showKomentarError() {
     const container = document.getElementById('daftar-komentar');
+    
+    // Check if container exists before trying to access it
+    if (!container) {
+        console.error('daftar-komentar container not found');
+        return;
+    }
+    
     container.innerHTML = `
         <div class="text-center py-8">
             <p class="text-red-500 text-lg">Gagal memuat komentar. Silakan coba lagi nanti.</p>
