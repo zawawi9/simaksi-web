@@ -674,23 +674,39 @@
                 </p>
             </div>
             
-            <div id="testimoni-container" class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
-                <!-- Testimonials will be loaded here -->
-                <div class="testimonial-card animate-pulse">
-                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
-                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+            <!-- Sliding Testimonials Section -->
+            <div class="relative mb-16">
+                <div class="overflow-hidden">
+                    <div id="testimoni-container" class="flex transition-transform duration-500 ease-in-out">
+                        <!-- Testimonials will be loaded here -->
+                        <div class="testimonial-card animate-pulse w-full">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card animate-pulse w-full">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card animate-pulse w-full">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
+                                <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="testimonial-card animate-pulse">
-                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
-                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
-                    </div>
-                </div>
-                <div class="testimonial-card animate-pulse">
-                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
-                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
-                    </div>
-                </div>
+                
+                <!-- Navigation Arrows -->
+                <button id="prev-testimonial" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-chevron-left text-primary text-xl"></i>
+                </button>
+                <button id="next-testimonial" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-chevron-right text-primary text-xl"></i>
+                </button>
+                
+                <!-- Pagination Dots -->
+                <div id="testimonial-dots" class="flex justify-center mt-8 space-x-2"></div>
             </div>
             
             <!-- Form Komentar untuk Pengguna yang Login -->
@@ -742,44 +758,28 @@
                 </div>
             </div>
             
-            
-            <!-- Enhanced Stats Section -->
+            <!-- Stats Section -->
             <div class="bg-gradient-to-r from-primary to-accent rounded-3xl p-12 text-white mt-16">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="text-center feature-badge card-hover">
-                        <div class="text-7xl font-bold mb-4">98%</div>
+                        <div class="text-7xl font-bold mb-4" id="total-pendaki-rating">98%</div>
                         <p class="text-xl opacity-90">Kepuasan Pendaki</p>
                     </div>
                     <div class="text-center feature-badge card-hover">
-                        <div class="text-7xl font-bold mb-4">4.9/5</div>
+                        <div class="text-7xl font-bold mb-4" id="avg-rating">4.9/5</div>
                         <p class="text-xl opacity-90">Rating Rata-rata</p>
                     </div>
                     <div class="text-center feature-badge card-hover">
-                        <div class="text-7xl font-bold mb-4">5000+</div>
-                        <p class="text-xl opacity-90">Total Pendaki</p>
+                        <div class="text-7xl font-bold mb-4" id="total-komentar">5000+</div>
+                        <p class="text-xl opacity-90">Total Ulasan</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Additional Testimonial Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
-                    <div class="text-4xl font-bold text-primary mb-2">100%</div>
-                    <p class="text-gray-700 font-medium">Keamanan Terjamin</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
-                    <div class="text-4xl font-bold text-accent mb-2">24/7</div>
-                    <p class="text-gray-700 font-medium">Dukungan Tim</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
-                    <div class="text-4xl font-bold text-orange mb-2">5+</div>
-                    <p class="text-gray-700 font-medium">Tahun Pengalaman</p>
-                </div>
-                <div class="bg-white rounded-2xl p-6 shadow-xl text-center feature-badge card-hover">
-                    <div class="text-4xl font-bold text-blue mb-2">1000+</div>
-                    <p class="text-gray-700 font-medium">Rute Tersedia</p>
-                </div>
-            </div>
+
+            
+            
+
         </div>
     </section>
 
@@ -1072,17 +1072,11 @@
         
         // Enhanced scroll to top functionality
         const scrollToTopBtn = document.createElement('div');
-        scrollToTopBtn.className = 'scroll-to-top';
+        scrollToTopBtn.className = 'scroll-to-top visible';
         scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
         document.body.appendChild(scrollToTopBtn);
         
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('visible');
-            } else {
-                scrollToTopBtn.classList.remove('visible');
-            }
-        });
+        // Keep the button always visible, no scroll condition needed
         
         scrollToTopBtn.addEventListener('click', function() {
             window.scrollTo({
@@ -1374,8 +1368,8 @@
     <!-- Include main.js -->
     <script src="assets/js/main.js"></script>
     
-    <!-- Include komentar.js -->
-    <script src="assets/js/komentar.js"></script>
+    <!-- Include sliding-komentar.js -->
+    <script src="assets/js/sliding-komentar.js"></script>
     
     <!-- Include weather forecast -->
     <script src="assets/js/weather-forecast.js"></script>
