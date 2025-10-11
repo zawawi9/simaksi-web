@@ -38,10 +38,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initialize interactive features
     initInteractiveFeatures();
     
-    // On page load, show login tab by default
+    // Update auth UI based on current session status
+    updateAuthUI();
+    
+    // On page load, show login tab by default (only if not logged in)
     setTimeout(() => {
         if (document.getElementById('login-tab')) {
-            switchToTab('login');
+            // Only switch to login tab if user is not logged in
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) {
+                    switchToTab('login');
+                } else {
+                    // If logged in, show forgot password tab as the default
+                    switchToTab('forgot');
+                }
+            });
         }
     }, 100); // Small delay to ensure everything is loaded
 });
@@ -744,8 +755,233 @@ function updateUIAfterLogin(userName) {
     }
 }
 
+// Function to get time-based greeting
+function getTimeBasedGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+        return 'Selamat Pagi,';
+    } else if (hour >= 12 && hour < 15) {
+        return 'Selamat Siang,';
+    } else if (hour >= 15 && hour < 18) {
+        return 'Selamat Sore,';
+    } else {
+        return 'Selamat Malam,';
+    }
+}
+
+// Function to update auth UI based on login status
+function updateAuthUI() {
+    // Check if user is logged in
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const forgotTab = document.getElementById('forgot-tab');
+        const loginContent = document.getElementById('login-content');
+        const registerContent = document.getElementById('register-content');
+        const forgotContent = document.getElementById('forgot-content');
+        const authSection = document.querySelector('#auth');
+        
+        // Update header navbar authentication elements
+        const authLink = document.getElementById('auth-link');
+        const logoutLink = document.getElementById('logout-link');
+        const authContainer = document.getElementById('auth-container');
+        const userGreeting = document.getElementById('user-greeting');
+        const greetingText = document.getElementById('greeting-text');
+        const userFullname = document.getElementById('user-fullname');
+        const logoutLinkHeader = document.getElementById('logout-link-header');
+        
+        if (session) {
+            // User is logged in - fetch user profile
+            try {
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('nama_lengkap')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError);
+                }
+                
+                // User is logged in
+                // Hide login and register forms, show only forgot password form
+                if (loginContent) {
+                    loginContent.classList.add('hidden');
+                }
+                if (registerContent) {
+                    registerContent.classList.add('hidden');
+                }
+                
+                // Show forgot password form as default when logged in
+                if (forgotContent) {
+                    forgotContent.classList.remove('hidden');
+                }
+                
+                // Update the tabs to show appropriate text when logged in
+                if (loginTab) {
+                    loginTab.textContent = 'Profil Saya';
+                    // Remove active class and make it non-interactive when logged in
+                    loginTab.classList.remove('text-blue-600', 'border-blue-600');
+                    loginTab.classList.add('text-gray-400', 'cursor-not-allowed');
+                    loginTab.onclick = null; // Remove default click behavior
+                }
+                if (registerTab) {
+                    registerTab.textContent = 'Logout';
+                    // Make register tab function as logout button when logged in
+                    registerTab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    registerTab.classList.add('text-red-500', 'hover:text-red-700');
+                    registerTab.onclick = function(e) {
+                        e.preventDefault();
+                        handleLogout();
+                    };
+                }
+                if (forgotTab) {
+                    // Make forgot tab the active tab when logged in
+                    forgotTab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    forgotTab.classList.add('text-blue-600', 'border-blue-600');
+                }
+                
+                // Update header navbar - show personalized greeting, hide login/logout buttons
+                if (authContainer) {
+                    authContainer.classList.add('hidden');
+                }
+                if (userGreeting) {
+                    userGreeting.classList.remove('hidden');
+                    
+                    if (greetingText) {
+                        greetingText.textContent = profileData ? getTimeBasedGreeting() : 'Halo,';
+                    }
+                    if (userFullname) {
+                        userFullname.textContent = profileData ? profileData.nama_lengkap : 'Pendaki';
+                    }
+                    if (logoutLinkHeader) {
+                        logoutLinkHeader.onclick = function(e) {
+                            e.preventDefault();
+                            handleLogout();
+                        };
+                    }
+                }
+                
+                // Update UI to show logged in state
+                if (authSection) {
+                    // Add user greeting or hide the form section completely
+                    const authFormContainer = authSection.querySelector('.bg-gradient-to-r'); // The main form container
+                    if (authFormContainer) {
+                        // Show a message that user is logged in
+                        const loggedInMsg = document.createElement('div');
+                        loggedInMsg.id = 'logged-in-message';
+                        loggedInMsg.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded';
+                        loggedInMsg.innerHTML = '<p>Anda sudah login. Gunakan tombol "Logout" untuk keluar.</p>';
+                        
+                        // Insert message before the form container if it doesn't exist yet
+                        if (!document.getElementById('logged-in-message')) {
+                            authFormContainer.parentNode.insertBefore(loggedInMsg, authFormContainer);
+                        }
+                        
+                        // Hide the main form container since user is logged in
+                        authFormContainer.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error in updateAuthUI:', error);
+            }
+        } else {
+            // User is not logged in, show normal auth UI
+            if (authSection) {
+                const existingMsg = document.getElementById('logged-in-message');
+                const authFormContainer = authSection.querySelector('.bg-gradient-to-r');
+                if (existingMsg) {
+                    existingMsg.remove();
+                }
+                if (authFormContainer) {
+                    authFormContainer.style.display = 'block';
+                }
+            }
+            
+            // Restore original tab text and functionality when not logged in
+            if (loginTab) {
+                loginTab.textContent = 'Login';
+                loginTab.classList.remove('text-gray-400', 'cursor-not-allowed');
+                loginTab.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                // Restore click functionality handled elsewhere
+            }
+            if (registerTab) {
+                registerTab.textContent = 'Daftar';
+                registerTab.classList.remove('text-red-500', 'hover:text-red-700');
+                registerTab.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            }
+            if (forgotTab) {
+                forgotTab.classList.remove('text-blue-600', 'border-blue-600');
+                forgotTab.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            }
+            
+            // Show login form by default when not logged in
+            if (loginContent) {
+                loginContent.classList.remove('hidden');
+            }
+            if (registerContent) {
+                registerContent.classList.add('hidden');
+            }
+            if (forgotContent) {
+                forgotContent.classList.add('hidden');
+            }
+            
+            // Update header navbar - show login, hide personalized greeting
+            if (authContainer) {
+                authContainer.classList.remove('hidden');
+            }
+            if (userGreeting) {
+                userGreeting.classList.add('hidden');
+            }
+            if (logoutLink) {
+                logoutLink.classList.add('hidden');
+            }
+        }
+    });
+}
+
+// Function to handle logout
+async function handleLogout() {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Logout error:', error);
+            showAuthMessage('login-error', 'Terjadi kesalahan saat logout');
+        } else {
+            // Clear any user-specific UI elements
+            const komentarFormSection = document.getElementById('komentar-form-section');
+            if (komentarFormSection) {
+                komentarFormSection.classList.add('hidden');
+            }
+            
+            // Update UI to reflect logged out state
+            updateAuthUI();
+            
+            // Show success message
+            showAuthMessage('login-success', 'Berhasil logout');
+        }
+    } catch (err) {
+        console.error('Logout error:', err);
+        showAuthMessage('login-error', 'Terjadi kesalahan saat logout');
+    }
+}
+
 // Function to initialize interactive features
 function initInteractiveFeatures() {
+    // Subscribe to auth state changes to update UI when user logs in/out
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            // User has logged in or token has been refreshed
+            updateAuthUI();
+        } else if (event === 'SIGNED_OUT') {
+            // User has logged out
+            updateAuthUI();
+        }
+    });
+    
+    // Initialize UI based on current auth status
+    updateAuthUI();
+    
     // Add parallax effect to hero section
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;

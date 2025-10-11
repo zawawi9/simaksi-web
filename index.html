@@ -51,9 +51,21 @@
             <button class="text-xl">
                 <i class="fas fa-moon"></i>
             </button>
-            <a href="#auth" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
-                Login
-            </a>
+            <div id="auth-container">
+                <a href="#auth" id="auth-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300">
+                    Login
+                </a>
+                <a href="#" id="logout-link" class="border border-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-primary transition duration-300 hidden">
+                    Logout
+                </a>
+            </div>
+            <div id="user-greeting" class="hidden flex items-center space-x-3">
+                <span id="greeting-text" class="text-sm"></span>
+                <span id="user-fullname" class="font-semibold text-sm"></span>
+                <a href="#" id="logout-link-header" class="border border-white px-3 py-1 rounded-full text-xs hover:bg-white hover:text-primary transition duration-300">
+                    Logout
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -744,33 +756,6 @@
                 </div>
             </div>
             
-            <!-- Daftar Komentar dari Database -->
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-primary animated-border inline-block mb-4">Komentar Pendaki Lain</h2>
-                    <p class="text-gray-600">Pengalaman dari pendaki yang telah mendaki Gunung Butak</p>
-                </div>
-                
-                <div id="daftar-komentar" class="space-y-6">
-                    <!-- Komentar akan ditampilkan di sini -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary">
-                        <div class="flex items-center mb-3">
-                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-primary font-bold mr-4">AN</div>
-                            <div>
-                                <h4 class="font-bold text-lg text-gray-800">Pendaki Anonim</h4>
-                                <div class="flex items-center">
-                                    <div class="rating-display text-yellow-400">
-                                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                                    </div>
-                                    <span class="ml-2 text-gray-600 text-sm">Belum ada komentar</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-gray-700">Komentar pendaki akan muncul di sini setelah tersedia</p>
-                        <div class="mt-2 text-right text-sm text-gray-500">-</div>
-                    </div>
-                </div>
-            </div>
             
             <!-- Enhanced Stats Section -->
             <div class="bg-gradient-to-r from-primary to-accent rounded-3xl p-12 text-white mt-16">
