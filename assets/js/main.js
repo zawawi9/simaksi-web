@@ -431,11 +431,17 @@ async function handleLogin(event) {
             console.log('Redirecting admin to dashboard');
             window.location.href = 'dashboard-admin.html';
         } else if (userData.peran === 'pendaki') {
-            // Show success message and hide login form for regular users
+            // Show success message
             showMessage('login-success-message', 'Login berhasil. Silakan lakukan pemesanan tiket melalui aplikasi mobile kami.');
             
-            // Hide the login form - alternatively you can redirect to a user page
-            document.getElementById('loginForm').style.display = 'none';
+            // Show the comment form for pendaki users
+            const komentarFormSection = document.getElementById('komentar-form-section');
+            if (komentarFormSection) {
+                komentarFormSection.classList.remove('hidden');
+            }
+            
+            // Update UI to reflect logged in state
+            updateUIAfterLogin(userData.nama_lengkap);
         } else {
             showMessage('login-error-message', 'Peran pengguna tidak dikenali');
         }
@@ -706,6 +712,36 @@ function hideAuthMessages() {
             element.classList.add('hidden');
         }
     });
+}
+
+// Function to update UI after login
+function updateUIAfterLogin(userName) {
+    // Change login button to user profile or logout
+    const loginButton = document.querySelector('a[href="#auth"]');
+    if (loginButton) {
+        // In this case, we just change the text since auth section is on the same page
+        // We'll update the auth section to show logout option
+        loginButton.innerHTML = '<i class="fas fa-user mr-2"></i> Profil';
+    }
+    
+    // Update auth section to show user info and logout
+    const authSection = document.querySelector('#auth');
+    if (authSection) {
+        // We'll add a simple message after successful login
+        const loginSuccessMsg = document.createElement('div');
+        loginSuccessMsg.id = 'login-success-user';
+        loginSuccessMsg.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded';
+        loginSuccessMsg.innerHTML = `<p>Selamat datang, <strong>${userName}</strong>! Anda telah login sebagai pendaki.</p>`;
+        
+        const authContainer = document.querySelector('#auth .container');
+        if (authContainer) {
+            // Insert after the heading
+            const heading = authContainer.querySelector('h2');
+            if (heading && !document.getElementById('login-success-user')) {
+                heading.insertAdjacentElement('afterend', loginSuccessMsg);
+            }
+        }
+    }
 }
 
 // Function to initialize interactive features
