@@ -1,10 +1,10 @@
-# SIMAKSI - Sistem Informasi Manajemen Aplikasi Kawasan Gunung Butak
+#E-SIMAKSI - Sistem Informasi Manajemen Aplikasi Kawasan Gunung Butak
 
 Repo untuk project SIMAKSI (Sistem Informasi Manajemen Aplikasi Kawasan) Gunung Butak - Semester 3 WEB dan Android POLITEKNIK NEGERI JEMBER
 
 ## Deskripsi Aplikasi
 
-SIMAKSI adalah aplikasi web untuk sistem reservasi pendakian Gunung Butak berbasis web. Aplikasi ini dirancang untuk memudahkan pendakian dalam proses pendaftaran, pembayaran, serta pengelolaan data oleh admin. Aplikasi ini menyediakan sistem manajemen yang komprehensif untuk pengelolaan pendakian Gunung Butak.
+E-SIMAKSI adalah aplikasi web & Android untuk sistem reservasi pendakian Gunung Butak. Aplikasi ini dirancang untuk memudahkan pendakian dalam proses pendaftaran, pembayaran, serta pengelolaan data oleh admin. Aplikasi ini menyediakan sistem manajemen yang komprehensif untuk pengelolaan pendakian Gunung Butak.
 
 ## Fitur Utama
 
@@ -134,4 +134,4 @@ Project ini dikembangkan sebagai bagian dari mata kuliah Semester 3 di POLITEKNI
 
 ## Lisensi
 
-[Isi dengan informasi lisensi aplikasi jika ada]
+E-SIMAKSI 2025
