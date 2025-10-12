@@ -29,12 +29,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Set up manual navigation
     setupManualNavigation();
+    
+    // Set up resize handler to maintain proper slide display
+    window.addEventListener('resize', function() {
+        updateSlidePosition();
+    });
 });
 
 // Function to load all comments from database and create sliding system
 async function loadAllKomentar() {
     try {
-        // Query the komentar table with user profiles
+        // Query the komentar table with user profiles - using correct foreign key reference syntax
         const { data: komentarList, error } = await supabase
             .from('komentar')
             .select(`
@@ -43,7 +48,7 @@ async function loadAllKomentar() {
                 rating,
                 dibuat_pada,
                 id_pengguna,
-                profiles!inner(nama_lengkap)
+                profiles(nama_lengkap)
             `)
             .order('dibuat_pada', { ascending: false }); // Order by creation date, newest first
         
@@ -72,8 +77,11 @@ function updateSlidingTestimonials(komentarList) {
         return;
     }
     
-    // Clear containers
-    container.innerHTML = '';
+    // Clear all loading placeholders first - remove any elements with animate-pulse class
+    const placeholders = container.querySelectorAll('.animate-pulse');
+    placeholders.forEach(placeholder => placeholder.remove());
+    
+    // Clear remaining containers
     if (dotsContainer) dotsContainer.innerHTML = '';
     
     if (!komentarList || komentarList.length === 0) {
@@ -468,3 +476,7 @@ function hideMessage(elementId) {
         element.classList.add('hidden');
     }
 }
+
+// Make functions available globally to be used by main.js
+window.updateSlidingTestimonials = updateSlidingTestimonials;
+window.loadAllKomentar = loadAllKomentar;

@@ -8,8 +8,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const configModule = await import('./config.js');
     supabase = configModule.supabase;
     
-    // Load testimonials from Supabase
-    loadTestimonials();
+    // ONLY load testimonials through main.js if sliding-komentar system is NOT active
+    // Since sliding-komentar.js is loaded before main.js in index.html and exports functions to window,
+    // the functions should be available at this point
+    if (typeof loadAllKomentar !== 'function') {
+        // Only load testimonials through main.js if sliding system is not available
+        loadTestimonials();
+    }
+    // If sliding system IS active, let sliding-komentar.js handle loading testimonials independently
     
     // Load active announcements from Supabase
     loadActiveAnnouncements();
@@ -179,7 +185,7 @@ function switchToTab(tabName) {
 // Function to load testimonials from Supabase
 async function loadTestimonials() {
     try {
-        // Query the komentar table for testimonials
+        // Query the komentar table for testimonials - using correct foreign key reference syntax
         const { data: testimonials, error } = await supabase
             .from('komentar')
             .select(`
@@ -187,10 +193,11 @@ async function loadTestimonials() {
                 komentar,
                 dibuat_pada,
                 id_pengguna,
-                profiles!inner(nama_lengkap)
+                rating,
+                profiles(nama_lengkap)
             `)
             .order('dibuat_pada', { ascending: false })   // Order by creation date, newest first
-            .limit(3); // Limit to 3 latest testimonials
+            .limit(10); // Increase the limit to have more testimonials for the sliding system
         
         if (error) {
             console.error('Error fetching testimonials:', error);
@@ -198,15 +205,21 @@ async function loadTestimonials() {
             return;
         }
         
-        // Update the UI with the testimonials data
-        updateTestimonials(testimonials);
+        // Instead of updating testimonials directly, we'll call the function from sliding-komentar.js
+        // if it's available, otherwise use the original method
+        if (typeof updateSlidingTestimonials === 'function') {
+            updateSlidingTestimonials(testimonials);
+        } else {
+            // Fallback to the original updateTestimonials function
+            updateTestimonials(testimonials);
+        }
     } catch (err) {
         console.error('Error loading testimonials:', err);
         showTestimonialError();
     }
 }
 
-// Function to update the testimonials section with data
+// Function to update the testimonials section with data (fallback if sliding system is not available)
 function updateTestimonials(testimonials) {
     const container = document.getElementById('testimoni-container');
     

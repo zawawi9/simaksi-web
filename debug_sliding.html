@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Sliding Testimonials</title>
+    
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Debug Sliding Testimonials</h1>
+    
+    <!-- Testimonial Container -->
+    <div class="relative mb-16">
+        <div class="overflow-hidden">
+            <div id="testimoni-container" class="flex transition-transform duration-500 ease-in-out">
+                <!-- Testimonials will be loaded here -->
+                <div class="testimonial-card animate-pulse w-full">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-pulse w-full">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-pulse w-full">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 h-full">
+                        <div class="bg-gray-200 h-64 rounded-2xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Arrows -->
+        <button id="prev-testimonial" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+            <i class="fas fa-chevron-left text-primary text-xl"></i>
+        </button>
+        <button id="next-testimonial" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition-colors">
+            <i class="fas fa-chevron-right text-primary text-xl"></i>
+        </button>
+        
+        <!-- Pagination Dots -->
+        <div id="testimonial-dots" class="flex justify-center mt-8 space-x-2"></div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="mt-16">
+        <div id="total-pendaki-rating" class="text-2xl">--%</div>
+        <div id="avg-rating" class="text-2xl">--/5</div>
+        <div id="total-komentar" class="text-2xl">--</div>
+    </div>
+
+    <!-- Status -->
+    <div id="status" class="mt-4 p-4 bg-gray-100 rounded">
+        Status akan ditampilkan di sini...
+    </div>
+    
+    <!-- Buttons to test -->
+    <div class="mt-4">
+        <button id="testLoad" class="bg-blue-500 text-white p-2 rounded mr-2">Test Load All Komentar</button>
+        <button id="testSliding" class="bg-green-500 text-white p-2 rounded mr-2">Test Update Sliding</button>
+        <button id="checkFunctions" class="bg-purple-500 text-white p-2 rounded">Check Functions</button>
+    </div>
+
+    <script>
+        // Update status function
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        // Check if functions are available
+        document.getElementById('checkFunctions').addEventListener('click', function() {
+            const functionsAvailable = {
+                loadAllKomentar: typeof window.loadAllKomentar !== 'undefined',
+                updateSlidingTestimonials: typeof window.updateSlidingTestimonials !== 'undefined'
+            };
+            
+            updateStatus('Functions available: ' + JSON.stringify(functionsAvailable));
+            console.log(functionsAvailable);
+        });
+
+        // Test loading komentar
+        document.getElementById('testLoad').addEventListener('click', async function() {
+            if (typeof window.loadAllKomentar !== 'function') {
+                updateStatus('loadAllKomentar function not available');
+                return;
+            }
+            
+            try {
+                updateStatus('Loading komentar...');
+                await window.loadAllKomentar();
+                updateStatus('Komentar loaded successfully');
+            } catch (error) {
+                updateStatus('Error loading komentar: ' + error.message);
+                console.error(error);
+            }
+        });
+
+        // Test updating sliding
+        document.getElementById('testSliding').addEventListener('click', function() {
+            if (typeof window.updateSlidingTestimonials !== 'function') {
+                updateStatus('updateSlidingTestimonials function not available');
+                return;
+            }
+            
+            // Create mock data to test
+            const mockKomentar = [
+                {
+                    komentar: 'Ini adalah komentar pertama untuk tes',
+                    rating: 5,
+                    dibuat_pada: new Date().toISOString(),
+                    profiles: { nama_lengkap: 'Test User 1' }
+                },
+                {
+                    komentar: 'Ini adalah komentar kedua untuk tes',
+                    rating: 4,
+                    dibuat_pada: new Date().toISOString(),
+                    profiles: { nama_lengkap: 'Test User 2' }
+                }
+            ];
+            
+            try {
+                window.updateSlidingTestimonials(mockKomentar);
+                updateStatus('Sliding testimonials updated with mock data');
+            } catch (error) {
+                updateStatus('Error updating sliding: ' + error.message);
+                console.error(error);
+            }
+        });
+    </script>
+    
+    <!-- Include sliding-komentar.js first -->
+    <script src="assets/js/sliding-komentar.js"></script>
+    
+    <!-- Include config.js to ensure Supabase is available -->
+    <script type="module">
+        import { supabase } from './assets/js/config.js';
+        window.supabase = supabase;
+    </script>
+</body>
+</html>
