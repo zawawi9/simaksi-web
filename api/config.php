@@ -38,9 +38,13 @@ function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to true in production
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 second timeout
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'); // Set a user agent
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Connection timeout
+    curl_setopt($ch, CURLOPT_ENCODING, ''); // Accept all encodings
     
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
@@ -64,11 +68,12 @@ function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
+    $totalTime = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
     
     curl_close($ch);
     
     if ($curlError) {
-        error_log("CURL Error: " . $curlError);
+        error_log("CURL Error: " . $curlError . " (Total time: {$totalTime}s)");
         return ['error' => 'Curl error: ' . $curlError];
     }
     
