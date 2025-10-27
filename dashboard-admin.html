@@ -1061,7 +1061,7 @@
                     </div>
                 </div>
                 
-                <!-- Manajemen Promosi Poster Content -->
+                <!-- Manajemen Promosi Content -->
                 <div id="promosi-poster-content" class="hidden p-6">
                     <div class="card-modern mb-6">
                         <div class="border-b border-gray-200">
@@ -1070,7 +1070,7 @@
                                     <i class="fas fa-list mr-2"></i> Daftar Promosi
                                 </button>
                                 <button id="tambah-promosi-tab" class="py-4 px-6 text-center border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                    <i class="fas fa-plus-circle mr-2"></i> Tambah Promosi Baru
+                                    <i class="fas fa-plus-circle mr-2"></i> Tambah Promosi
                                 </button>
                             </nav>
                         </div>
@@ -1081,8 +1081,8 @@
                         <div class="card-modern overflow-hidden animate-slide-in">
                             <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
                                 <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                                    <i class="fas fa-image mr-2 text-green-600"></i>
-                                    Daftar Promosi Poster
+                                    <i class="fas fa-percentage mr-2 text-green-600"></i>
+                                    Daftar Promosi & Poster
                                 </h3>
                             </div>
                             <div class="overflow-x-auto">
@@ -1090,13 +1090,16 @@
                                     <thead>
                                         <tr class="bg-gray-50">
                                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                <i class="fas fa-image mr-1"></i> Gambar
+                                                <i class="fas fa-image mr-1"></i> Poster
                                             </th>
                                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                <i class="fas fa-heading mr-1"></i> Judul
+                                                <i class="fas fa-heading mr-1"></i> Judul Poster
                                             </th>
                                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                <i class="fas fa-link mr-1"></i> Tautan
+                                                <i class="fas fa-tag mr-1"></i> Promosi Khusus
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                <i class="fas fa-percentage mr-1"></i> Tipe & Nilai
                                             </th>
                                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 <i class="fas fa-toggle-on mr-1"></i> Status
@@ -1117,7 +1120,7 @@
                         </div>
                     </div>
 
-                    <!-- Tambah Promosi Baru -->
+                    <!-- Tambah Promosi (dengan poster) -->
                     <div id="tambah-promosi-content" class="hidden">
                         <div class="card-modern p-6 animate-slide-in">
                             <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
@@ -1125,39 +1128,142 @@
                             </h3>
                             
                             <form id="promosi-form" enctype="multipart/form-data">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div class="animate-slide-in">
-                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="judul-poster">
-                                            <i class="fas fa-heading mr-1"></i> Judul Promosi
-                                        </label>
-                                        <input type="text" id="judul-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan judul promosi" required>
+                                <div class="grid grid-cols-1 gap-6 mb-6">
+                                    <!-- Informasi Promosi Khusus (Opsional) -->
+                                    <div class="md:col-span-2">
+                                        <h4 class="text-md font-semibold text-gray-700 mb-4 flex items-center border-b pb-2">
+                                            <i class="fas fa-percentage mr-2 text-green-500"></i> Informasi Promosi Khusus (Opsional)
+                                        </h4>
+                                        <p class="text-sm text-gray-600 mb-4">Gunakan ini jika Anda ingin membuat promosi khusus yang bisa digunakan di sistem reservasi (misalnya kode diskon).</p>
                                     </div>
-                                    <div class="animate-slide-in" style="animation-delay: 0.1s;">
-                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="url-tautan">
-                                            <i class="fas fa-link mr-1"></i> URL Tautan (Opsional)
-                                        </label>
-                                        <input type="url" id="url-tautan" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="https://example.com">
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="nama-promosi">
+                                                <i class="fas fa-tag mr-1"></i> Nama Promosi
+                                            </label>
+                                            <input type="text" id="nama-promosi" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nama promosi (misal: Promo Tahun Baru)">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="kode-promo">
+                                                <i class="fas fa-code mr-1"></i> Kode Promosi
+                                            </label>
+                                            <input type="text" id="kode-promo" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Kode untuk promosi (misal: TAHUNBARU2025)">
+                                        </div>
                                     </div>
-                                    <div class="animate-slide-in md:col-span-2" style="animation-delay: 0.2s;">
-                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deskripsi-poster">
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="tipe-promosi">
+                                                <i class="fas fa-percentage mr-1"></i> Tipe Promosi
+                                            </label>
+                                            <select id="tipe-promosi" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                                <option value="">Pilih Tipe Promosi</option>
+                                                <option value="PERSENTASE">Potongan Persentase (%)</option>
+                                                <option value="POTONGAN_TETAP">Potongan Tetap (Rp)</option>
+                                                <option value="HARGA_KHUSUS">Harga Khusus (Rp)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="nilai-promosi">
+                                                <i class="fas fa-dollar-sign mr-1"></i> Nilai Promosi
+                                            </label>
+                                            <input type="number" id="nilai-promosi" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Nilai potongan atau harga promosi" min="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="min-pendaki">
+                                                <i class="fas fa-user-plus mr-1"></i> Minimal Jumlah Pendaki
+                                            </label>
+                                            <input type="number" id="min-pendaki" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Minimal jumlah pendaki untuk promosi berlaku" value="1" min="1">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="max-pendaki">
+                                                <i class="fas fa-user-check mr-1"></i> Maksimal Jumlah Pendaki
+                                            </label>
+                                            <input type="number" id="max-pendaki" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Maksimal jumlah pendaki (kosongkan untuk tidak terbatas)">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-mulai-promo">
+                                                <i class="fas fa-calendar mr-1"></i> Tanggal Mulai
+                                            </label>
+                                            <input type="datetime-local" id="tanggal-mulai-promo" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="tanggal-akhir-promo">
+                                                <i class="fas fa-calendar-times mr-1"></i> Tanggal Berakhir
+                                            </label>
+                                            <input type="datetime-local" id="tanggal-akhir-promo" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deskripsi-promosi">
                                             <i class="fas fa-align-left mr-1"></i> Deskripsi Promosi
                                         </label>
-                                        <textarea id="deskripsi-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Deskripsi singkat tentang promosi ini" rows="3"></textarea>
+                                        <textarea id="deskripsi-promosi" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Deskripsi lengkap tentang promosi ini" rows="2"></textarea>
                                     </div>
-                                    <div class="animate-slide-in" style="animation-delay: 0.3s;">
+                                </div>
+                                
+                                <div class="border-t border-gray-200 my-6 pt-6"></div>
+                                
+                                <!-- Informasi Poster Promosi (Wajib) -->
+                                <div class="grid grid-cols-1 gap-6 mb-6">
+                                    <div class="md:col-span-2">
+                                        <h4 class="text-md font-semibold text-gray-700 mb-4 flex items-center border-b pb-2">
+                                            <i class="fas fa-image mr-2 text-green-500"></i> Informasi Poster Promosi (Wajib)
+                                        </h4>
+                                        <p class="text-sm text-gray-600 mb-4">Poster ini akan ditampilkan di halaman utama untuk menarik perhatian pengunjung.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="judul-poster">
+                                            <i class="fas fa-heading mr-1"></i> Judul Poster Promosi
+                                        </label>
+                                        <input type="text" id="judul-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan judul poster promosi" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deskripsi-poster">
+                                            <i class="fas fa-align-left mr-1"></i> Deskripsi Poster
+                                        </label>
+                                        <textarea id="deskripsi-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Deskripsi singkat tentang poster promosi ini" rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="url-tautan">
+                                                <i class="fas fa-link mr-1"></i> URL Tautan (Opsional)
+                                            </label>
+                                            <input type="url" id="url-tautan" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="https://example.com">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="urutan-poster">
+                                                <i class="fas fa-sort mr-1"></i> Urutan Tampil
+                                            </label>
+                                            <input type="number" id="urutan-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Urutan tampil (angka)" min="0" value="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
                                         <label class="block text-gray-700 text-sm font-bold mb-2" for="gambar-poster">
                                             <i class="fas fa-file-image mr-1"></i> Upload Gambar Promosi
                                         </label>
                                         <input type="file" id="gambar-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" accept="image/*" required>
                                         <div class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Maksimal 5MB</div>
                                     </div>
-                                    <div class="animate-slide-in" style="animation-delay: 0.4s;">
-                                        <label class="block text-gray-700 text-sm font-bold mb-2" for="urutan-poster">
-                                            <i class="fas fa-sort mr-1"></i> Urutan Tampil
-                                        </label>
-                                        <input type="number" id="urutan-poster" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Urutan tampil (angka)" min="0" value="0">
-                                    </div>
-                                    <div class="animate-slide-in md:col-span-2" style="animation-delay: 0.5s;">
+                                    
+                                    <div>
                                         <label class="block text-gray-700 text-sm font-bold mb-2" for="status-poster">
                                             <i class="fas fa-toggle-on mr-1"></i> Status Promosi
                                         </label>
@@ -1168,7 +1274,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center justify-between animate-slide-in" style="animation-delay: 0.6s;">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-gray-200">
                                     <div>
                                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg btn-modern flex items-center">
                                             <i class="fas fa-save mr-2"></i> Simpan Promosi
@@ -1176,7 +1282,7 @@
                                     </div>
                                     <div>
                                         <button type="button" id="preview-poster-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg btn-modern flex items-center">
-                                            <i class="fas fa-eye mr-2"></i> Pratinjau
+                                            <i class="fas fa-eye mr-2"></i> Pratinjau Poster
                                         </button>
                                     </div>
                                 </div>
@@ -1690,7 +1796,7 @@
                 loadPricingData();
             }, 2000);
             
-            // Inisialisasi event listeners untuk manajemen promosi poster
+            // Inisialisasi event listeners untuk manajemen promosi (gabungan promosi khusus dan poster)
             setupPromosiPosterEventListeners();
         });
         
@@ -2603,12 +2709,13 @@
             }, 1000);
         });
         
-        // Setup event listeners for promosi poster management
+        // Setup event listeners for promosi poster management (combined promosi khusus and poster)
         function setupPromosiPosterEventListeners() {
-            // Tab switching for promosi poster (navigation handled by router)
+            // Tab switching for promosi management
             const daftarPromosiTab = document.getElementById('daftar-promosi-tab');
             const tambahPromosiTab = document.getElementById('tambah-promosi-tab');
             
+            // Tab switching for daftar promosi
             if (daftarPromosiTab) {
                 daftarPromosiTab.addEventListener('click', function() {
                     document.getElementById('daftar-promosi-content').classList.remove('hidden');
@@ -2623,6 +2730,7 @@
                 });
             }
             
+            // Tab switching for tambah promosi
             if (tambahPromosiTab) {
                 tambahPromosiTab.addEventListener('click', function() {
                     document.getElementById('tambah-promosi-content').classList.remove('hidden');
@@ -2637,14 +2745,22 @@
             // Load data when the section is first accessed
             loadPromosiData();
             
-            // Form submission for creating new promosi poster
+            // Form submission for creating new promosi (with poster)
             const promosiForm = document.getElementById('promosi-form');
             if (promosiForm) {
                 promosiForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     // Get form data
-                    const formData = new FormData();
+                    const namaPromosi = document.getElementById('nama-promosi').value;
+                    const deskripsiPromosi = document.getElementById('deskripsi-promosi').value;
+                    const kodePromo = document.getElementById('kode-promo').value;
+                    const tipePromosi = document.getElementById('tipe-promosi').value;
+                    const nilaiPromosi = parseFloat(document.getElementById('nilai-promosi').value);
+                    const minPendaki = parseInt(document.getElementById('min-pendaki').value) || 1;
+                    const maxPendaki = document.getElementById('max-pendaki').value ? parseInt(document.getElementById('max-pendaki').value) : null;
+                    const tanggalMulai = document.getElementById('tanggal-mulai-promo') ? document.getElementById('tanggal-mulai-promo').value : null;
+                    const tanggalAkhir = document.getElementById('tanggal-akhir-promo') ? document.getElementById('tanggal-akhir-promo').value : null;
                     const judul = document.getElementById('judul-poster').value;
                     const deskripsi = document.getElementById('deskripsi-poster').value;
                     const urlTautan = document.getElementById('url-tautan').value;
@@ -2652,7 +2768,44 @@
                     const isActive = document.getElementById('status-poster').checked;
                     const gambarFile = document.getElementById('gambar-poster').files[0];
                     
-                    // Validate required fields
+                    // If promosi details are filled, validate them
+                    if (namaPromosi || tipePromosi || nilaiPromosi) {
+                        if (!namaPromosi) {
+                            alert('Nama promosi harus diisi!');
+                            return;
+                        }
+                        
+                        if (!tipePromosi) {
+                            alert('Tipe promosi harus dipilih!');
+                            return;
+                        }
+                        
+                        if (isNaN(nilaiPromosi) || nilaiPromosi < 0) {
+                            alert('Nilai promosi harus berupa angka positif!');
+                            return;
+                        }
+                        
+                        if (tanggalMulai && tanggalAkhir) {
+                            // Validate that end date is after start date
+                            if (new Date(tanggalAkhir) <= new Date(tanggalMulai)) {
+                                alert('Tanggal akhir harus setelah tanggal mulai!');
+                                return;
+                            }
+                        }
+                        
+                        // Validate minPendaki
+                        if (minPendaki < 1) {
+                            alert('Minimal jumlah pendaki harus lebih besar dari 0!');
+                            return;
+                        }
+                        
+                        if (maxPendaki !== null && maxPendaki < minPendaki) {
+                            alert('Maksimal jumlah pendaki harus lebih besar atau sama dengan minimal!');
+                            return;
+                        }
+                    }
+                    
+                    // Validate required poster fields
                     if (!judul) {
                         alert('Judul promosi harus diisi!');
                         return;
@@ -2689,7 +2842,51 @@
                             throw new Error('Gagal mengupload gambar');
                         }
                         
-                        // Now that we have the image URL, save the promosi poster to the database
+                        // First, create promosi if details are provided
+                        let promosiId = null;
+                        if (namaPromosi) {
+                            const { data: promosiData, error: promosiError } = await window.supabase
+                                .from('promosi')
+                                .insert([{
+                                    nama_promosi: namaPromosi,
+                                    deskripsi_promosi: deskripsiPromosi,
+                                    tipe_promosi: tipePromosi,
+                                    nilai_promosi: nilaiPromosi,
+                                    kondisi_min_pendaki: minPendaki,
+                                    kondisi_max_pendaki: maxPendaki,
+                                    tanggal_mulai: tanggalMulai ? tanggalMulai + ':00+07' : null,
+                                    tanggal_akhir: tanggalAkhir ? tanggalAkhir + ':00+07' : null,
+                                    is_aktif: isActive
+                                }]);
+                            
+                            if (promosiError) {
+                                throw new Error(promosiError.message);
+                            }
+                            
+                            // Check if promosiData exists and has data before accessing
+                            if (promosiData && promosiData.length > 0) {
+                                promosiId = promosiData[0].id_promosi;
+                            } else {
+                                console.warn('Promosi data not returned after insert, attempting to fetch the created record');
+                                // If the insert didn't return data, fetch the created record by name
+                                const { data: fetchResult, error: fetchError } = await window.supabase
+                                    .from('promosi')
+                                    .select('id_promosi')
+                                    .eq('nama_promosi', namaPromosi)
+                                    .order('dibuat_pada', { ascending: false })
+                                    .limit(1)
+                                    .single();
+                                
+                                if (fetchError) {
+                                    console.error('Error fetching created promosi:', fetchError);
+                                    throw new Error('Gagal mengambil data promosi yang baru dibuat');
+                                }
+                                
+                                promosiId = fetchResult.id_promosi;
+                            }
+                        }
+                        
+                        // Now create promosi poster
                         if (window.supabase) {
                             const { data, error } = await window.supabase
                                 .from('promosi_poster')
@@ -2698,6 +2895,7 @@
                                     deskripsi_poster: deskripsi,
                                     url_gambar: imageUrl,
                                     url_tautan: urlTautan || null,
+                                    id_promosi_terkait: promosiId,
                                     is_aktif: isActive,
                                     urutan: urutan
                                 }]);
@@ -2707,7 +2905,7 @@
                             }
                             
                             // Show success message
-                            window.showSuccessMessage('Promosi poster berhasil ditambahkan!');
+                            window.showSuccessMessage('Promosi berhasil ditambahkan!');
                             
                             // Reset the form
                             promosiForm.reset();
@@ -2722,8 +2920,8 @@
                             throw new Error('Supabase tidak terinitialisasi');
                         }
                     } catch (error) {
-                        console.error('Error creating promosi poster:', error);
-                        window.showErrorMessage('Gagal menambahkan promosi poster: ' + error.message);
+                        console.error('Error creating promosi:', error);
+                        window.showErrorMessage('Gagal menambahkan promosi: ' + error.message);
                     } finally {
                         // Reset button state
                         submitBtn.innerHTML = originalBtnText;
@@ -2821,19 +3019,46 @@
             }
         }
         
-        // Function to load promosi poster data from database
+        // Function to load promosi data from database (combined promosi khusus and poster)
         async function loadPromosiData() {
             try {
                 if (!window.supabase) {
                     console.error('Supabase client not available');
+                    window.showErrorMessage('Koneksi ke database tidak tersedia');
                     return;
                 }
                 
-                // Load promosi poster data from database
-                const { data, error } = await window.supabase
+                // Load promosi poster data first
+                const { data: posterData, error } = await window.supabase
                     .from('promosi_poster')
                     .select('*')
-                    .order('dibuat_pada', { ascending: false }); // Sort by creation date, newest first
+                    .order('urutan', { ascending: true });
+                
+                if (error) {
+                    console.error('Error loading promosi poster data:', error);
+                    window.showErrorMessage('Gagal memuat data promosi (poster): ' + error.message);
+                    return;
+                }
+                
+                // For each poster that has an associated promosi, get the promosi details separately
+                const data = [];
+                for (const poster of posterData) {
+                    if (poster.id_promosi_terkait) {
+                        const { data: promosiData, error: promosiError } = await window.supabase
+                            .from('promosi')
+                            .select('id_promosi, nama_promosi, tipe_promosi, nilai_promosi')
+                            .eq('id_promosi', poster.id_promosi_terkait)
+                            .single();
+                        
+                        if (promosiError) {
+                            console.error('Error getting promosi for poster:', poster.id_poster, promosiError);
+                        } else {
+                            data.push({ ...poster, promosi: promosiData });
+                        }
+                    } else {
+                        data.push({ ...poster, promosi: null });
+                    }
+                }
                 
                 if (error) {
                     console.error('Error loading promosi data:', error);
@@ -2852,7 +3077,7 @@
                 promosiTbody.innerHTML = '';
                 
                 if (!data || data.length === 0) {
-                    promosiTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada promosi ditemukan</td></tr>';
+                    promosiTbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada promosi ditemukan</td></tr>';
                     return;
                 }
                 
@@ -2873,10 +3098,29 @@
                         </div>
                     `;
                     
-                    // Format tautan
-                    const tautanLink = poster.url_tautan 
-                        ? `<a href="${poster.url_tautan}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">${poster.url_tautan}</a>` 
-                        : '<span class="text-gray-400">-</span>';
+                    // Format promosi details if available
+                    let promosiDetails = '-';
+                    let promosiName = '-';
+                    if (poster.promosi && poster.promosi.id_promosi) {
+                        const promosi = poster.promosi;
+                        promosiName = promosi.nama_promosi || '-';
+                        
+                        let tipeNilaiText = '';
+                        switch (promosi.tipe_promosi) {
+                            case 'PERSENTASE':
+                                tipeNilaiText = `${promosi.nilai_promosi}%`;
+                                break;
+                            case 'POTONGAN_TETAP':
+                                tipeNilaiText = `Rp ${parseInt(promosi.nilai_promosi).toLocaleString('id-ID')}`;
+                                break;
+                            case 'HARGA_KHUSUS':
+                                tipeNilaiText = `Rp ${parseInt(promosi.nilai_promosi).toLocaleString('id-ID')} (Harga Khusus)`;
+                                break;
+                            default:
+                                tipeNilaiText = `${promosi.nilai_promosi} (${promosi.tipe_promosi})`;
+                        }
+                        promosiDetails = `${tipeNilaiText}`;
+                    }
                     
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -2886,7 +3130,10 @@
                             ${poster.judul_poster || '-'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            ${tautanLink}
+                            ${promosiName}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            ${promosiDetails}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             ${statusBadge}
@@ -2928,36 +3175,386 @@
             }
         }
         
-        // Function to edit promosi poster
+        // Function to edit promosi (combined promosi khusus and poster)
         async function editPromosi(id) {
-            // This would typically open a modal with the existing data
-            // For now, we'll just show an alert
-            alert('Edit untuk poster dengan ID: ' + id + '. Fungsi edit akan diimplementasikan.');
-        }
-        
-        // Function to delete promosi poster
-        async function deletePromosi(id) {
-            if (!confirm('Apakah Anda yakin ingin menghapus poster promosi ini?')) {
-                return;
-            }
-            
+            // Fetch the promosi data to prefill the form
             try {
                 if (!window.supabase) {
                     console.error('Supabase client not available');
                     return;
                 }
                 
-                const { error } = await window.supabase
+                // First, get the promosi poster data
+                const { data: posterData, error: posterError } = await window.supabase
+                    .from('promosi_poster')
+                    .select('*')
+                    .eq('id_poster', id)
+                    .single();
+                
+                if (posterError) {
+                    throw new Error('Gagal mengambil data poster promosi: ' + posterError.message);
+                }
+                
+                // If there's an associated promosi, get that data separately
+                let promosiData = null;
+                if (posterData.id_promosi_terkait) {
+                    const { data: promosiResult, error: promosiError } = await window.supabase
+                        .from('promosi')
+                        .select(`
+                            id_promosi,
+                            nama_promosi,
+                            deskripsi_promosi,
+                            tipe_promosi,
+                            nilai_promosi,
+                            kondisi_min_pendaki,
+                            kondisi_max_pendaki,
+                            tanggal_mulai,
+                            tanggal_akhir,
+                            is_aktif
+                        `)
+                        .eq('id_promosi', posterData.id_promosi_terkait)
+                        .single();
+                    
+                    if (promosiError) {
+                        console.error('Error getting promosi data:', promosiError);
+                    } else {
+                        promosiData = promosiResult;
+                    }
+                }
+                
+                // Merge the data
+                const data = { ...posterData, promosi_terkait: promosiData };
+                
+                // Prefill the form with existing data
+                document.getElementById('judul-poster').value = data.judul_poster || '';
+                document.getElementById('deskripsi-poster').value = data.deskripsi_poster || '';
+                document.getElementById('url-tautan').value = data.url_tautan || '';
+                document.getElementById('urutan-poster').value = data.urutan || 0;
+                document.getElementById('status-poster').checked = data.is_aktif;
+                
+                // Prefill promosi khusus data if exists
+                if (data.promosi_terkait) {
+                    const promosi = data.promosi_terkait;
+                    document.getElementById('nama-promosi').value = promosi.nama_promosi || '';
+                    document.getElementById('deskripsi-promosi').value = promosi.deskripsi_promosi || '';
+                    document.getElementById('kode-promo').value = '';
+                    document.getElementById('tipe-promosi').value = promosi.tipe_promosi || '';
+                    document.getElementById('nilai-promosi').value = promosi.nilai_promosi || '';
+                    document.getElementById('min-pendaki').value = promosi.kondisi_min_pendaki || 1;
+                    document.getElementById('max-pendaki').value = promosi.kondisi_max_pendaki || '';
+                    
+                    // Format the datetime values properly for the input fields
+                    if (promosi.tanggal_mulai) {
+                        const startDate = new Date(promosi.tanggal_mulai);
+                        // Handle timezone properly
+                        const localStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+                        document.getElementById('tanggal-mulai-promo').value = localStartDate.toISOString().slice(0, 16);
+                    }
+                    
+                    if (promosi.tanggal_akhir) {
+                        const endDate = new Date(promosi.tanggal_akhir);
+                        // Handle timezone properly
+                        const localEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
+                        document.getElementById('tanggal-akhir-promo').value = localEndDate.toISOString().slice(0, 16);
+                    }
+                }
+                
+                // Switch to the tambah/promosi form tab to show the edit form
+                const tambahPromosiTab = document.getElementById('tambah-promosi-tab');
+                if (tambahPromosiTab) {
+                    tambahPromosiTab.click();
+                }
+                
+                // Change the form behavior to update instead of create
+                const form = document.getElementById('promosi-form');
+                if (form) {
+                    // Remove previous update listener if exists
+                    const newForm = form.cloneNode(true);
+                    form.parentNode.replaceChild(newForm, form);
+                    
+                    document.getElementById('promosi-form').addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        
+                        // Get form data
+                        const namaPromosi = document.getElementById('nama-promosi').value;
+                        const deskripsiPromosi = document.getElementById('deskripsi-promosi').value;
+                        const kodePromo = document.getElementById('kode-promo').value;
+                        const tipePromosi = document.getElementById('tipe-promosi').value;
+                        const nilaiPromosi = parseFloat(document.getElementById('nilai-promosi').value) || 0;
+                        const minPendaki = parseInt(document.getElementById('min-pendaki').value) || 1;
+                        const maxPendaki = document.getElementById('max-pendaki').value ? parseInt(document.getElementById('max-pendaki').value) : null;
+                        const tanggalMulai = document.getElementById('tanggal-mulai-promo') ? document.getElementById('tanggal-mulai-promo').value : null;
+                        const tanggalAkhir = document.getElementById('tanggal-akhir-promo') ? document.getElementById('tanggal-akhir-promo').value : null;
+                        const judul = document.getElementById('judul-poster').value;
+                        const deskripsi = document.getElementById('deskripsi-poster').value;
+                        const urlTautan = document.getElementById('url-tautan').value;
+                        const urutan = parseInt(document.getElementById('urutan-poster').value) || 0;
+                        const isActive = document.getElementById('status-poster').checked;
+                        const gambarFile = document.getElementById('gambar-poster').files[0];
+                        
+                        // Validate required poster fields
+                        if (!judul) {
+                            alert('Judul promosi harus diisi!');
+                            return;
+                        }
+                        
+                        // If promosi details are partially filled, validate them completely
+                        if (namaPromosi || tipePromosi || nilaiPromosi > 0) {
+                            if (!namaPromosi) {
+                                alert('Nama promosi harus diisi!');
+                                return;
+                            }
+                            
+                            if (!tipePromosi) {
+                                alert('Tipe promosi harus dipilih!');
+                                return;
+                            }
+                            
+                            if (isNaN(nilaiPromosi) || nilaiPromosi < 0) {
+                                alert('Nilai promosi harus berupa angka positif!');
+                                return;
+                            }
+                            
+                            if (tanggalMulai && tanggalAkhir) {
+                                // Validate that end date is after start date
+                                if (new Date(tanggalAkhir) <= new Date(tanggalMulai)) {
+                                    alert('Tanggal akhir harus setelah tanggal mulai!');
+                                    return;
+                                }
+                            }
+                            
+                            // Validate minPendaki
+                            if (minPendaki < 1) {
+                                alert('Minimal jumlah pendaki harus lebih besar dari 0!');
+                                return;
+                            }
+                            
+                            if (maxPendaki !== null && maxPendaki < minPendaki) {
+                                alert('Maksimal jumlah pendaki harus lebih besar atau sama dengan minimal!');
+                                return;
+                            }
+                        }
+                        
+                        // Show loading state
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memperbarui...';
+                        submitBtn.disabled = true;
+                        
+                        try {
+                            let imageUrl = data.url_gambar; // Keep current image URL if no new image is uploaded
+                            let promosiId = data.id_promosi_terkait; // Keep existing promosi ID
+                            
+                            // If new image is provided, upload it
+                            if (gambarFile) {
+                                // Validate file type
+                                if (!gambarFile.type.match('image.*')) {
+                                    alert('File yang diupload harus berupa gambar (JPG, PNG, GIF)');
+                                    submitBtn.innerHTML = originalBtnText;
+                                    submitBtn.disabled = false;
+                                    return;
+                                }
+                                
+                                // Validate file size (max 5MB)
+                                if (gambarFile.size > 5 * 1024 * 1024) {
+                                    alert('Ukuran file terlalu besar. Maksimal 5MB');
+                                    submitBtn.innerHTML = originalBtnText;
+                                    submitBtn.disabled = false;
+                                    return;
+                                }
+                                
+                                // Upload new image
+                                imageUrl = await uploadImageToStorage(gambarFile);
+                                if (!imageUrl) {
+                                    throw new Error('Gagal mengupload gambar');
+                                }
+                            }
+                            
+                            // If promosi details are provided, update or create promosi
+                            if (namaPromosi) {
+                                if (promosiId) {
+                                    // Update existing promosi
+                                    const { data: updateData, error: updateError } = await window.supabase
+                                        .from('promosi')
+                                        .update({
+                                            nama_promosi: namaPromosi,
+                                            deskripsi_promosi: deskripsiPromosi,
+                                            tipe_promosi: tipePromosi,
+                                            nilai_promosi: nilaiPromosi,
+                                            kondisi_min_pendaki: minPendaki,
+                                            kondisi_max_pendaki: maxPendaki,
+                                            tanggal_mulai: tanggalMulai ? tanggalMulai + ':00+07' : null,
+                                            tanggal_akhir: tanggalAkhir ? tanggalAkhir + ':00+07' : null,
+                                            is_aktif: isActive
+                                        })
+                                        .eq('id_promosi', promosiId);
+                                        
+                                    if (updateError) {
+                                        throw new Error('Gagal memperbarui promosi khusus: ' + updateError.message);
+                                    }
+                                } else {
+                                    // Create new promosi
+                                    const { data: promosiData, error: promosiError } = await window.supabase
+                                        .from('promosi')
+                                        .insert([{
+                                            nama_promosi: namaPromosi,
+                                            deskripsi_promosi: deskripsiPromosi,
+                                            tipe_promosi: tipePromosi,
+                                            nilai_promosi: nilaiPromosi,
+                                            kondisi_min_pendaki: minPendaki,
+                                            kondisi_max_pendaki: maxPendaki,
+                                            tanggal_mulai: tanggalMulai ? tanggalMulai + ':00+07' : null,
+                                            tanggal_akhir: tanggalAkhir ? tanggalAkhir + ':00+07' : null,
+                                            is_aktif: isActive
+                                        }]);
+                                    
+                                    if (promosiError) {
+                                        throw new Error('Gagal membuat promosi khusus: ' + promosiError.message);
+                                    }
+                                    
+                                    // Check if promosiData exists and has data before accessing
+                                    if (promosiData && promosiData.length > 0) {
+                                        promosiId = promosiData[0].id_promosi;
+                                    } else {
+                                        console.warn('Promosi data not returned after insert in edit function, attempting to fetch the created record');
+                                        // If the insert didn't return data, fetch the created record by name
+                                        const { data: fetchResult, error: fetchError } = await window.supabase
+                                            .from('promosi')
+                                            .select('id_promosi')
+                                            .eq('nama_promosi', namaPromosi)
+                                            .order('dibuat_pada', { ascending: false })
+                                            .limit(1)
+                                            .single();
+                                        
+                                        if (fetchError) {
+                                            console.error('Error fetching created promosi in edit:', fetchError);
+                                            throw new Error('Gagal mengambil data promosi yang baru dibuat di edit fungsi');
+                                        }
+                                        
+                                        promosiId = fetchResult.id_promosi;
+                                    }
+                                }
+                            } else {
+                                // If no promosi details provided, remove promosi association
+                                promosiId = null;
+                            }
+                            
+                            // Update promosi poster
+                            if (window.supabase) {
+                                const { data: updateData, error: updateError } = await window.supabase
+                                    .from('promosi_poster')
+                                    .update({
+                                        judul_poster: judul,
+                                        deskripsi_poster: deskripsi,
+                                        url_gambar: imageUrl,
+                                        url_tautan: urlTautan || null,
+                                        id_promosi_terkait: promosiId,
+                                        is_aktif: isActive,
+                                        urutan: urutan
+                                    })
+                                    .eq('id_poster', id);
+                                    
+                                if (updateError) {
+                                    throw new Error('Gagal memperbarui poster promosi: ' + updateError.message);
+                                }
+                                
+                                // Show success message
+                                window.showSuccessMessage('Promosi berhasil diperbarui!');
+                                
+                                // Reset the form to original state
+                                this.reset();
+                                
+                                // Set default values again
+                                document.getElementById('status-poster').checked = true; // Keep active as default
+                                document.getElementById('urutan-poster').value = 0;
+                                
+                                // Switch back to the daftar promosi tab
+                                const daftarPromosiTab = document.getElementById('daftar-promosi-tab');
+                                if (daftarPromosiTab) {
+                                    daftarPromosiTab.click();
+                                }
+                                
+                                // Refresh the data
+                                setTimeout(() => {
+                                    loadPromosiData();
+                                }, 500);
+                            } else {
+                                throw new Error('Supabase tidak terinitialisasi');
+                            }
+                        } catch (error) {
+                            console.error('Error updating promosi:', error);
+                            window.showErrorMessage('Gagal memperbarui promosi: ' + error.message);
+                        } finally {
+                            // Reset button state
+                            if (submitBtn) {
+                                submitBtn.innerHTML = originalBtnText;
+                                submitBtn.disabled = false;
+                            }
+                        }
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading promosi for edit:', error);
+                window.showErrorMessage('Gagal memuat data promosi untuk diedit: ' + error.message);
+            }
+        }
+        
+        // Function to delete promosi (combined promosi khusus and poster)
+        async function deletePromosi(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus promosi ini?')) {
+                return;
+            }
+            
+            try {
+                if (!window.supabase) {
+                    console.error('Supabase client not available');
+                    window.showErrorMessage('Koneksi ke database tidak tersedia');
+                    return;
+                }
+                
+                // First, get the promosi poster to check if it has an associated promosi
+                const { data: posterData, error: fetchError } = await window.supabase
+                    .from('promosi_poster')
+                    .select('id_promosi_terkait')
+                    .eq('id_poster', id)
+                    .single();
+                
+                if (fetchError) {
+                    console.error('Error fetching promosi poster:', fetchError);
+                    window.showErrorMessage('Gagal mengambil data promosi: ' + fetchError.message);
+                    return;
+                }
+                
+                // Delete the promosi poster
+                const { error: deletePosterError } = await window.supabase
                     .from('promosi_poster')
                     .delete()
                     .eq('id_poster', id);
                 
-                if (error) {
-                    throw error;
+                if (deletePosterError) {
+                    console.error('Error deleting promosi poster:', deletePosterError);
+                    window.showErrorMessage('Gagal menghapus poster promosi: ' + deletePosterError.message);
+                    return;
                 }
                 
-                // Show success message
-                window.showSuccessMessage('Poster promosi berhasil dihapus!');
+                // If there was an associated promosi, delete it too
+                if (posterData && posterData.id_promosi_terkait) {
+                    const { error: deletePromosiError } = await window.supabase
+                        .from('promosi')
+                        .delete()
+                        .eq('id_promosi', posterData.id_promosi_terkait);
+                    
+                    if (deletePromosiError) {
+                        console.warn('Could not delete associated promosi:', deletePromosiError);
+                        // We don't throw here because we still want to show success for deleting the poster
+                        window.showWarningMessage('Poster promosi berhasil dihapus, tetapi promosi khusus terkait gagal dihapus: ' + deletePromosiError.message);
+                    } else {
+                        window.showSuccessMessage('Promosi dan poster berhasil dihapus!');
+                    }
+                } else {
+                    window.showSuccessMessage('Poster promosi berhasil dihapus!');
+                }
                 
                 // Refresh the data
                 setTimeout(() => {
@@ -2966,7 +3563,7 @@
                 
             } catch (error) {
                 console.error('Error deleting promosi:', error);
-                window.showErrorMessage('Gagal menghapus poster promosi: ' + error.message);
+                window.showErrorMessage('Gagal menghapus promosi: ' + error.message);
             }
         }
         
