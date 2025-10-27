@@ -25,6 +25,7 @@ try {
     }
 
     $file = $_FILES['gambar_poster'];
+    $id_promosi_terkait = $_POST['id_promosi_terkait'] ?? null; // Ambil ID promosi terkait jika ada
     
     // Validasi file - hanya gambar
     $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -74,12 +75,19 @@ try {
     // Kembalikan URL file dari Supabase Storage
     $file_url = getSupabaseStoragePublicUrl($new_filename, 'poster-promosi');
     
-    echo json_encode([
+    $response_data = [
         'success' => true,
         'file_url' => $file_url,
         'file_name' => $new_filename,
         'message' => 'File berhasil diupload ke Supabase Storage'
-    ]);
+    ];
+    
+    // Jika ID promosi terkait disertakan, tambahkan ke respons
+    if ($id_promosi_terkait) {
+        $response_data['id_promosi_terkait'] = $id_promosi_terkait;
+    }
+    
+    echo json_encode($response_data);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);

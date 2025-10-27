@@ -13,6 +13,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Include the price calculation with promotions
+function hitungHargaDenganPromosi($jumlah_pendaki, $jumlah_tiket_parkir, $tanggal_pendakian, $kode_promo = null) {
+    // Ambil pengaturan biaya dari database
+    $biaya_response = makeSupabaseRequest('pengaturan_biaya', 'GET');
+    
+    if (isset($biaya_response['error'])) {
+        return ['error' => 'Gagal mengambil data pengaturan biaya: ' . $biaya_response['error']];
+    }
+    
+    $harga_tiket_masuk = 0;
+    $harga_tiket_parkir = 0;
+    
+    foreach ($biaya_response['data'] as $item) {
+        if ($item['nama_item'] === 'Tiket Masuk') {
+            $harga_tiket_masuk = (int)$item['harga'];
+        } elseif ($item['nama_item'] === 'Tiket Parkir') {
+            $harga_tiket_parkir = (int)$item['harga'];
+        }
+    }
+    
+    // Hitung harga dasar sebelum promosi
+    $harga_sebelum_promosi = ($jumlah_pendaki * $harga_tiket_masuk) + ($jumlah_tiket_parkir * $harga_tiket_parkir);
+    
+    // Ambil promosi yang aktif untuk tanggal pendakian
+    $now = date('Y-m-d H:i:s');
+    $query = "promosi?select=*&is_aktif=eq.true&tanggal_mulai=lte." . urlencode($now) . "&tanggal_akhir=gte." . urlencode($now);
+    if ($kode_promo) {
+        $query .= "&kode_promo=eq." . urlencode($kode_promo);
+    }
+    
+    $promosi_response = makeSupabaseRequest($query, 'GET');
+    
+    if (isset($promosi_response['error'])) {
+        return ['error' => 'Gagal mengambil data promosi: ' . $promosi_response['error']];
+    }
+    
+    $promosi_yang_berlaku = null;
+    
+    // Cek apakah ada promosi yang cocok dengan kondisi jumlah pendaki
+    foreach ($promosi_response['data'] as $promo) {
+        $min_pendaki = (int)($promo['kondisi_min_pendaki'] ?? 1);
+        $max_pendaki = $promo['kondisi_max_pendaki'] ? (int)$promo['kondisi_max_pendaki'] : PHP_INT_MAX;
+        
+        if ($jumlah_pendaki >= $min_pendaki && $jumlah_pendaki <= $max_pendaki) {
+            $promosi_yang_berlaku = $promo;
+            break;
+        }
+    }
+    
+    // Hitung harga setelah promosi
+    $harga_setelah_promosi = $harga_sebelum_promosi;
+    
+    if ($promosi_yang_berlaku) {
+        $tipe_promosi = $promosi_yang_berlaku['tipe_promosi'];
+        $nilai_promosi = (float)$promosi_yang_berlaku['nilai_promosi'];
+        
+        switch ($tipe_promosi) {
+            case 'PERSENTASE':
+                $potongan = $harga_sebelum_promosi * ($nilai_promosi / 100);
+                $harga_setelah_promosi = $harga_sebelum_promosi - $potongan;
+                break;
+                
+            case 'POTONGAN_TETAP':
+                $harga_setelah_promosi = $harga_sebelum_promosi - $nilai_promosi;
+                // Pastikan harga tidak negatif
+                $harga_setelah_promosi = max(0, $harga_setelah_promosi);
+                break;
+                
+            case 'HARGA_KHUSUS':
+                // Untuk HARGA_KHUSUS, ini biasanya harga total tetap
+                // Atau bisa juga harga per item tetap, tergantung logika bisnis
+                // Dalam implementasi ini, kita asumsikan nilai_promosi adalah harga total untuk semua pendaki
+                $harga_setelah_promosi = $nilai_promosi;
+                break;
+                
+            default:
+                // Jika tipe promosi tidak dikenal, tidak ada perubahan harga
+                break;
+        }
+    }
+    
+    // Pastikan harga tidak negatif
+    $harga_setelah_promosi = max(0, $harga_setelah_promosi);
+    
+    return [
+        'harga_sebelum_promosi' => $harga_sebelum_promosi,
+        'harga_setelah_promosi' => (int)$harga_setelah_promosi,
+        'potongan_promosi' => $harga_sebelum_promosi - (int)$harga_setelah_promosi,
+        'promosi_yang_berlaku' => $promosi_yang_berlaku
+    ];
+}
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Get pricing data from pengaturan_biaya table
@@ -46,6 +138,7 @@ try {
         $id_pengguna = $data['id_pengguna']; // Ambil ID pengguna dari data yang dikirim
         $anggota_rombongan = $data['anggota_rombongan'];
         $barang_bawaan = $data['barang_bawaan'] ?? [];
+        $kode_promo = $data['kode_promo'] ?? null; // Ambil kode promosi jika ada
 
         // Log data yang diterima untuk debugging
         error_log("Data received: tanggal_pendakian=" . $tanggal_pendakian . ", jumlah_pendaki=" . $jumlah_pendaki . ", id_pengguna=" . $id_pengguna);
@@ -80,6 +173,28 @@ try {
         if ($available_quota < $jumlah_pendaki) {
             http_response_code(400);
             echo json_encode(['error' => 'Kuota tidak mencukupi untuk tanggal tersebut. Tersedia: ' . $available_quota . ', Dibutuhkan: ' . $jumlah_pendaki]);
+            exit;
+        }
+        
+        // Validate harga dengan promosi sesuai dengan jumlah pendaki dan tiket parkir
+        $harga_validation = hitungHargaDenganPromosi($jumlah_pendaki, $jumlah_tiket_parkir, $tanggal_pendakian, $kode_promo);
+        
+        if (isset($harga_validation['error'])) {
+            http_response_code(500);
+            echo json_encode(['error' => $harga_validation['error']]);
+            exit;
+        }
+        
+        // Cek apakah total_harga yang dikirim sesuai dengan perhitungan sistem
+        $harga_seharusnya = (int)$harga_validation['harga_setelah_promosi'];
+        if ($total_harga != $harga_seharusnya) {
+            http_response_code(400);
+            echo json_encode([
+                'error' => 'Total harga tidak sesuai. Harga seharusnya: ' . $harga_seharusnya . ', harga yang dikirim: ' . $total_harga,
+                'harga_seharusnya' => $harga_seharusnya,
+                'harga_yang_dikirim' => $total_harga,
+                'promosi_yang_berlaku' => $harga_validation['promosi_yang_berlaku']
+            ]);
             exit;
         }
 
@@ -175,7 +290,10 @@ try {
         echo json_encode([
             'success' => true,
             'message' => 'Reservasi berhasil dibuat',
-            'kode_reservasi' => $kode_reservasi
+            'kode_reservasi' => $kode_reservasi,
+            'harga_sebelum_promosi' => $harga_validation['harga_sebelum_promosi'],
+            'potongan_promosi' => $harga_validation['potongan_promosi'],
+            'promosi_yang_berlaku' => $harga_validation['promosi_yang_berlaku']
         ]);
     } else {
         http_response_code(405);

@@ -33,66 +33,96 @@ function makeSupabaseRequest($endpoint, $method = 'GET', $data = null) {
     // Remove leading slash if it exists and check the endpoint format
     $url = rtrim($supabaseUrl, '/') . '/' . ltrim($path, '/') . $query;
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to true in production
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 second timeout
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'); // Set a user agent
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Connection timeout
-    curl_setopt($ch, CURLOPT_ENCODING, ''); // Accept all encodings
+    // Retry settings
+    $maxRetries = 3;
+    $retryCount = 0;
+    $retryDelay = 1000; // 1 second in milliseconds
     
-    if ($method === 'POST') {
-        curl_setopt($ch, CURLOPT_POST, true);
-        if ($data) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    do {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Set to true in production
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 second timeout
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'); // Set a user agent
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Connection timeout
+        curl_setopt($ch, CURLOPT_ENCODING, ''); // Accept all encodings
+        curl_setopt($ch, CURLOPT_TCP_KEEPALIVE, 1); // Keep connection alive
+        
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            if ($data) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            }
+        } elseif ($method === 'PUT') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            if ($data) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            }
+        } elseif ($method === 'PATCH') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            if ($data) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            }
+        } elseif ($method === 'DELETE') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         }
-    } elseif ($method === 'PUT') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        if ($data) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        $totalTime = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+        $errno = curl_errno($ch);
+        
+        curl_close($ch);
+        
+        // Check if the request was successful
+        if (!$curlError && $httpCode < 400) {
+            // Log successful request details
+            error_log("Supabase request successful [{$method}] {$url} (Time: {$totalTime}s, Code: {$httpCode})");
+            
+            // Log the response for debugging if it's not JSON
+            $result = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("Invalid JSON response: HTTP " . $httpCode . " - " . $response);
+                return ['error' => 'Invalid JSON response: HTTP ' . $httpCode . ' - ' . $response];
+            }
+            
+            return [
+                'status_code' => $httpCode,
+                'data' => $result
+            ];
         }
-    } elseif ($method === 'PATCH') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        if ($data) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        
+        // Log error for debugging
+        if ($curlError) {
+            error_log("CURL Error on attempt " . ($retryCount + 1) . ": " . $curlError . " (Total time: {$totalTime}s, errno: {$errno})");
+        } else {
+            error_log("HTTP error on attempt " . ($retryCount + 1) . ": " . $httpCode . " - " . $response . " (URL: {$url})");
         }
-    } elseif ($method === 'DELETE') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    }
+        
+        // If this is not the last attempt, wait before retrying
+        if ($retryCount < $maxRetries - 1) {
+            error_log("Retrying request in " . ($retryDelay / 1000) . " seconds...");
+            usleep($retryDelay * 1000); // Convert to microseconds
+            $retryDelay *= 2; // Exponential backoff
+        }
+        
+        $retryCount++;
+    } while ($retryCount < $maxRetries);
     
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    $totalTime = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
-    
-    curl_close($ch);
-    
+    // If all retries failed, return error
     if ($curlError) {
-        error_log("CURL Error: " . $curlError . " (Total time: {$totalTime}s)");
-        return ['error' => 'Curl error: ' . $curlError];
+        error_log("All retries failed for Supabase request [{$method}] {$url}. Last error: " . $curlError);
+        return ['error' => 'Curl error after ' . $maxRetries . ' attempts: ' . $curlError];
+    } else {
+        error_log("All retries failed for Supabase request [{$method}] {$url}. Last HTTP code: " . $httpCode);
+        return ['error' => 'HTTP error after ' . $maxRetries . ' attempts: HTTP ' . $httpCode . ' - ' . $response];
     }
-    
-    // Log the response for debugging if it's not JSON
-    $result = json_decode($response, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log("Invalid JSON response: HTTP " . $httpCode . " - " . $response);
-        return ['error' => 'Invalid JSON response: HTTP ' . $httpCode . ' - ' . $response];
-    }
-    
-    if ($httpCode >= 400) {
-        error_log("HTTP error: " . $httpCode . " - " . $response);
-        return ['error' => 'HTTP error: ' . $httpCode . ' - ' . $response];
-    }
-    
-    return [
-        'status_code' => $httpCode,
-        'data' => $result
-    ];
 }
 
 // Function to upload file to Supabase Storage
