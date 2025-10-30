@@ -26,15 +26,21 @@ function hitungHargaDenganPromosi($jumlah_pendaki, $jumlah_tiket_parkir, $tangga
     $harga_tiket_parkir = 0;
     
     foreach ($biaya_response['data'] as $item) {
-        if ($item['nama_item'] === 'Tiket Masuk') {
+        $nama_item_lower = strtolower($item['nama_item']);
+        if (strpos($nama_item_lower, 'tiket') !== false && strpos($nama_item_lower, 'masuk') !== false) {
             $harga_tiket_masuk = (int)$item['harga'];
-        } elseif ($item['nama_item'] === 'Tiket Parkir') {
+        } elseif (strpos($nama_item_lower, 'parkir') !== false) {
             $harga_tiket_parkir = (int)$item['harga'];
         }
     }
     
     // Hitung harga dasar sebelum promosi
     $harga_sebelum_promosi = ($jumlah_pendaki * $harga_tiket_masuk) + ($jumlah_tiket_parkir * $harga_tiket_parkir);
+    
+    // Log harga untuk debugging
+    error_log("Harga tiket masuk: " . $harga_tiket_masuk . ", Harga tiket parkir: " . $harga_tiket_parkir);
+    error_log("Jumlah pendaki: " . $jumlah_pendaki . ", Jumlah tiket parkir: " . $jumlah_tiket_parkir);
+    error_log("Harga sebelum promosi: " . $harga_sebelum_promosi);
     
     // Ambil promosi yang aktif untuk tanggal pendakian
     $now = date('Y-m-d H:i:s');
