@@ -1426,7 +1426,7 @@
                             Informasi Ketua Rombongan
                         </h3>
                         
-                        <div class="grid grid-cols-1 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2" for="id-pengguna">
                                     <i class="fas fa-users mr-1"></i> Pilih Ketua Rombongan
@@ -1434,6 +1434,16 @@
                                 <select id="id-pengguna" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                                     <option value="">Pilih ketua rombongan dari daftar user terdaftar</option>
                                 </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="promosi-id">
+                                    <i class="fas fa-percentage mr-1"></i> Pilih Promosi (Opsional)
+                                </label>
+                                <select id="promosi-id" class="input-modern w-full py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">Tidak ada promosi</option>
+                                </select>
+                                <div id="promosi-info" class="text-xs text-gray-500 mt-1" style="display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -1575,6 +1585,7 @@
         let barangSampahData = [];
         let hargaTiket = 0;
         let hargaParkir = 0;
+        let promosiData = [];
         
         // Function to load users from profiles table
         async function loadUsers() {
@@ -1781,6 +1792,11 @@
                 loadPricingData();
             }, 500); // Small delay to ensure Supabase is ready
             
+            // Load promotions data when the page loads initially
+            setTimeout(() => {
+                loadPromosi();
+            }, 1000); // Slightly delayed to ensure Supabase is ready
+            
             // Set default date to today and restrict date selection
             const today = new Date().toISOString().split('T')[0];
             const tanggalPendakianInput = document.getElementById('tanggal-pendakian');
@@ -1851,17 +1867,18 @@
                 });
             }
             
-            // Refresh pricing data when the section is shown
+            // Refresh pricing and promotions data when the section is shown
             // Set up a mechanism to reload pricing when the tab is switched
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                         const bikinReservasiContent = document.getElementById('bikin-reservasi-content');
                         if (bikinReservasiContent && !bikinReservasiContent.classList.contains('hidden')) {
-                            // This section is now visible, reload pricing
-                            console.log('Buat Reservasi content ditampilkan, memuat ulang harga...');
+                            // This section is now visible, reload pricing and promotions
+                            console.log('Buat Reservasi content ditampilkan, memuat ulang harga dan promosi...');
                             setTimeout(() => {
                                 loadPricingData();
+                                loadPromosi(); // Also reload promotions when the section is shown
                                 loadUsers(); // Also reload users when the section is shown
                             }, 1000); // Delay kecil untuk memastikan elemen benar-benar siap
                         }
@@ -1919,6 +1936,15 @@
                         console.log('Supabase tidak tersedia');
                         alert('Supabase client tidak tersedia');
                     }
+                });
+            }
+            
+            // Add event listener for promotion selection
+            const promosiSelect = document.getElementById('promosi-id');
+            if (promosiSelect) {
+                promosiSelect.addEventListener('change', function() {
+                    updatePromosiInfo();
+                    calculateTotal(); // Recalculate total when promotion changes
                 });
             }
         }
@@ -2181,8 +2207,101 @@
             }
         }
         
+        // Function to load available promotions
+        async function loadPromosi() {
+            try {
+                if (!window.supabase) {
+                    console.error('Supabase client not available');
+                    return;
+                }
+                
+                // Load active promotions that are within date range
+                const now = new Date().toISOString();
+                const { data, error } = await window.supabase
+                    .from('promosi')
+                    .select('*')
+                    .eq('is_aktif', true)
+                    .lte('tanggal_mulai', now)
+                    .gte('tanggal_akhir', now);
+                
+                if (error) {
+                    console.error('Error loading promotions:', error);
+                    return;
+                }
+                
+                // Store the promotions data globally
+                promosiData = data || [];
+                
+                // Update the promotion dropdown
+                const promosiSelect = document.getElementById('promosi-id');
+                if (promosiSelect) {
+                    promosiSelect.innerHTML = '<option value="">Tidak ada promosi</option>';
+                    
+                    promosiData.forEach(promo => {
+                        const option = document.createElement('option');
+                        option.value = promo.id_promosi;
+                        
+                        // Format the promotion information for display
+                        let tipePromoText = '';
+                        switch (promo.tipe_promosi) {
+                            case 'PERSENTASE':
+                                tipePromoText = `${promo.nilai_promosi}%`;
+                                break;
+                            case 'POTONGAN_TETAP':
+                                tipePromoText = `Rp ${parseInt(promo.nilai_promosi).toLocaleString('id-ID')}`;
+                                break;
+                            case 'HARGA_KHUSUS':
+                                tipePromoText = `Rp ${parseInt(promo.nilai_promosi).toLocaleString('id-ID')} (Harga Khusus)`;
+                                break;
+                            default:
+                                tipePromoText = `${promo.nilai_promosi} (${promo.tipe_promosi})`;
+                        }
+                        
+                        option.textContent = `${promo.nama_promosi} (${tipePromoText}) - Min: ${promo.kondisi_min_pendaki}`;
+                        promosiSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error in loadPromosi:', error);
+            }
+        }
+        
         // Fungsi ini tidak lagi digunakan karena ketua rombongan dipilih dari dropdown
         // dan tidak perlu disalin ke form pendaki pertama
+        
+        // Function to update promotion information display
+        function updatePromosiInfo() {
+            const promosiId = document.getElementById('promosi-id')?.value;
+            const promosiInfoDiv = document.getElementById('promosi-info');
+            
+            if (!promosiInfoDiv) return;
+            
+            if (promosiId) {
+                const selectedPromosi = promosiData.find(promo => promo.id_promosi == promosiId);
+                if (selectedPromosi) {
+                    let tipePromoText = '';
+                    switch (selectedPromosi.tipe_promosi) {
+                        case 'PERSENTASE':
+                            tipePromoText = `${selectedPromosi.nilai_promosi}%`;
+                            break;
+                        case 'POTONGAN_TETAP':
+                            tipePromoText = `Rp ${parseInt(selectedPromosi.nilai_promosi).toLocaleString('id-ID')}`;
+                            break;
+                        case 'HARGA_KHUSUS':
+                            tipePromoText = `Rp ${parseInt(selectedPromosi.nilai_promosi).toLocaleString('id-ID')} (Harga Khusus)`;
+                            break;
+                        default:
+                            tipePromoText = `${selectedPromosi.nilai_promosi} (${selectedPromosi.tipe_promosi})`;
+                    }
+                    
+                    promosiInfoDiv.textContent = `Promo: ${selectedPromosi.nama_promosi} | ${tipePromoText} | Min: ${selectedPromosi.kondisi_min_pendaki} pendaki`;
+                    promosiInfoDiv.style.color = 'green';
+                    promosiInfoDiv.style.display = 'block';
+                }
+            } else {
+                promosiInfoDiv.style.display = 'none';
+            }
+        }
         
         function generatePendakiForms() {
             const jumlahPendaki = parseInt(document.getElementById('jumlah-pendaki')?.value) || 0;
@@ -2369,8 +2488,40 @@
                 return;
             }
             
-            // Calculate total based on actual prices
-            const total = (jumlahPendaki * hargaTiket) + (jumlahTiketParkir * hargaParkir);
+            // Calculate base total based on actual prices
+            let total = (jumlahPendaki * hargaTiket) + (jumlahTiketParkir * hargaParkir);
+            
+            // Apply promotion if selected and valid
+            const promosiId = document.getElementById('promosi-id')?.value;
+            if (promosiId) {
+                const selectedPromosi = promosiData.find(promo => promo.id_promosi == promosiId);
+                if (selectedPromosi && selectedPromosi.is_aktif) {
+                    // Check if conditions are met
+                    if (jumlahPendaki >= selectedPromosi.kondisi_min_pendaki) {
+                        if (!selectedPromosi.kondisi_max_pendaki || jumlahPendaki <= selectedPromosi.kondisi_max_pendaki) {
+                            // Check if date is within range
+                            const now = new Date();
+                            const startDate = new Date(selectedPromosi.tanggal_mulai);
+                            const endDate = new Date(selectedPromosi.tanggal_akhir);
+                            
+                            if (now >= startDate && now <= endDate) {
+                                // Apply promotion based on type
+                                if (selectedPromosi.tipe_promosi === 'PERSENTASE') {
+                                    const discount = total * (selectedPromosi.nilai_promosi / 100);
+                                    total = total - discount;
+                                } else if (selectedPromosi.tipe_promosi === 'POTONGAN_TETAP') {
+                                    const discount = Math.min(selectedPromosi.nilai_promosi, total); // Can't discount more than total
+                                    total = total - discount;
+                                } else if (selectedPromosi.tipe_promosi === 'HARGA_KHUSUS') {
+                                    // For HARGA_KHUSUS, we might need to adjust calculation
+                                    // This could be a special case - for now let's just apply it as a fixed discount
+                                    total = selectedPromosi.nilai_promosi;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             
             console.log('Total harga dihitung:', total);
             
@@ -2620,6 +2771,9 @@
                     return;
                 }
                 
+                // Get the selected promotion ID
+                const promosiId = document.getElementById('promosi-id')?.value;
+                
                 // Prepare reservation data
                 const reservationData = {
                     tanggal_pendakian: tanggalPendakian,
@@ -2628,6 +2782,7 @@
                     jumlah_tiket_parkir: jumlahTiketParkir,
                     total_harga: totalHarga,
                     jumlah_potensi_sampah: jumlahPotensiSampah,
+                    id_promosi: promosiId || null, // Add selected promotion ID if exists
                     anggota_rombongan: anggota,
                     barang_bawaan: [...barangSampahData]
                 };
