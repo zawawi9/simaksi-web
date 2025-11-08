@@ -629,9 +629,65 @@ window.showReservationDetail = function(id_reservasi) {
 };
 
 // Function to confirm payment
-window.confirmPayment = function(id_reservasi, kode_reservasi) {
-    if (window.reservationsModule) {
-        window.reservationsModule.confirmPayment(id_reservasi, kode_reservasi);
+window.confirmPayment = async function(id_reservasi, kode_reservasi) {
+    if (!window.supabase) {
+        console.error('Supabase client not available');
+        Utils.showMessage('error', 'Koneksi ke database tidak tersedia');
+        return;
+    }
+    
+    if (!confirm('Apakah Anda yakin ingin mengkonfirmasi pembayaran ini?')) {
+        return;
+    }
+    
+    try {
+        // Get current admin ID from session
+        const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+        if (sessionError || !session) {
+            throw new Error('Sesi admin tidak valid');
+        }
+        
+        const adminId = session.user.id;
+
+        // Call the database function to confirm payment
+        const { data, error } = await window.supabase
+            .rpc('konfirmasi_pembayaran_reservasi', {
+                input_id_reservasi: id_reservasi,
+                input_id_admin: adminId
+            });
+
+        if (error) {
+            console.error('Error confirming payment:', error);
+            throw new Error(error.message);
+        }
+
+        // Show success message and refresh the data
+        const result = data[0];
+        if (result && typeof result === 'string' && result.includes('Success')) {
+            Utils.showMessage('success', 'Pembayaran berhasil dikonfirmasi dan pemasukan telah dicatat!');
+            
+            // Hide the modal and refresh data
+            Utils.hideModal();
+            
+            // Refresh the reservation data to reflect the status change
+            setTimeout(() => {
+                if (window.reservationsModule) {
+                    window.reservationsModule.loadReservasiData();
+                }
+                
+                // Also reload dashboard stats
+                if (window.dashboardModule) {
+                    window.dashboardModule.loadDashboardSummary();
+                }
+            }, 500);
+        } else {
+            // Handle the error case (this would be the error message from the function)
+            const errorMessage = result || 'Terjadi kesalahan saat mengkonfirmasi pembayaran';
+            Utils.showMessage('error', errorMessage);
+        }
+    } catch (error) {
+        console.error('Error confirming payment:', error);
+        Utils.showMessage('error', 'Gagal mengkonfirmasi pembayaran: ' + error.message);
     }
 };
 

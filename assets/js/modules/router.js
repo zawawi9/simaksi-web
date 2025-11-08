@@ -17,6 +17,7 @@ export class Router {
         const navKeuangan = document.getElementById('nav-keuangan');
         const navPengumuman = document.getElementById('nav-pengumuman');
         const navPromosiPoster = document.getElementById('nav-promosi-poster');
+        const navKomentar = document.getElementById('nav-komentar');
         const navPengguna = document.getElementById('nav-pengguna');
         const navBikinReservasi = document.getElementById('nav-bikin-reservasi');
 
@@ -62,6 +63,13 @@ export class Router {
             });
         }
 
+        if (navKomentar) {
+            navKomentar.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchContent('komentar');
+            });
+        }
+
         if (navPengguna) {
             navPengguna.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -85,6 +93,7 @@ export class Router {
         const keuanganContent = document.getElementById('keuangan-content');
         const pengumumanContent = document.getElementById('pengumuman-content');
         const promosiPosterContent = document.getElementById('promosi-poster-content');
+        const komentarContent = document.getElementById('komentar-content');
         const penggunaContent = document.getElementById('pengguna-content');
         const bikinReservasiContent = document.getElementById('bikin-reservasi-content');
 
@@ -94,6 +103,7 @@ export class Router {
         if (keuanganContent) keuanganContent.classList.add('hidden');
         if (pengumumanContent) pengumumanContent.classList.add('hidden');
         if (promosiPosterContent) promosiPosterContent.classList.add('hidden');
+        if (komentarContent) komentarContent.classList.add('hidden');
         if (penggunaContent) penggunaContent.classList.add('hidden');
         if (bikinReservasiContent) bikinReservasiContent.classList.add('hidden');
 
@@ -121,6 +131,11 @@ export class Router {
             if (pageTitle) {
                 pageTitle.innerHTML = '<i class="fas fa-list mr-2 text-green-600"></i> Manajemen Reservasi';
             }
+            
+            // Initialize reservation tabs
+            this.initializeReservationTabs();
+            
+            // Load reservation data
             this.reservationsModule.loadReservasiData();
         } else if (contentType === 'kuota' && kuotaContent) {
             document.getElementById('nav-kuota').classList.add('active');
@@ -174,6 +189,17 @@ export class Router {
             // Initialize promosi poster tabs
             setTimeout(() => {
                 this.initializePromosiPosterTabs();
+            }, 100);
+        } else if (contentType === 'komentar' && komentarContent) {
+            document.getElementById('nav-komentar').classList.add('active');
+            document.getElementById('nav-komentar').classList.remove('hover:bg-green-700');
+            komentarContent.classList.remove('hidden');
+            if (pageTitle) {
+                pageTitle.innerHTML = '<i class="fas fa-comment mr-2 text-green-600"></i> Manajemen Komentar';
+            }
+            // Initialize komentar tabs
+            setTimeout(() => {
+                this.initializeKomentarTabs();
             }, 100);
         } else if (contentType === 'pengguna' && penggunaContent) {
             document.getElementById('nav-pengguna').classList.add('active');
@@ -257,6 +283,87 @@ export class Router {
                     });
                 }
             }, 100);
+        }
+    }
+    
+    initializeReservationTabs() {
+        const daftarReservasiTab = document.getElementById('daftar-reservasi-tab');
+        const buatReservasiTab = document.getElementById('buat-reservasi-tab');
+        
+        if (daftarReservasiTab) {
+            // Set default to daftar reservasi
+            document.getElementById('daftar-reservasi-content').classList.remove('hidden');
+            document.getElementById('buat-reservasi-content').classList.add('hidden');
+            
+            // Update active tab styling
+            daftarReservasiTab.classList.add('active', 'text-green-600', 'border-green-600');
+            if (buatReservasiTab) {
+                buatReservasiTab.classList.remove('active', 'text-green-600', 'border-green-600');
+            }
+            
+            // Add click event for "Buat Reservasi Baru" button
+            setTimeout(() => {
+                if (buatReservasiTab) {
+                    buatReservasiTab.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.getElementById('buat-reservasi-content').classList.remove('hidden');
+                        document.getElementById('daftar-reservasi-content').classList.add('hidden');
+                        
+                        // Update active tab styling
+                        buatReservasiTab.classList.add('active', 'text-green-600', 'border-green-600');
+                        daftarReservasiTab.classList.remove('active', 'text-green-600', 'border-green-600');
+                        
+                        // Load pricing data and users when the form is shown
+                        if (typeof loadPricingData === 'function') {
+                            loadPricingData();
+                        }
+                        if (typeof loadUsers === 'function') {
+                            loadUsers();
+                        }
+                        if (typeof loadPromosi === 'function') {
+                            loadPromosi();
+                        }
+                    });
+                }
+                
+                if (daftarReservasiTab) {
+                    daftarReservasiTab.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.getElementById('daftar-reservasi-content').classList.remove('hidden');
+                        document.getElementById('buat-reservasi-content').classList.add('hidden');
+                        
+                        // Update active tab styling
+                        daftarReservasiTab.classList.add('active', 'text-green-600', 'border-green-600');
+                        if (buatReservasiTab) {
+                            buatReservasiTab.classList.remove('active', 'text-green-600', 'border-green-600');
+                        }
+                        
+                        // Reload reservation data when the list tab is shown
+                        if (typeof this.reservationsModule?.loadReservasiData === 'function') {
+                            this.reservationsModule.loadReservasiData();
+                        }
+                    });
+                }
+            }, 100);
+        }
+    }
+    
+    initializeKomentarTabs() {
+        const daftarKomentarTab = document.getElementById('daftar-komentar-tab');
+        
+        if (daftarKomentarTab) {
+            // Set default to daftar komentar
+            document.getElementById('daftar-komentar-content').classList.remove('hidden');
+            
+            // Update active tab styling
+            daftarKomentarTab.classList.add('active', 'text-green-600', 'border-green-600');
+            
+            // Load comments data when the tab is shown
+            setTimeout(() => {
+                if (typeof loadKomentarData === 'function') {
+                    loadKomentarData();
+                }
+            }, 200);
         }
     }
 }
