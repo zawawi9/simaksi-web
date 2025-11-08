@@ -678,6 +678,32 @@
                     
                     <!-- Buat Reservasi Baru Section (hidden by default) -->
                     <div id="buat-reservasi-content" class="hidden p-6">
+                        <!-- Harga Tiket Card View -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl shadow-md border border-green-200 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full mr-4">
+                                        <i class="fas fa-hiking text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-700 font-semibold">Tiket Pendakian</p>
+                                        <p id="harga-tiket" class="text-xl font-bold text-green-700 mt-1">Rp 0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-xl shadow-md border border-blue-200 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full mr-4">
+                                        <i class="fas fa-car text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-700 font-semibold">Tiket Parkir</p>
+                                        <p id="harga-parkir" class="text-xl font-bold text-blue-700 mt-1">Rp 0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="card-modern p-6 mb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                                 <i class="fas fa-calendar-plus mr-2 text-green-600"></i>
