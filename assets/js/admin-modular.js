@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Set up kuota form submission
         setupKuotaForm(quotasModule);
 
-        // Load initial content
-        reservationsModule.loadReservasiData();
+        // Load initial content - load first page of all reservations
+        reservationsModule.loadReservasiData(null, 1);
         
         // Load pengeluaran form
         financeModule.loadPengeluaranForm();
