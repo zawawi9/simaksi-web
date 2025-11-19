@@ -1,6 +1,9 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.barang_bawaan_sampah (
   id_barang bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   id_reservasi bigint NOT NULL,
@@ -96,6 +99,8 @@ CREATE TABLE public.profiles (
   nomor_telepon character varying,
   alamat text,
   peran USER-DEFINED NOT NULL DEFAULT 'pendaki'::peran_pengguna,
+  nik character varying,
+  tanggal_lahir date,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );

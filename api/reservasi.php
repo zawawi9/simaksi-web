@@ -84,11 +84,22 @@ if ($method === 'GET') {
         if ($kode) {
             $query .= 'kode_reservasi=ilike.*' . $kode . '*&';
         } else {
-            // If no specific search, show today's reservations
-            $query .= 'tanggal_pendakian=eq.' . $date . '&';
+            // Check if 'all' parameter is set to true to show all reservations
+            $all_param = $_GET['all'] ?? null;
+            if ($all_param === 'true') {
+                // Show all reservations sorted by newest date first, with pagination
+            } else {
+                // If no specific search and no 'all' parameter, show today's reservations  
+                $query .= 'tanggal_pendakian=eq.' . $date . '&';
+            }
         }
         
-        $query .= 'order=kode_reservasi.asc';
+        // Add pagination parameters if they exist and not doing name search
+        $limit = $_GET['limit'] ?? 10; // Default to 10 items
+        $offset = $_GET['offset'] ?? 0; // Default to offset 0 (first page)
+        
+        // Order by date descending (newest first), then by kode_reservasi for secondary ordering
+        $query .= 'order=tanggal_pendakian.desc,kode_reservasi.desc&limit=' . intval($limit) . '&offset=' . intval($offset);
     }
 
     $response = makeSupabaseRequest($query);

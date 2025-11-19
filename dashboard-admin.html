@@ -3280,11 +3280,36 @@
                         // First, create promosi if details are provided
                         let promosiId = null;
                         if (namaPromosi) {
+                            // Check if kode_promo already exists (only if kodePromo is provided)
+                            if (kodePromo) {
+                                try {
+                                    const { data: existingPromo, error: checkError } = await window.supabase
+                                        .from('promosi')
+                                        .select('id_promosi')
+                                        .eq('kode_promo', kodePromo)
+                                        .single();
+                                    
+                                    // If we get here without error, it means a promo with this code already exists
+                                    if (!checkError && existingPromo) {
+                                        throw new Error('Kode promo sudah digunakan. Silakan gunakan kode yang berbeda.');
+                                    }
+                                } catch (error) {
+                                    // The single() method throws an error if no record is found, which is expected
+                                    // when the promo code doesn't already exist. We only want to throw an error
+                                    // if it's a different kind of error (not "not found")
+                                    if (error.code && error.code !== 'PGRST116') { // PGRST116 is the "Not found" error code
+                                        throw new Error(error.message);
+                                    }
+                                    // If it's a "not found" error, it means the code doesn't exist, which is good
+                                }
+                            }
+                            
                             const { data: promosiData, error: promosiError } = await window.supabase
                                 .from('promosi')
                                 .insert([{
                                     nama_promosi: namaPromosi,
                                     deskripsi_promosi: deskripsiPromosi,
+                                    kode_promo: kodePromo || null,  // Use null if no kode_promo provided to avoid unique constraint issues
                                     tipe_promosi: tipePromosi,
                                     nilai_promosi: nilaiPromosi,
                                     kondisi_min_pendaki: minPendaki,
@@ -3808,12 +3833,38 @@
                             // If promosi details are provided, update or create promosi
                             if (namaPromosi) {
                                 if (promosiId) {
+                                    // Check if kode_promo already exists for a different promosi (only if kodePromo is provided)
+                                    if (kodePromo) {
+                                        try {
+                                            const { data: existingPromo, error: checkError } = await window.supabase
+                                                .from('promosi')
+                                                .select('id_promosi')
+                                                .eq('kode_promo', kodePromo)
+                                                .neq('id_promosi', promosiId) // Exclude current promosi from check
+                                                .single();
+                                            
+                                            // If we get here without error, it means another promo with this code exists
+                                            if (!checkError && existingPromo) {
+                                                throw new Error('Kode promo sudah digunakan oleh promosi lain. Silakan gunakan kode yang berbeda.');
+                                            }
+                                        } catch (error) {
+                                            // The single() method throws an error if no record is found, which is expected
+                                            // when the promo code doesn't exist for other promos. We only want to throw an error
+                                            // if it's a different kind of error (not "not found")
+                                            if (error.code && error.code !== 'PGRST116') { // PGRST116 is the "Not found" error code
+                                                throw new Error(error.message);
+                                            }
+                                            // If it's a "not found" error, it means no other promo has this code, which is good
+                                        }
+                                    }
+                                    
                                     // Update existing promosi
                                     const { data: updateData, error: updateError } = await window.supabase
                                         .from('promosi')
                                         .update({
                                             nama_promosi: namaPromosi,
                                             deskripsi_promosi: deskripsiPromosi,
+                                            kode_promo: kodePromo || null,  // Use null if no kode_promo provided to avoid unique constraint issues
                                             tipe_promosi: tipePromosi,
                                             nilai_promosi: nilaiPromosi,
                                             kondisi_min_pendaki: minPendaki,
@@ -3834,6 +3885,7 @@
                                         .insert([{
                                             nama_promosi: namaPromosi,
                                             deskripsi_promosi: deskripsiPromosi,
+                                            kode_promo: kodePromo || null,  // Use null if no kode_promo provided to avoid unique constraint issues
                                             tipe_promosi: tipePromosi,
                                             nilai_promosi: nilaiPromosi,
                                             kondisi_min_pendaki: minPendaki,

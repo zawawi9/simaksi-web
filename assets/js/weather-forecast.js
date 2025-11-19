@@ -5,7 +5,7 @@ class WeatherForecast {
         // https://openweathermap.org/api
         // For now, we'll use a flag to determine whether to use mock data or real API
         this.useMockData = true; // Set to false when you have an API key
-        this.apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
+        this.apiKey = '308a5cface2a85354367180f7e90d743'; // Replace with your OpenWeatherMap API key
         this.forecastContainer = document.getElementById('weather-forecast');
         this.location = 'Malang, ID'; // Using Malang as the location for Gunung Butak
         this.init();

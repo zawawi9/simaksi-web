@@ -6,17 +6,43 @@ export class ReservationsModule {
         this.itemsPerPage = 10;
     }
 
-    async loadReservasiData(date = null) {
+    async loadReservasiData(date = null, page = 1) {
         try {
-            if (!date) {
-                date = new Date().toISOString().split('T')[0]; // Today's date
+            // Calculate offset for pagination (page - 1) * items per page
+            const offset = (page - 1) * this.itemsPerPage;
+            let url = `${this.apiBaseUrl}/reservasi.php`;
+            
+            if (date) {
+                // If date is provided, filter by specific date
+                url += `?date=${date}&limit=${this.itemsPerPage}&offset=${offset}`;
+            } else {
+                // If no date is provided, load ALL reservations with pagination
+                url += `?all=true&limit=${this.itemsPerPage}&offset=${offset}`;
             }
             
-            const response = await fetch(`${this.apiBaseUrl}/reservasi.php?date=${date}`);
+            const response = await fetch(url);
             const result = await response.json();
 
             if (result.status === 'success') {
-                this.updateReservasiTable(result.data);
+                // Count total records for pagination
+                let countUrl = `${this.apiBaseUrl}/reservasi.php`;
+                if (date) {
+                    // If date is provided, filter by specific date
+                    countUrl += `?date=${date}&select=count(*)`;
+                } else {
+                    // If no date is provided, count ALL reservations
+                    countUrl += '?all=true&select=count(*)';
+                }
+                
+                const countResponse = await fetch(countUrl);
+                const countResult = await countResponse.json();
+                
+                let totalCount = 0;
+                if (countResult.status === 'success' && countResult.data && countResult.data.length > 0) {
+                    totalCount = countResult.data[0].count || 0;
+                }
+                
+                this.updateReservasiTable(result.data, totalCount, page);
             } else {
                 console.error('Error loading reservation data:', result.message);
                 this.showMessage('error', result.message || 'Failed to load reservation data');
@@ -29,15 +55,28 @@ export class ReservationsModule {
 
     async searchReservasi(kode = null, nama = null) {
         try {
-            let url = `${this.apiBaseUrl}/reservasi.php?`;
-            if (kode) url += `kode=${encodeURIComponent(kode)}&`;
-            if (nama) url += `nama=${encodeURIComponent(nama)}&`;
+            let url = `${this.apiBaseUrl}/reservasi.php?limit=${this.itemsPerPage}&offset=0`; // Reset to first page on search
+            if (kode) url += `&kode=${encodeURIComponent(kode)}`;
+            if (nama) url += `&nama=${encodeURIComponent(nama)}`;
 
             const response = await fetch(url);
             const result = await response.json();
 
             if (result.status === 'success') {
-                this.updateReservasiTable(result.data);
+                // For search results, get the total count
+                let countUrl = `${this.apiBaseUrl}/reservasi.php?select=count(*)`;
+                if (kode) countUrl += `&kode=${encodeURIComponent(kode)}`;
+                if (nama) countUrl += `&nama=${encodeURIComponent(nama)}`;
+                
+                const countResponse = await fetch(countUrl);
+                const countResult = await countResponse.json();
+                
+                let totalCount = 0;
+                if (countResult.status === 'success' && countResult.data && countResult.data.length > 0) {
+                    totalCount = countResult.data[0].count || 0;
+                }
+                
+                this.updateReservasiTable(result.data, totalCount, 1); // Page 1 for search results
             } else {
                 console.error('Error searching reservation data:', result.message);
                 this.showMessage('error', result.message || 'Failed to search reservation data');
@@ -48,7 +87,7 @@ export class ReservationsModule {
         }
     }
 
-    updateReservasiTable(reservasiList) {
+    updateReservasiTable(reservasiList, totalCount = 0, currentPage = 1) {
         const tbody = document.getElementById('reservasi-tbody');
         if (!tbody) return;
 
@@ -62,6 +101,7 @@ export class ReservationsModule {
             `;
             document.getElementById('jumlah-entri').textContent = '0';
             document.getElementById('total-entri').textContent = '0';
+            this.updatePaginationControls(currentPage, totalCount);
             return;
         }
 
@@ -98,9 +138,77 @@ export class ReservationsModule {
             tbody.appendChild(row);
         });
 
-        // Update entry counts
+        // Update entry counts and pagination
         document.getElementById('jumlah-entri').textContent = reservasiList.length;
-        document.getElementById('total-entri').textContent = reservasiList.length;
+        document.getElementById('total-entri').textContent = totalCount;
+        this.updatePaginationControls(currentPage, totalCount);
+    }
+    
+    updatePaginationControls(currentPage, totalCount) {
+        const totalPages = Math.ceil(totalCount / this.itemsPerPage);
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const currentPageSpan = document.querySelector('#prev-page ~ span'); // Find the current page span
+        
+        if (currentPageSpan) {
+            currentPageSpan.textContent = currentPage;
+        }
+        
+        // Update previous button
+        if (prevButton) {
+            prevButton.disabled = currentPage <= 1;
+            if (currentPage > 1) {
+                prevButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                prevButton.classList.add('bg-green-500', 'hover:bg-green-600');
+            } else {
+                prevButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                prevButton.classList.add('bg-gray-200', 'hover:bg-gray-300');
+            }
+        }
+        
+        // Update next button
+        if (nextButton) {
+            nextButton.disabled = currentPage >= totalPages;
+            if (currentPage < totalPages) {
+                nextButton.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                nextButton.classList.add('bg-green-500', 'hover:bg-green-600');
+            } else {
+                nextButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                nextButton.classList.add('bg-gray-200', 'hover:bg-gray-300');
+            }
+        }
+        
+        // Add event listeners for pagination buttons
+        this.setupPaginationEvents(currentPage, totalPages);
+    }
+    
+    setupPaginationEvents(currentPage, totalPages) {
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        
+        if (prevButton) {
+            // Remove existing event listeners to avoid duplication
+            prevButton.replaceWith(prevButton.cloneNode(true)); 
+            const newPrevButton = document.getElementById('prev-page');
+            
+            if (newPrevButton && currentPage > 1) {
+                newPrevButton.addEventListener('click', () => {
+                    this.loadReservasiData(null, currentPage - 1);
+                });
+            }
+        }
+        
+        if (nextButton) {
+            // Remove existing event listeners to avoid duplication 
+            nextButton.replaceWith(nextButton.cloneNode(true));
+            const newNextButton = document.getElementById('next-page');
+            
+            if (newNextButton && currentPage < totalPages) {
+                newNextButton.addEventListener('click', () => {
+                    this.loadReservasiData(null, currentPage + 1);
+                });
+            }
+        }
     }
 
     getStatusClass(status) {
