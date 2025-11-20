@@ -130,8 +130,13 @@ export class ReservationsModule {
                     </button>
                     ${reservasi.status === 'menunggu_pembayaran' ? 
                         `<button onclick="window.confirmPayment(${reservasi.id_reservasi}, '${reservasi.kode_reservasi}')" 
-                                class="text-green-600 hover:text-green-900">
+                                class="text-green-600 hover:text-green-900 mr-4">
                             Konfirmasi
+                        </button>` : ''}
+                    ${reservasi.status === 'terkonfirmasi' ? 
+                        `<button onclick="window.reservationsModule.completeReservation(${reservasi.id_reservasi}, '${reservasi.kode_reservasi}')" 
+                                class="text-purple-600 hover:text-purple-900">
+                            Selesai
                         </button>` : ''}
                 </td>
             `;
@@ -333,6 +338,53 @@ export class ReservationsModule {
             }
         } catch (error) {
             console.error('Error updating sampah status:', error);
+            this.showMessage('error', 'Error connecting to server');
+        }
+    }
+
+    async completeReservation(id_reservasi, kode_reservasi) {
+        try {
+            // Get the current admin ID from the session
+            const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+            if (sessionError || !session) {
+                throw new Error('Sesi admin tidak valid');
+            }
+
+            const adminId = session.user.id;
+
+            // Show confirmation dialog
+            if (!confirm(`Apakah Anda yakin ingin menandai reservasi ${kode_reservasi} sebagai selesai?`)) {
+                return;
+            }
+
+            const response = await fetch(`${this.apiBaseUrl}/reservasi.php`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_reservasi: id_reservasi,
+                    status: 'selesai',
+                    id_admin: adminId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                this.showMessage('success', result.message || 'Status reservasi berhasil diperbarui ke Selesai');
+                // Reload the data to reflect the changes
+                this.loadReservasiData();
+                // Hide the modal if it's open
+                if (window.Utils && window.Utils.hideModal) {
+                    window.Utils.hideModal();
+                }
+            } else {
+                console.error('Error completing reservation:', result.message);
+                this.showMessage('error', result.message || 'Failed to update reservation status to selesai');
+            }
+        } catch (error) {
+            console.error('Error completing reservation:', error);
             this.showMessage('error', 'Error connecting to server');
         }
     }

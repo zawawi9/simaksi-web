@@ -245,12 +245,17 @@ $$ LANGUAGE plpgsql;
 -- Fungsi 2.2: Konfirmasi Pembayaran dan Catat Pemasukan
 CREATE OR REPLACE FUNCTION public.konfirmasi_pembayaran_dan_catat_pemasukan(
     input_id_reservasi INT,
-    input_id_admin INT
+    input_id_admin UUID
 )
 RETURNS TEXT AS $$
 DECLARE
     v_reservasi RECORD;
 BEGIN
+    -- Check if the user exists in profiles table and is an admin
+    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = input_id_admin AND peran = 'admin') THEN
+        RETURN 'Error: Hanya admin yang dapat mengkonfirmasi pembayaran.';
+    END IF;
+
     -- Ambil data reservasi dan pastikan statusnya 'menunggu_pembayaran'
     SELECT * INTO v_reservasi
     FROM public.reservasi
@@ -295,10 +300,10 @@ Setiap file adalah satu endpoint.
 
 ### Endpoint: `POST /api/konfirmasi_pembayaran.php`
 - **Tujuan:** Dipanggil oleh admin dari dashboard untuk mengonfirmasi pembayaran dan mencatat pemasukan.
-- **Parameter Input:** `id_reservasi` (integer), `id_admin` (integer).
+- **Parameter Input:** `id_reservasi` (integer). The admin ID is automatically retrieved from the authentication context.
 - **Logika:**
-  1. Koneksikan ke Supabase menggunakan `supabase-php` dan SERVICE_ROLE_KEY.
-  2. Panggil fungsi RPC `konfirmasi_pembayaran_dan_catat_pemasukan(id_reservasi, id_admin)`.
+  1. Verify admin authentication from the Authorization header.
+  2. Panggil fungsi RPC `konfirmasi_pembayaran_dan_catat_pemasukan(id_reservasi)` yang mengambil ID admin dari konteks otentikasi.
   3. Kembalikan response JSON: `{ "status": "sukses", "message": "..." }` jika berhasil, atau `{ "status": "gagal", "message": "..." }` jika gagal.
 
 ---

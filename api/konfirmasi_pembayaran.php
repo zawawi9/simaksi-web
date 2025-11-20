@@ -70,6 +70,7 @@ if (!$authHeader) {
 }
 
 // Prepare the data for the RPC call
+// Based on the Supabase function, it might need both parameters or use auth context
 $rpcData = [
     'input_id_reservasi' => (int)$id_reservasi
 ];
@@ -80,7 +81,7 @@ $supabaseUrl = 'https://kitxtcpfnccblznbagzx.supabase.co/rest/v1';
 $supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpdHh0Y3BmbmNjYmx6bmJhZ3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1ODIxMzEsImV4cCI6MjA3NTE1ODEzMX0.OySigpw4AWI3G7JW_8r8yXu7re0Mr9CYv8u3d9Fr548'; // anon key
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rpc/konfirmasi_pembayaran_dan_catat_pemasukan');
+curl_setopt($ch, CURLOPT_URL, $supabaseUrl . '/rpc/konfirmasi_pembayaran_reservasi');
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcData));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

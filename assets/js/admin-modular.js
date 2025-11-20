@@ -651,7 +651,7 @@ window.confirmPayment = async function(id_reservasi, kode_reservasi) {
 
         // Call the database function to confirm payment
         const { data, error } = await window.supabase
-            .rpc('konfirmasi_pembayaran_reservasi', {
+            .rpc('konfirmasi_pembayaran_dan_catat_pemasukan', {
                 input_id_reservasi: id_reservasi,
                 input_id_admin: adminId
             });

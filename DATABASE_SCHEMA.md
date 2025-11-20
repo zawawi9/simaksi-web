@@ -169,7 +169,7 @@ BEGIN
     IF v_id_kuota IS NULL THEN
         RAISE EXCEPTION 'Kuota tidak mencukupi atau tanggal tidak ditemukan.';
     END IF;
-    
+
     RETURN v_id_kuota;
 END;
 
@@ -195,7 +195,7 @@ DECLARE
 BEGIN
     SELECT harga INTO v_harga_tiket FROM public.pengaturan_biaya WHERE nama_item = 'tiket_masuk';
     SELECT harga INTO v_harga_parkir FROM public.pengaturan_biaya WHERE nama_item = 'tiket_parkir';
-    
+
     RETURN (v_harga_tiket * p_jumlah_pendaki) + (v_harga_parkir * p_jumlah_parkir);
 END;
 
@@ -203,6 +203,11 @@ END;
 DECLARE
     v_reservasi RECORD;
 BEGIN
+    -- Check if the user exists in profiles table and is an admin
+    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = input_id_admin AND peran = 'admin') THEN
+        RETURN 'Error: Hanya admin yang dapat mengkonfirmasi pembayaran.';
+    END IF;
+
     -- Ambil data reservasi dan pastikan statusnya 'menunggu_pembayaran'
     SELECT * INTO v_reservasi
     FROM public.reservasi
@@ -243,7 +248,7 @@ BEGIN
       SET kuota_terpesan = kuota_terpesan + NEW.jumlah_pendaki
       WHERE tanggal_kuota = NEW.tanggal_pendakian;
     END IF;
-  
+
   -- KASUS 2: Reservasi DIPERBARUI (UPDATE)
   ELSIF (TG_OP = 'UPDATE') THEN
     -- Status berubah dari aktif MENJADI 'dibatalkan' -> Kurangi kuota
@@ -251,14 +256,14 @@ BEGIN
       UPDATE public.kuota_harian
       SET kuota_terpesan = kuota_terpesan - OLD.jumlah_pendaki
       WHERE tanggal_kuota = OLD.tanggal_pendakian;
-    
+
     -- Status berubah DARI 'dibatalkan' menjadi aktif -> Tambah kuota
     ELSIF OLD.status = 'dibatalkan' AND NEW.status != 'dibatalkan' THEN
       UPDATE public.kuota_harian
       SET kuota_terpesan = kuota_terpesan + NEW.jumlah_pendaki
       WHERE tanggal_kuota = NEW.tanggal_pendakian;
     END IF;
-    
+
   -- KASUS 3: Reservasi DIHAPUS (DELETE) - BARU!
   ELSIF (TG_OP = 'DELETE') THEN
     -- Jika reservasi yang dihapus tidak dalam status 'dibatalkan' -> Kurangi kuota
@@ -268,7 +273,7 @@ BEGIN
         WHERE tanggal_kuota = OLD.tanggal_pendakian;
     END IF;
   END IF;
-  
+
   -- Untuk operasi INSERT/UPDATE, kembalikan NEW. Untuk DELETE, kembalikan OLD.
   IF (TG_OP = 'DELETE') THEN
     RETURN OLD;

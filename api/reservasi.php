@@ -160,11 +160,47 @@ if ($method === 'GET') {
         $updateData['status_sampah'] = $input['status_sampah'];
     }
     
+    // Allow updating the main status as well
+    if (isset($input['status'])) {
+        $updateData['status'] = $input['status'];
+    }
+
     // Only update if there's data to update
     if (empty($updateData)) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'No data to update']);
         exit;
+    }
+    
+    // If this is a payment confirmation (status is being changed to 'terkonfirmasi'), create the income record
+    if (isset($input['status']) && $input['status'] === 'terkonfirmasi') {
+        // First, get the current reservation data to fetch total_harga and kode_reservasi
+        $reservasiResponse = makeSupabaseRequest('/reservasi?select=*&id_reservasi=eq.' . $id_reservasi . '&status=eq.menunggu_pembayaran', 'GET');
+        
+        if (isset($reservasiResponse['error']) || empty($reservasiResponse['data'])) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Reservasi tidak ditemukan atau status bukan menunggu pembayaran']);
+            exit;
+        }
+        
+        $reservasi = $reservasiResponse['data'][0];
+        
+        // Create income record
+        $incomeData = [
+            'id_reservasi' => (int)$id_reservasi,
+            'id_admin' => $input['id_admin'],
+            'jumlah' => (int)$reservasi['total_harga'],
+            'keterangan' => 'Pemasukan dari tiket reservasi kode: ' . $reservasi['kode_reservasi'],
+            'tanggal_pemasukan' => date('Y-m-d')
+        ];
+        
+        $incomeResponse = makeSupabaseRequest('/pemasukan', 'POST', $incomeData);
+        
+        if (isset($incomeResponse['error'])) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Gagal membuat catatan pemasukan: ' . $incomeResponse['error']]);
+            exit;
+        }
     }
     
     // Update reservation in Supabase

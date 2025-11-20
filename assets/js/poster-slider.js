@@ -82,7 +82,7 @@ function updateSlidingPosters(posterList) {
         const card = document.createElement('div');
         card.className = 'poster-card w-full flex-shrink-0 px-4 card-hover';
         card.style.minWidth = '100%'; // Ensure each card takes full width
-        
+
         // Generate the image URL from Supabase storage
         let imageUrl = poster.url_gambar;
         // If the url_gambar is a path in the storage bucket, generate the proper URL
@@ -92,22 +92,22 @@ function updateSlidingPosters(posterList) {
                 imageUrl = data.publicUrl;
             }
         }
-        
+
         // Create card content with image, title, description, and optional link
         let cardContent = '';
-        
+
         if (poster.url_tautan) {
             // If there's a link, make the whole card clickable
             cardContent = `
                 <a href="${poster.url_tautan}" target="_blank" rel="noopener noreferrer">
-                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
-                        <div class="relative overflow-hidden rounded-2xl mb-6">
-                            <img src="${imageUrl}" alt="${poster.judul_poster}" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-105">
+                    <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8">
+                        <div class="poster-image-container">
+                            <img src="${imageUrl}" alt="${poster.judul_poster}" class="poster-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                 <span class="text-white text-xl font-bold">Lihat Detail</span>
                             </div>
                         </div>
-                        <div class="text-center">
+                        <div class="poster-content">
                             <h4 class="font-bold text-2xl text-gray-800 mb-3">${poster.judul_poster}</h4>
                             <p class="text-gray-700 text-lg mb-4">${poster.deskripsi_poster}</p>
                         </div>
@@ -117,11 +117,11 @@ function updateSlidingPosters(posterList) {
         } else {
             // If no link, just show the poster
             cardContent = `
-                <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 h-full">
-                    <div class="relative overflow-hidden rounded-2xl mb-6">
-                        <img src="${imageUrl}" alt="${poster.judul_poster}" class="w-full h-64 object-cover">
+                <div class="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8">
+                    <div class="poster-image-container">
+                        <img src="${imageUrl}" alt="${poster.judul_poster}" class="poster-image">
                     </div>
-                    <div class="text-center">
+                    <div class="poster-content">
                         <h4 class="font-bold text-2xl text-gray-800 mb-3">${poster.judul_poster}</h4>
                         <p class="text-gray-700 text-lg mb-4">${poster.deskripsi_poster}</p>
                     </div>
